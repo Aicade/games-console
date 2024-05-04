@@ -6,11 +6,11 @@ const DevGame = () => {
 
     useEffect(() => {
         console.log(config);
-        // const game = new Phaser.Game(config);
+        const game = new Phaser.Game(config);
 
-        // return () => {
-        //     game.destroy(true, false);
-        // }
+        return () => {
+            game.destroy(true, false);
+        }
     })
 
     return (

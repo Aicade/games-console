@@ -98,7 +98,7 @@ export class VFXLibrary {
             duration: duration,
             alpha: 0, // Fade out the shine
             onComplete: () => {
-                shine.destroy();
+                // shine.destroy();
             }
         });
     }

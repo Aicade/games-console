@@ -43,8 +43,8 @@ function handleDestroyGame() {
 export function initiateGameOver() {
   window.dispatchEvent(new Event(kGameOver));
 
-  this.scene.stop();
-  initiateDestroyGame();
+  this.scene.pause();
+  // initiateDestroyGame();
 }
 
 export function initiateResumeGame() {

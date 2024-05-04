@@ -1,9 +1,3 @@
-import Phaser from "phaser";
-import * as braincadeSDK from "../braincadeSDK";
-import VFXLibrary from "../vfxLibrary";
-
-
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -11,7 +5,7 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        braincadeSDK.addEventListenersPhaser.bind(this)();
+        addEventListenersPhaser.bind(this)();
 
         this.load.image("heart", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png");
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -22,7 +16,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('projectile', 'src/assets/assets/projectile.png');
         this.load.image('collectible', 'src/assets/assets/collectible.png');
 
-        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
+        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-6.mp3']);
         this.load.audio('shoot', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3']);
         this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3']);
         this.load.audio('upgrade', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3']);
@@ -34,7 +28,7 @@ class GameScene extends Phaser.Scene {
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
         this.load.bitmapFont('pixelfont', fontBaseURL + fontName + '.png', fontBaseURL + fontName + '.xml');
 
-        console.log("preload");
+        displayProgressLoader.call(this);
     }
 
     create() {
@@ -353,12 +347,49 @@ class GameScene extends Phaser.Scene {
     }
 
     pauseGame() {
-        braincadeSDK.handlePauseGame.bind(this)();
+        handlePauseGame.bind(this)();
     }
 
     gameOver() {
-        braincadeSDK.initiateGameOver.bind(this)({ score: this.score });
+        initiateGameOver.bind(this)({ score: this.score });
     }
+}
+
+function displayProgressLoader() {
+    let width = 320;
+    let height = 50;
+    let x = (this.game.config.width / 2) - 160;
+    let y = (this.game.config.height / 2) - 50;
+
+    const progressBox = this.add.graphics();
+    progressBox.fillStyle(0x222222, 0.8);
+    progressBox.fillRect(x, y, width, height);
+
+    const loadingText = this.make.text({
+        x: this.game.config.width / 2,
+        y: this.game.config.height / 2 + 20,
+        text: 'Loading...',
+        style: {
+            font: '20px monospace',
+            fill: '#ffffff'
+        }
+    }).setOrigin(0.5, 0.5);
+    loadingText.setOrigin(0.5, 0.5);
+
+    const progressBar = this.add.graphics();
+    this.load.on('progress', (value) => {
+        progressBar.clear();
+        progressBar.fillStyle(0x364afe, 1);
+        progressBar.fillRect(x, y, width * value, height);
+    });
+    this.load.on('fileprogress', function (file) {
+        // console.log(file.src);
+    });
+    this.load.on('complete', function () {
+        progressBar.destroy();
+        progressBox.destroy();
+        loadingText.destroy();
+    });
 }
 
 // Configuration object
@@ -380,5 +411,3 @@ const config = {
     orientation: true,
     parent: "game-container",
 };
-
-export default config;

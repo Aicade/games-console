@@ -241,9 +241,6 @@ const config = {
   orientation: false
 };
 
-// Game instance
-const game = new Phaser.Game(config);
-
 let PLAYER_SPEED = 600;
 let INIT_ENEMY_SPEED = 500;
 let LEVEL_SCORE_THRESHOLD = 50; // Difficulty level increases after every 50 score
@@ -296,7 +293,7 @@ function gameSceneCreate(game) {
     nextPlats.body.checkCollision.right = false;
     // platform.postFX.addShine(0.9);
     if (i === totalPlatforms - 1) {
-      
+
       game.finisjText = game.add.bitmapText(game.width / 1.8, y - 250, 'pixelfont', 'FINISH', 35).setTint(0x00ff00).setOrigin(0.5).setDepth(11);
       let lastPlat = game.platforms.create(0, y - 150, 'platform').setScale(0.3, 0.07).setOrigin(0).setTint(0x00ff00);
       lastPlat.displayWidth = game.width + 250;
@@ -310,38 +307,38 @@ function gameSceneCreate(game) {
         game.time.delayedCall(2000, () => {
           game.gameOver();
         });
-      
+
       });
+    }
   }
-}
-game.physics.add.collider(game.player, game.platforms);
+  game.physics.add.collider(game.player, game.platforms);
 
-game.cameras.main.startFollow(game.player, true, 0, 0.1);
-game.cameras.main.setDeadzone(game.width, game.height / 2.5);
+  game.cameras.main.startFollow(game.player, true, 0, 0.1);
+  game.cameras.main.setDeadzone(game.width, game.height / 2.5);
 
-game.enemies = game.physics.add.group();
-game.physics.add.collider(game.enemies, game.platforms);
+  game.enemies = game.physics.add.group();
+  game.physics.add.collider(game.enemies, game.platforms);
 
-game.powerUps = game.physics.add.group();
+  game.powerUps = game.physics.add.group();
 
-game.nextEnemyTime = 0;
+  game.nextEnemyTime = 0;
 
-game.time.addEvent({
-  delay: 20000,
-  callback: spawnPowerUp,
-  callbackScope: game,
-  loop: true
-});
+  game.time.addEvent({
+    delay: 20000,
+    callback: spawnPowerUp,
+    callbackScope: game,
+    loop: true
+  });
 
-game.physics.add.overlap(game.player, game.powerUps, collectPowerUp, null, game);
-game.highestY = game.player.y;
-game.physics.add.collider(game.player, game.enemies, onPlayerEnemyCollision, null, game);
-game.physics.add.collider(game.powerUps, game.platforms);
-game.joystickKeys = game.joyStick.createCursorKeys();
+  game.physics.add.overlap(game.player, game.powerUps, collectPowerUp, null, game);
+  game.highestY = game.player.y;
+  game.physics.add.collider(game.player, game.enemies, onPlayerEnemyCollision, null, game);
+  game.physics.add.collider(game.powerUps, game.platforms);
+  game.joystickKeys = game.joyStick.createCursorKeys();
 
-game.whiteParticle = game.vfx.addCircleTexture('whiteCircle', 0xffffff, 1, 8);
-game.followEmitter = game.vfx.createEmitter('whiteCircle', 0, 0, 1, 0, 600).setAlpha(0.8);
-game.followEmitter.startFollow(game.player);
+  game.whiteParticle = game.vfx.addCircleTexture('whiteCircle', 0xffffff, 1, 8);
+  game.followEmitter = game.vfx.createEmitter('whiteCircle', 0, 0, 1, 0, 600).setAlpha(0.8);
+  game.followEmitter.startFollow(game.player);
 }
 
 //UPDATE FUNCTION FOR THE GAME SCENE
