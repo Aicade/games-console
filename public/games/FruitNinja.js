@@ -3,7 +3,7 @@ const assetsLoader = {
     "collectible": "collectible",
     "avoidable": "avoidable"
 }
-  
+
 const title = `Fruit and Meat Slasher`
 const description = `A game where the player slices through various fruits and meats to earn points and progress through levels.`
 const instructions = `Instructions:
@@ -120,7 +120,7 @@ class GameScene extends Phaser.Scene {
 
         // Add UI elements
         // this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '20px', fill: globalPrimaryFontColor });
-        
+
         let fruitLabel = this.add.sprite(this.width / 2 - 70, 55, 'collectible').setScale(0.05);
         this.scoreText = this.add.bitmapText(this.width / 2 - 40, 15, 'pixelfont', 'x 0', 40);
 
@@ -180,7 +180,7 @@ class GameScene extends Phaser.Scene {
     }
 
     update() {
-        if(this.gameOverFlag) return;
+        if (this.gameOverFlag) return;
         if (this.pointerDown) {
             this.sliceEffect.addSlice(this.input.x, this.input.y, this.input.activePointer.prevPosition.x, this.input.activePointer.prevPosition.y);
         }
@@ -250,7 +250,7 @@ class GameScene extends Phaser.Scene {
     }
 
     updateScoreText() {
-        this.scoreText.setText(`x `+this.score);
+        this.scoreText.setText(`x ` + this.score);
     }
 
     gameOver() {
@@ -291,7 +291,7 @@ class GameScene extends Phaser.Scene {
             this.timerEvent.destroy();
             this.physics.pause();
             this.cam.shake(100, 0.1);
-            
+
             this.time.delayedCall(500, () => {
                 this.cam.flash(200);
                 this.sound.add('boomsound', { loop: false, volume: 1 }).play();

@@ -5,6 +5,16 @@ const assetsLoader = {
     "collectible_3": "collectible_3"
 }
 
+const sounds_list = {
+    "background_ai_generated": 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3',
+}
+
+const soundsLoader = {
+    "background": "background_ai_generated",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
+}
+
 const title = `Slot Match`
 const description = `Slot Match is a Match3 game where the player needs to match similar elements like casino slot machine elements to progress through levels and earn points.`
 const instructions =
@@ -23,13 +33,18 @@ class GameScene extends Phaser.Scene {
         for (const key in assetsLoader) {
             this.load.image(key, assets_list[assetsLoader[key]]);
         }
+        console.log("assets loaded");
+        console.log("sounds list ", sounds_list);
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [sounds_list[soundsLoader[key]]]);
+        }
+
+        console.log("loaded");
+
         addEventListenersPhaser.bind(this)();
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
-        this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
 
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
@@ -38,7 +53,12 @@ class GameScene extends Phaser.Scene {
 
     create() {
         this.vfx = new VFXLibrary(this);
-        this.sound.add('bgm', { loop: true, volume: 1 }).play();
+
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.sounds.background.setVolume(1).setLoop(true).play()
         var me = this;
 
         this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
@@ -212,7 +232,7 @@ class GameScene extends Phaser.Scene {
         var me = this;
 
         if (me.activeTile1 && me.activeTile2) {
-            this.sound.add('flap', { loop: false, volume: 1 }).play();
+            this.sounds.move.setVolume(1).setLoop(false).play();
             console.log(me.activeTile1.x, me.activeTile1.y, me.tileWidth, me.tileHeight);
             var tile1Pos = {
                 x: (me.activeTile1.x - me.tileWidth / 2) / me.tileWidth,
@@ -266,7 +286,7 @@ class GameScene extends Phaser.Scene {
             }
             me.removeTileGroup(matches);
             this.vfx.shakeCamera(200);
-            this.sound.add('collect', { loop: false, volume: 1 }).play();
+            this.sounds.collect.setVolume(1).setLoop(false).play();
             if (this.comboActive) {
                 var text = "NICE!"
                 switch (this.combo) {

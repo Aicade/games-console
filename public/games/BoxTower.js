@@ -1,7 +1,4 @@
-const assetsLoader = {
-    "background": "background",
-    "player": "player",
-}
+const assetsLoader = { "background": "background", "player": "player" }
 
 const orientationSizes = {
     "landscape": {
@@ -199,40 +196,55 @@ class GameScene extends Phaser.Scene {
             yoyo: true,
             repeat: -1
         });
+
+        // this.lightGreenCircle = this.add.circle(100, this.movingBlock.y+900, 10, 0x90EE90).setDepth(12);
+
+        // Tween for moving the block
+        // this.tweens.add({
+        //     targets: [this.lightGreenCircle],
+        //     x: 600,
+        //     duration: 1000,
+        //     yoyo: true,
+        //     repeat: -1
+        // });
+
+
     }
 
     handlePointerDown(pointer) {
-        const x = this.movingBlock.x;
-        const y = this.movingBlock.y + this.movingBlock.displayHeight + 50;
-        this.block = this.matter.add.image(x, y, 'player', null, {
-            isStatic: false
-        }).setScale(0.15);
-        // this.block.setBounce(0);
-        const scaleFactorX = 0.5 * 0.2;
-        const scaleFactorY = 0.8 * 0.15;
+        if (!this.onceGameOverCall) {
+            const x = this.movingBlock.x;
+            const y = this.movingBlock.y + this.movingBlock.displayHeight + 50;
+            this.block = this.matter.add.image(x, y, 'player', null, {
+                isStatic: false
+            }).setScale(0.15);
+            // this.block.setBounce(0);
+            const scaleFactorX = 0.5 * 0.3;
+            const scaleFactorY = 0.8 * 0.15;
 
-        const newWidth = this.block.width * scaleFactorX;
-        const newHeight = this.block.height * scaleFactorY;
+            const newWidth = this.block.width * scaleFactorX;
+            const newHeight = this.block.height * scaleFactorY;
 
-        this.block.setBody({
-            type: 'rectangle',
-            width: newWidth,
-            height: newHeight
-        });
-        this.pointsEffect(this.block.x, this.block.y, 100);
-        this.sound.add('collect', { loop: false, volume: 1.5 }).play();
+            this.block.setBody({
+                type: 'rectangle',
+                width: newWidth,
+                height: newHeight
+            });
+            this.pointsEffect(this.block.x, this.block.y, 100);
+            this.sound.add('collect', { loop: false, volume: 1.5 }).play();
 
-        this.blocks.push(this.block);
-        this.updateScore(100);
+            this.blocks.push(this.block);
+            this.updateScore(100);
 
-        if (this.blocks.length >= 4) {
-            this.movingBlock.y -= this.movingBlock.displayHeight;
-            this.cameraYAxis = this.movingBlock.y + this.movingBlock.displayHeight * 3;
-            this.cameras.main.pan(
-                this.cameras.main.scrollX + this.width / 2,
-                this.cameraYAxis,
-                1000
-            );
+            if (this.blocks.length >= 4) {
+                this.movingBlock.y -= this.movingBlock.displayHeight;
+                this.cameraYAxis = this.movingBlock.y + this.movingBlock.displayHeight * 3;
+                this.cameras.main.pan(
+                    this.cameras.main.scrollX + this.width / 2,
+                    this.cameraYAxis,
+                    1000
+                );
+            }
         }
     }
     pointsEffect(x, y, score) {
@@ -332,7 +344,7 @@ const config = {
     physics: {
         default: "matter",
         arcade: {
-            gravity: { y: 0.5 },
+            gravity: { y: .1 },
             debug: false,
         },
     },
@@ -342,4 +354,4 @@ const config = {
         instructions: instructions,
     },
     orientation: false,
-};
+}

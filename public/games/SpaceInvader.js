@@ -1,9 +1,5 @@
-const assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "enemy": "enemy",
-    "projectile": "projectile",
-};
+const assetsLoader = { "background": "background", "player": "player", "enemy": "enemy", "projectile": "projectile" }
+
 
 // Custom UI Elements
 const title = `Space Drive`
@@ -15,7 +11,7 @@ const instructions =
 
 // Game Orientation
 const orientation = "landscape";
-
+var isMobile = false;
 const orientationSizes = {
     "landscape": {
         "width": 1280,
@@ -73,6 +69,16 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+        gameScore = 0;
+        gameLevel = 1;
+        levelThreshold = 100;
+        enemySpeed = 120;
+        baseSpawnDelay = 2000;
+        spawnDelayDecrease = 400;
+        velocityX = 100;
+
+        isMobile = !this.sys.game.device.os.desktop;
+
         this.width = this.game.config.width;
         this.height = this.game.config.height;
 
@@ -162,6 +168,13 @@ class GameScene extends Phaser.Scene {
             loop: true
         });
         enemies = this.physics.add.group();
+        this.toggleControlsVisibility(isMobile);
+    }
+
+    toggleControlsVisibility(visibility) {
+        this.joyStick.base.visible = visibility;
+        this.joyStick.thumb.visible = visibility;
+        this.buttonA.visible = visibility;
     }
 
     update() {
@@ -187,6 +200,7 @@ class GameScene extends Phaser.Scene {
     }
 
     updateGameLevel() {
+        console.log(gameScore);
         if (gameScore >= levelThreshold) {
             this.sound.add('upgrade', { loop: false, volume: 0.5 }).play();
             this.centerText = this.add.bitmapText(this.width / 2, this.height / 2, 'pixelfont', "LEVEL UP!", 64).setOrigin(0.5, 0.5).setDepth(100);
@@ -206,10 +220,9 @@ class GameScene extends Phaser.Scene {
     spawnEnemy() {
         var enemyWidth = 60;
         var spacing = 10;
-
         var totalWidth = Phaser.Math.Between(2, 4) * (enemyWidth + spacing) - spacing;
         var startX = Phaser.Math.Between(0, this.width - totalWidth);
-        var numEnemies = Phaser.Math.Between(2, 4);
+        var numEnemies = Phaser.Math.Between(1, 5);
         for (var i = 0; i < numEnemies; i++) {
             var x = startX + i * (enemyWidth + spacing);
             var enemy = this.enemies.create(x, -50, 'enemy').setScale(.1);

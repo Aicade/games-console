@@ -68,11 +68,11 @@ class GameScene extends Phaser.Scene {
         // Add UI elements
         this.scoreText = this.add.bitmapText(30, 60, 'pixelfont', 'Score: 0', 30);
         this.scoreText.setDepth(11)
-        
-        this.gameOverText = this.add.bitmapText(this.width/2, this.height/2, 'pixelfont', 'Game Over !', 60).setOrigin(0.5).setAlpha(0);
+
+        this.gameOverText = this.add.bitmapText(this.width / 2, this.height / 2, 'pixelfont', 'Game Over !', 60).setOrigin(0.5).setAlpha(0);
         this.gameOverText.setDepth(11).setTint(0xff0000);
-        
-        this.clickGuideText = this.add.bitmapText(this.width/2, this.height - 30, 'pixelfont', 'select object(s) that had same color \n as background.', 30).setOrigin(0.5, 1).setAlpha(0);
+
+        this.clickGuideText = this.add.bitmapText(this.width / 2, this.height - 30, 'pixelfont', 'select object(s) that had same color \n as background.', 30).setOrigin(0.5, 1).setAlpha(0);
         this.clickGuideText.setDepth(11);
         this.clickGuideText.align = 1;
 
@@ -84,12 +84,12 @@ class GameScene extends Phaser.Scene {
         this.startText = this.add.bitmapText(this.width / 2, this.height / 2, 'pixelfont', 'Start Round >>', 50).setOrigin(0.5).setDepth(11).setTint(0xFFB000);
         this.startText.setInteractive({ cursor: 'pointer' });
         this.startText.on('pointerdown', this.startRound, this);
-        
+
         this.levelUpText = this.add.bitmapText(this.width / 2, this.height / 2.6, 'pixelfont', 'Level Up!', 60).setOrigin(0.5).setDepth(11).setTint(0xFFB000).setAlpha(0);
-        
+
         this.tryAgainText = this.add.bitmapText(this.width / 2, this.height / 2.5, 'pixelfont', 'Oops !! \nTry again', 50).setOrigin(0.5).setDepth(11).setTint(0xffffff).setAlpha(0);
         this.tryAgainText.align = 1; //1 is for center align
-        
+
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
         this.pauseButton = this.add.sprite(this.game.config.width - 60, 95, "pauseButton").setOrigin(0.5, 0.5);
@@ -97,10 +97,8 @@ class GameScene extends Phaser.Scene {
         this.pauseButton.setScale(2).setScrollFactor(0).setDepth(11);
         this.pauseButton.on('pointerdown', () => this.pauseGame());
 
-        this.cover = this.add.tileSprite(0, 0, this.game.config.width, this.game.config.height, 'background').setOrigin(0, 0);
+        this.cover = this.add.rectangle(0, 0, this.width, this.height, 0xffffff).setOrigin(0);
         this.cover.alpha = 0;
-        const scale = Math.max(this.game.config.width / this.cover.displayWidth, this.game.config.height / this.cover.displayHeight);
-        this.cover.setScale(scale);
 
         this.memoriseTime = 5;
         this.timeElapsed = 0;
@@ -108,13 +106,13 @@ class GameScene extends Phaser.Scene {
         this.circleGroup = this.add.group();
         this.circleGroup.setOrigin(0, 0);
         this.makeTimerMeter();
-        
+
         this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 2.5 });
         this.backgroundMusic.play()
-        this.wrongSound = this.sound.add('wrong', {volume: 1 });
-        this.correctound = this.sound.add('correct', {volume: 1 });
-        this.looseSound = this.sound.add('loose', {volume: 1 });
-        this.newCirclesSound= this.sound.add('newCircles', {volume: 1 });
+        this.wrongSound = this.sound.add('wrong', { volume: 1 });
+        this.correctound = this.sound.add('correct', { volume: 1 });
+        this.looseSound = this.sound.add('loose', { volume: 1 });
+        this.newCirclesSound = this.sound.add('newCircles', { volume: 1 });
     }
 
     startRound() {
@@ -268,9 +266,11 @@ class GameScene extends Phaser.Scene {
     }
 
     fadeOut() {
-        
+
         this.clickGuideText.setAlpha(1);
-        this.cover.tint = Phaser.Utils.Array.GetRandom(this.pickedColors);
+        let randColor = Phaser.Utils.Array.GetRandom(this.pickedColors)
+        this.cover.tint = randColor;
+        this.cover.fillColor = randColor;
         this.tweens.add({
             targets: this.cover,
             alpha: 1,
@@ -295,7 +295,7 @@ class GameScene extends Phaser.Scene {
                 this.scorePointAnim(circle.x, circle.y)
                 let levelCompleted = !this.circleGroup.getChildren().some((item) => item.tintColor === this.cover.tint);
                 if (levelCompleted) {
-                    if(this.score > 90){
+                    if (this.score > 90) {
                         this.memoriseTime = 4;
                     }
                     this.removeOldCircles();
@@ -303,7 +303,7 @@ class GameScene extends Phaser.Scene {
                         this.clickGuideText.setAlpha(0);
                         this.lifeUsed = false;
                         this.cover.alpha = 0;
-                        if(this.score > 90 && this.memoriseTime > 4){
+                        if (this.score > 90 && this.memoriseTime > 4) {
                             this.memoriseTime = 4;
                             this.vfx.blinkEffect(this.levelUpText, 400, 4);
                         }
@@ -342,7 +342,7 @@ class GameScene extends Phaser.Scene {
     }
 
     scorePointAnim(x, y) {
-        let scoreText = this.add.bitmapText(x, y,'pixelfont', '+10', 35);
+        let scoreText = this.add.bitmapText(x, y, 'pixelfont', '+10', 35);
 
         this.tweens.add({
             targets: scoreText,

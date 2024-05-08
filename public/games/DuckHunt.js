@@ -1,14 +1,13 @@
 const assetsLoader = {
     "background": "background",
-    "player": "player",
     "enemy": "enemy",
 };
 
-const title = `Down Hill Ski`
-const description = `Tap to change direction.`
+const title = `Duck HUnt`
+const description = `Tap to hunt ducks.`
 const instructions =
     `Instructions:
-  1. Avoid enemies.`;
+  1. Shoot and kill ducks.`;
 
 const orientationSizes = {
     "landscape": {
@@ -22,7 +21,7 @@ const orientationSizes = {
 }
 
 // Game Orientation
-const orientation = "portrait";
+const orientation = "landscape";
 
 
 // Touuch Screen Controls
@@ -43,7 +42,7 @@ class GameScene extends Phaser.Scene {
 
     preload() {
         this.score = 0;
-        this.isGameOver = false;
+        this.lives = 3;
 
         addEventListenersPhaser.bind(this)();
 
@@ -53,12 +52,14 @@ class GameScene extends Phaser.Scene {
             this.load.image(key, assets_list[assetsLoader[key]]);
         }
 
+        this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
         this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
         this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
         this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
         this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
+        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3']);
 
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
@@ -67,56 +68,33 @@ class GameScene extends Phaser.Scene {
         displayProgressLoader.call(this);
 
     }
-    gameSceneBackground() {
-        let bgSize = orientationSizes[orientation].width > orientationSizes[orientation].height ? orientationSizes[orientation].width : orientationSizes[orientation].height;
-        this.bg = this.add
-            .tileSprite(0, 0, bgSize, bgSize, "background")
-            .setOrigin(0, 0)
-            .setScrollFactor(1).setDepth(-11);
-    }
 
     create() {
-        this.isGameOver = false;
 
-        this.sound.add('bgm', { loop: true, volume: .75 }).play();
-        this.gameSceneBackground();
+        this.sound.add('bgm', { loop: true, volume: 1 }).play();
+        this.lives = 3;
+        this.hearts = [];
+        for (let i = 0; i < this.lives; i++) {
+            let x = 50 + (i * 35);
+            this.hearts[i] = this.add.image(x, 50, "heart").setScale(0.025).setDepth(11);
+        }
+
 
         this.vfx = new VFXLibrary(this);
+
         this.width = this.game.config.width;
         this.height = this.game.config.height;
-        this.score = 0;
-        this.gameScore = 0;
-        this.gameLevel = 1;
-        this.levelThreshold = 100;
+        this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0).setDepth(-10);
+        this.bg.setScrollFactor(0);
+        this.bg.displayHeight = this.game.config.height;
+        this.bg.displayWidth = this.game.config.width;
 
-        this.player = this.physics.add.image(this.width / 2, this.height / 2 - 250, 'player').setScale(0.15, 0.15);
-        this.player.setCollideWorldBounds(true);
-        this.player.body.setSize(this.player.width * 0.7, this.player.height * 0.7);
 
-        this.enemies = this.physics.add.group();
-
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.isMovingRight = true;
-        this.input.on('pointerdown', () => {
-            this.sound.add('flap', { loop: false, volume: 1 }).play();
-            this.isMovingRight = !this.isMovingRight;
-        });
-
-        this.physics.add.collider(this.player, this.enemies, (player, enemy) => {
-            this.resetGame();
-        });
-
-        this.time.addEvent({
-            delay: 1000,
-            callback: this.updateGameLevel,
-            callbackScope: this,
-            loop: true,
-            args: [1]
-        });
-
+        // Add UI elements
         this.scoreText = this.add.bitmapText(this.width / 2, 100, 'pixelfont', '0', 128).setOrigin(0.5, 0.5);
-        this.scoreText.setDepth(11)
+        this.scoreText.setDepth(11);
 
+        // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
 
         this.pauseButton = this.add.sprite(this.game.config.width - 60, 60, "pauseButton").setOrigin(0.5, 0.5);
@@ -150,75 +128,79 @@ class GameScene extends Phaser.Scene {
                 console.log("buttonA clicked");
             });
         }
-        this.vfx.scaleGameObject(this.player, 1.1, 500);
+
+        this.startx = 0;
+        this.starty = 0;
+
+        this.canShoot = false;
+        this.time.delayedCall(500, () => {
+            this.canShoot = true
+        });
+
+        this.time.addEvent({
+            delay: 750,
+            callback: this.enhancedEnemySpawn,
+            callbackScope: this,
+            loop: true,
+            args: [this]
+        });
+
+        this.enemies = this.physics.add.group({
+            allowGravity: false,
+        });
+
+        this.sniperScope = this.add.graphics({ fillStyle: { color: 0x000000 } });
+        this.sniperScope.setDepth(11);
+
+        this.input.on("pointerdown", function () {
+            if (!this.isGameOver) {
+                this.sound.add('damage', { loop: false, volume: 1 }).play();
+                this.lives -= 1;
+                this.updateLives(this.lives);
+                this.cameras.main.flash(100);
+
+                // Create the bitmap text object
+                let missedText = this.add.bitmapText(this.cameras.main.centerX,
+                    this.cameras.main.centerY, 'pixelfont', 'MISS',
+                    64).setOrigin(0.5, 0.5).setDepth(11);
+
+                // Apply red tint
+                missedText.setTint(0xff0000);
+
+                // Create the tween
+                this.tweens.add({
+                    targets: missedText,
+                    scaleX: 2, // Scale X to 1.5
+                    scaleY: 2, // Scale Y to 1.5
+                    alpha: 1, // Fade out
+                    duration: 500,
+                    angle: Phaser.Math.Between(-10, 10),
+                    onComplete: () => {
+                        missedText.destroy();
+                    }
+                });
+            }
+        }, this);
 
         let bubble = this.add.graphics({ x: -100, y: 0, add: false });
 
-        const bubbleRadius = 10;
-        const bubbleColor = 0xffffff; // A nice bubble color
+        // Define the bubble's properties
+        const bubbleRadius = 20;
+        const bubbleColor = 0xEF6C8B; // A nice bubble color
 
-        bubble.fillStyle(bubbleColor, .3); // Semi-transparent
+        // Draw the bubble
+        bubble.fillStyle(bubbleColor, 1); // Semi-transparent
         bubble.fillCircle(bubbleRadius, bubbleRadius, bubbleRadius);
         bubble.generateTexture('bubbles', 100, 100);
 
-        this.trail = this.add.particles(0, 70, 'bubbles', {
-            speed: 100,
-            scale: { start: 0.5, end: 0 },
-            blendMode: 'ADD',
-            lifespan: 600,
-            angle: { min: -40, max: -10 },
-            emitZone: { type: 'edge', source: new Phaser.Geom.Line(-10, -10, 10, 10), quantity: .2, yoyo: false }
-        });
-        this.trail.startFollow(this.player);
     }
 
-    update(time, delta) {
-        if (!this.isGameOver) {
-            this.bg.tilePositionY += 3;
-
-            if (this.isMovingRight) {
-                this.player.setVelocityX(300);
-                this.player.flipX = true;
-            } else {
-                this.player.setVelocityX(-300);
-                this.player.flipX = false;
-            }
-
-            this.enemySpawn();
-        }
-
-    }
-
-    updateGameLevel() {
-        if (!this.isGameOver) {
-            this.gameScore += 1;
-            this.updateScore(1);
-            if (this.gameScore >= this.levelThreshold) {
-                this.gameLevel++;
-                this.levelThreshold += 200;
-            }
-        }
-    }
-    enemySpawn() {
-
-        let spawnProbability = 0.005 + this.gameLevel * 0.005;
-
-        if (Math.random() < spawnProbability) {
-            let spawnX = Phaser.Math.Between(0, this.game.config.width);
-            let velocityY = -(200 + this.gameLevel * 10);
-
-            var enemy = this.enemies.create(spawnX, this.game.config.height + 50, 'enemy').setScale(.1);
-            enemy.body.setSize(enemy.width * 0.7, enemy.height * 0.7);
-            enemy.setVelocityY(velocityY);
-        }
-    }
     resetGame() {
         this.isGameOver = true;
         this.physics.pause();
-        this.player.destroy();
+        // this.player.destroy();
         this.score = 0;
         this.vfx.shakeCamera();
-        this.trail.destroy();
 
         let gameOverText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY - 200, 'pixelfont', 'Game Over', 64)
             .setOrigin(0.5)
@@ -226,7 +208,7 @@ class GameScene extends Phaser.Scene {
             .setAngle(-15);
 
         this.time.delayedCall(500, () => {
-            this.sound.add('lose', { loop: false, volume: .5 }).play();
+            this.sound.add('lose', { loop: false, volume: 1 }).play();
             gameOverText.setVisible(true);
             this.tweens.add({
                 targets: gameOverText,
@@ -243,6 +225,99 @@ class GameScene extends Phaser.Scene {
         });
     }
 
+    update(time, delta) {
+        let worldPoint = this.cameras.main.getWorldPoint(this.input.x, this.input.y);
+        // this.drawSniperScope(worldPoint.x, worldPoint.y);
+
+        if (this.lives == 0 && !this.isGameOver) { this.resetGame(); }
+
+    }
+    // drawSniperScope(x, y) {
+    //     this.sniperScope.clear();
+    //     const scopeRadius = 50;
+
+    //     this.sniperScope.beginPath();
+    //     this.sniperScope.fillStyle(0xffffff, .1);
+    //     this.sniperScope.fillCircle(x, y, scopeRadius);
+    //     this.sniperScope.closePath();
+
+    //     this.sniperScope.lineStyle(2, 0xffffff, 1);
+    //     this.sniperScope.beginPath();
+    //     this.sniperScope.moveTo(x, y - scopeRadius);
+    //     this.sniperScope.lineTo(x, y + scopeRadius);
+    //     this.sniperScope.moveTo(x - scopeRadius, y);
+    //     this.sniperScope.lineTo(x + scopeRadius, y);
+    //     this.sniperScope.strokePath();
+    // }
+
+    enhancedEnemySpawn() {
+        if (!this.isGameOver) {
+            let spawnFromLeft = Math.random() < 0.5;
+            let spawnX = Phaser.Math.Between(0, this.game.config.width);
+            let spawnY = this.game.config.height;
+            let velocityX = spawnFromLeft ? 100 : -100;
+
+            var enemy = this.enemies.create(spawnX, spawnY, 'enemy').setScale(.1);
+            enemy.flipX = spawnFromLeft ? false : true;
+            enemy.setInteractive();
+
+            let originalWidth = enemy.width;
+            let originalHeight = enemy.height;
+            let newWidth = originalWidth * 0.4;
+            let newHeight = originalHeight * 0.5;
+            enemy.body.setSize(newWidth, newHeight);
+
+            enemy.on("pointerdown", function () {
+                if (!this.isGameOver) {
+                    this.sound.add('flap', { loop: false, volume: 4 }).play();
+
+                    this.cameras.main.flash(100);
+                    enemy.body.moves = false;
+                    this.time.delayedCall(400, () => {
+                        enemy.body.moves = true;
+                    }, [], this);
+
+                    const emitter = this.add.particles(enemy.x, enemy.y, 'bubbles', {
+                        speed: { min: -100, max: 300 },
+                        scale: { start: .2, end: 0 },
+                        blendMode: 'MULTIPLY',
+                        lifespan: 550,
+                        tint: 0x93C54B
+                    });
+
+                    emitter.explode(200);
+
+                    if (enemy.flipX)
+                        enemy.angle -= (90 + 45);
+                    else
+                        enemy.angle += (90 + 45);
+                    enemy.flipTimer.remove();
+                    enemy.setVelocityX(0);
+                    enemy.setVelocityY(500);
+                    this.updateScore(1);
+                    enemy.removeInteractive();
+                }
+            }, this);
+
+            enemy.setVelocityX(velocityX);
+            enemy.setVelocityY(-100);
+
+            let rand = Phaser.Math.Between(1000, 3000);
+
+            enemy.flipTimer = this.time.addEvent({
+                delay: rand,
+                callback: this.flip,
+                callbackScope: this,
+                loop: false,
+                args: [enemy, velocityX, enemy.flipX]
+            });
+        }
+    }
+
+    flip(enemy, velX, flipX) {
+        enemy.setVelocityX(-velX);
+        enemy.flipX = !flipX;
+    }
 
     updateScore(points) {
         this.score += points;
@@ -251,6 +326,12 @@ class GameScene extends Phaser.Scene {
 
     updateScoreText() {
         this.scoreText.setText(this.score);
+    }
+
+    updateLives(lives) {
+        this.hearts[this.lives].destroy();
+        this.lives = lives;
+        // this.updateLivesText();
     }
 
     gameOver() {
@@ -310,7 +391,6 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
-    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "arcade",
         arcade: {
@@ -323,5 +403,5 @@ const config = {
         description: description,
         instructions: instructions,
     },
-    orientation: false
+    orientation: true
 };

@@ -43,12 +43,15 @@ const ProdGame = () => {
                 `/games/${name}.js`
             const assetsUrl =
                 `/assetsList.js`
+            const soundsUrl =
+                `/soundsList.js`
 
             try {
                 const phaserScript = await fetch(phaserUrl);
                 const sdkScript = await fetch(sdkUrl);
                 const vfxScript = await fetch(vfxUrl);
                 const assetsScript = await fetch(assetsUrl);
+                const soundsScript = await fetch(soundsUrl);
                 const gameScript = await fetch(gameUrl);
 
                 const compiledScript =
@@ -61,6 +64,8 @@ const ProdGame = () => {
                         .replaceAll("export", "") +
                     "\n\n" +
                     (await assetsScript.text()) +
+                    "\n\n" +
+                    (await soundsScript.text()) +
                     "\n\n" +
                     (await gameScript.text());
                 return compiledScript;
@@ -81,6 +86,7 @@ const ProdGame = () => {
         }
 
         gatherCode().then((response) => {
+            console.log(response);
             const config = runCode(response);
             config.parent = "game-container";
             setGameConfig(config)
@@ -95,7 +101,6 @@ const ProdGame = () => {
     }, []);
 
     const createGameInstance = () => {
-        console.log("new instance with config ", gameConfig);
         setGame(new Phaser.Game(gameConfig));
     }
 

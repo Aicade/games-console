@@ -1,4 +1,4 @@
-const assetsLoader = {"background":"image_2_background_background_1..png","player":"image_3_player_player_1..png","platform":"image_4_platform_platform_1..png","enemy":"image_5_unbreakable_enemy_1..png"} 
+const assetsLoader = { "background": "background", "player": "player", "platform": "platform", "enemy": "enemy" }
 
 
 const title = `Rise Above`
@@ -91,7 +91,7 @@ class GameScene extends Phaser.Scene {
         this.player.body.setGravityY(100); // Adjust gravity strength as needed
         this.player.setCollideWorldBounds(true);
         var newBodyWidth = this.player.body.width * 0.5; // Decrease width by 20%
-        var newBodyHeight = this.player.body.height * 0.5; 
+        var newBodyHeight = this.player.body.height * 0.5;
         this.player.body.setSize(newBodyWidth, newBodyHeight);
 
         let bubble = this.add.graphics({ x: -100, y: 0, add: false });

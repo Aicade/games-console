@@ -1,3 +1,44 @@
+const assetsLoader = {
+    "background": "background",
+    "player": "player",
+    "enemy": "enemy",
+    "projectile": "projectile",
+    "collectible": "collectible",
+};
+
+// Custom UI Elements
+const title = `Rogue`
+const description = `A thrilling shooting survival game.`
+const instructions =
+    `Instructions:
+1. Use arrow keys OR joystick to move.
+2. Collect power ups to upgrade weapons and regenrated health.`;
+
+// Game Orientation
+const orientation = "landscape";
+
+const orientationSizes = {
+    "landscape": {
+        "width": 1280,
+        "height": 720,
+    },
+    "portrait": {
+        "width": 720,
+        "height": 1280,
+    }
+}
+
+// Touuch Screen Controls
+const joystickEnabled = true;
+const buttonEnabled = true;
+
+// JOYSTICK DOCUMENTATION: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/virtualjoystick/
+const rexJoystickUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js";
+
+// BUTTON DOCMENTATION: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/button/
+const rexButtonUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexbuttonplugin.min.js";
+
+
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -10,11 +51,9 @@ class GameScene extends Phaser.Scene {
         this.load.image("heart", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png");
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
 
-        this.load.image('background', 'src/assets/assets/background.png');
-        this.load.image('player', 'src/assets/assets/player.png');
-        this.load.image('enemy', 'src/assets/assets/enemy.png');
-        this.load.image('projectile', 'src/assets/assets/projectile.png');
-        this.load.image('collectible', 'src/assets/assets/collectible.png');
+        for (const key in assetsLoader) {
+            this.load.image(key, assets_list[assetsLoader[key]]);
+        }
 
         this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-6.mp3']);
         this.load.audio('shoot', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3']);
@@ -28,6 +67,9 @@ class GameScene extends Phaser.Scene {
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
         this.load.bitmapFont('pixelfont', fontBaseURL + fontName + '.png', fontBaseURL + fontName + '.xml');
 
+        if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
+        if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
+
         displayProgressLoader.call(this);
     }
 
@@ -39,6 +81,31 @@ class GameScene extends Phaser.Scene {
         this.height = this.game.config.height;
 
         this.add.image(0, 0, 'background').setOrigin(0).setScrollFactor(0);
+
+        const joyStickRadius = 50;
+
+        if (joystickEnabled) {
+            this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
+                x: joyStickRadius * 2,
+                y: this.height - (joyStickRadius * 2),
+                radius: 50,
+                base: this.add.circle(0, 0, 80, 0x888888, 0.5),
+                thumb: this.add.circle(0, 0, 40, 0xcccccc, 0.5),
+                // dir: '8dir',   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
+                // forceMin: 16,
+            });
+            this.joystickKeys = this.joyStick.createCursorKeys();
+        }
+
+        if (buttonEnabled) {
+            this.buttonA = this.add.rectangle(this.width - 80, this.height - 100, 80, 80, 0xcccccc, 0.5)
+            this.buttonA.button = this.plugins.get('rexbuttonplugin').add(this.buttonA, {
+                mode: 1,
+                clickInterval: 100,
+            });
+
+            this.buttonA.button.on('down', () => this.fireBullet(), this);
+        }
 
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
