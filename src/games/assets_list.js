@@ -1,4 +1,4 @@
-const assets_list = {
+export const assets_list = {
     "player": "/assets/player.png",
     "background": "/assets/background.png",
     "background_1": "/assets/background_1.png",
@@ -15,6 +15,9 @@ const assets_list = {
     "platform": "/assets/platform.png",
 }
 
-for (const key in assetsLoader) {
-    assetsLoader[key] = assets_list[assetsLoader[key]]
+export function populateAssetsLoader(assetsLoader) {
+    for (const key in assetsLoader) {
+        assetsLoader[key] = assets_list[assetsLoader[key]]
+    }
+    return assetsLoader
 }

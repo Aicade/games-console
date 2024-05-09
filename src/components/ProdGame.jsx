@@ -63,11 +63,11 @@ const ProdGame = () => {
                         .replaceAll("export default VFXLibrary;", "")
                         .replaceAll("export", "") +
                     "\n\n" +
+                    (await gameScript.text()) +
+                    "\n\n" +
                     (await assetsScript.text()) +
                     "\n\n" +
-                    (await soundsScript.text()) +
-                    "\n\n" +
-                    (await gameScript.text());
+                    (await soundsScript.text());
                 return compiledScript;
             } catch (error) {
                 return "error";

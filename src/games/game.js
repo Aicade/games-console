@@ -1,3 +1,9 @@
+import Phaser from "phaser";
+import * as braincadeSDK from "../braincadeSDK";
+import VFXLibrary from "../vfxLibrary";
+import { populateAssetsLoader } from "./assets_list";
+import { populateSoundsLoader } from "./sounds_list";
+
 let assetsLoader = {
     "background": "background",
     "collectible_1": "collectible_1",
@@ -10,6 +16,9 @@ let soundsLoader = {
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
     "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
 }
+
+assetsLoader = populateAssetsLoader(assetsLoader);
+soundsLoader = populateSoundsLoader(soundsLoader);
 
 const title = `Slot Match`
 const description = `Slot Match is a Match3 game where the player needs to match similar elements like casino slot machine elements to progress through levels and earn points.`
@@ -34,7 +43,7 @@ class GameScene extends Phaser.Scene {
             this.load.audio(key, [soundsLoader[key]]);
         }
 
-        addEventListenersPhaser.bind(this)();
+        braincadeSDK.addEventListenersPhaser.bind(this)();
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
 
@@ -487,13 +496,13 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
-        initiateGameOver.bind(this)({
+        braincadeSDK.initiateGameOver.bind(this)({
             "score": this.score
         });
     }
 
     pauseGame() {
-        handlePauseGame.bind(this)();
+        braincadeSDK.handlePauseGame.bind(this)();
     }
 }
 
@@ -536,6 +545,8 @@ const config = {
     },
     orientation: true,
 };
+
+export default config;
 
 let gameScore = 0;
 let gameLevel = 1;
