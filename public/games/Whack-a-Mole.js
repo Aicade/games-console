@@ -1,7 +1,13 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "enemy": "enemy",
 };
+
+let soundsLoader = {
+  "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3",
+  "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/whack.mp3",
+  "spawn": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/pop.mp3"
+}
 
 // Custom UI Elements
 const title = `Whack a Mole`;
@@ -56,10 +62,15 @@ class GameScene extends Phaser.Scene {
             this.load.image(key, assets_list[assetsLoader[key]]);
         }
 
+        for (const key in assetsLoader) {
+          this.load.image(key, assetsLoader[key]);
+        }
+    
+        for (const key in soundsLoader) {
+          this.load.audio(key, [soundsLoader[key]]);
+        }
+
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('whack', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/whack.mp3']);
-        this.load.audio('pop', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/pop.mp3']);
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
         this.load.bitmapFont('pixelfont', fontBaseURL + fontName + '.png', fontBaseURL + fontName + '.xml');
@@ -74,8 +85,15 @@ class GameScene extends Phaser.Scene {
         this.height = this.game.config.height;
         this.initTimeLimit = 50;
         this.timeLimit = this.initTimeLimit;
+        this.sounds = {};
 
-        this.sound.add('bgm', { loop: true, volume: 1 }).play();
+        for (const key in soundsLoader) {
+          this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
+
+        this.sounds.background.setVolume(1).setLoop(false).play()
 
         this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
         this.bg.setScrollFactor(0);
@@ -196,7 +214,7 @@ class GameScene extends Phaser.Scene {
 
     hitMole(mole) {
         if (mole.missed) return;
-        this.sound.add('whack', { loop: false, volume: 1 }).play();
+        this.sounds.destroy.setVolume(1).setLoop(false).play()
         this.vfx.createEmitter('red', mole.x, mole.y, 1, 0, 500).explode(10);
         this.vfx.createEmitter('yellow', mole.x, mole.y, 1, 0, 500).explode(10);
         this.vfx.createEmitter('orange', mole.x, mole.y, 1, 0, 500).explode(10);
@@ -228,7 +246,7 @@ class GameScene extends Phaser.Scene {
         mole.setAlpha(0).setScale(0.08).setInteractive({ cursor: 'pointer' });
         mole.displayHeight = this.rectHeight;
         mole.displayWidth = this.rectWidth;
-        this.sound.add('pop', { loop: false, volume: 0.1 }).play();
+        this.sounds.spawn.setVolume(0.1).setLoop(false).play()
         this.tweens.add({
             targets: mole,
             alpha: 1,
