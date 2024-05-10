@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
-import * as braincadeSDK from "../braincadeSDK";
+import * as braincadeSDK from "../lib/braincadeSDK";
 import { Input, Button, Checkbox } from 'antd';
 
 const { TextArea } = Input;
@@ -36,9 +36,9 @@ const ProdGame = () => {
             const phaserUrl =
                 "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js";
             const sdkUrl =
-                "https://raw.githubusercontent.com/ks-braincade/braincadeSDK/main/src/braincadeSDK.js";
+                "/lib/braincadeSDK.js";
             const vfxUrl =
-                "https://raw.githubusercontent.com/ks-braincade/braincadeSDK/main/src/vfxLibrary.js";
+                "/lib/vfxLibrary.js";
             const gameUrl =
                 `/games/${name}.js`
             const assetsUrl =

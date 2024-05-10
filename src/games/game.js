@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import * as braincadeSDK from "../braincadeSDK";
-import VFXLibrary from "../vfxLibrary";
+import * as braincadeSDK from "../lib/braincadeSDK";
+import VFXLibrary from "../lib/vfxLibrary";
 import { populateAssetsLoader } from "./assets_list";
 import { populateSoundsLoader } from "./sounds_list";
 
@@ -54,6 +54,8 @@ class GameScene extends Phaser.Scene {
 
     create() {
         this.vfx = new VFXLibrary(this);
+
+        this.cursor = this.input.keyboard.createCursorKeys();
 
         this.sounds = {};
         for (const key in soundsLoader) {
