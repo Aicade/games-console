@@ -13,6 +13,10 @@ const soundsLoader = {
 assetsLoader = populateAssetsLoader(assetsLoader);
 soundsLoader = populateSoundsLoader(soundsLoader);
 
+const title = ``
+const description = ``
+const instructions = ``;
+
 class GameScene {
     preload() {
         for (const key in assetsLoader) {
@@ -59,7 +63,12 @@ const config = {
             debug: false
         }
     },
-    orientation: true,
+    dataObject: {
+        name: title,
+        description: description,
+        instructions: instructions,
+    },
+    orientation: true, // true for landscape, false for portrait
     parent: "game-container",
 };
 
