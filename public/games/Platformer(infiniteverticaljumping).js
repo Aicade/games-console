@@ -360,7 +360,7 @@ function gameSceneUpdate(game, time, delta) {
   }
 
   if ((game.cursors.up.isDown || game.buttonA.button.isDown) && game.player.body.touching.down) {
-    this.sounds.jump.setVolume(0.5).setLoop(false).play()
+    game.sounds.jump.setVolume(0.5).setLoop(false).play()
     game.player.setVelocityY(-1200);
   }
 

@@ -58,10 +58,7 @@ class GameScene extends Phaser.Scene {
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-        for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
-        }
-
+        
         for (const key in assetsLoader) {
           this.load.image(key, assetsLoader[key]);
         }

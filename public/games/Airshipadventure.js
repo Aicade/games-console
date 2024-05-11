@@ -195,11 +195,11 @@ let INIT_PLAYER_SPEED,
 function gameScenePreload(game) {
   // Load In-Game Assets from assetsLoader
   for (const key in assetsLoader) {
-    this.load.image(key, assetsLoader[key]);
+    game.load.image(key, assetsLoader[key]);
   }
 
   for (const key in soundsLoader) {
-    this.load.audio(key, [soundsLoader[key]]);
+    game.load.audio(key, [soundsLoader[key]]);
   }
 
 
@@ -224,7 +224,7 @@ function gameSceneCreate(game) {
   setVariables(game);
   createTimer(game);
   // game.levelText = game.add.bitmapText(10, 52, 'pixelfont', 'Level: 1', 28);
-  this.sounds.background.setVolume(2).setLoop(false).play()
+  game.sounds.background.setVolume(2).setLoop(false).play()
 
   game.enemies = game.physics.add.group();
   game.collectibles = game.physics.add.group();
@@ -318,12 +318,12 @@ function gameSceneUpdate(game, time, delta) {
     }
   }
   if (game.pointerTouched) {
-    this.sounds.move.setVolume(2.5).setLoop(false).play()
+    game.sounds.move.setVolume(2.5).setLoop(false).play()
     PLAYER_SPEED -= 4;
     if (PLAYER_SPEED > INIT_PLAYER_SPEED) PLAYER_SPEED -= 8;
     game.player.setVelocityY(PLAYER_SPEED);
   } else {
-    game.footStepsMusic.stop();
+    game.sounds.move.setVolume(2.5).setLoop(false).play()
     PLAYER_SPEED += 10;
     if (PLAYER_SPEED < INIT_PLAYER_SPEED) PLAYER_SPEED += 20;
     game.player.setVelocityY(PLAYER_SPEED);
@@ -424,7 +424,7 @@ function collectPowerUp(player, collectible) {
 function targetHit(player, enemy) {
   setVariables(this);
   this.physics.pause();
-  this.sound.stopAll()
+  this.sound.stopAll();
   this.gameOverFlag = true;
 
   this.timerEvent.destroy(); this.enemyTimer.destroy(); this.collectibleTimer.destroy();
