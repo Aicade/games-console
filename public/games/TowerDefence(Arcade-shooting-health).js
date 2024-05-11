@@ -7,7 +7,7 @@ let assetsLoader = {
 };
 
 let soundsLoader = {
-    "background": "background",
+    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3",
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
     "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
@@ -49,8 +49,12 @@ class GameScene extends Phaser.Scene {
 
         // Load In-Game Assets from assetsLoader
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
-        }
+            this.load.image(key, assetsLoader[key]);
+          }
+      
+          for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
+          }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.bitmapFont('pixelfont',
@@ -88,6 +92,7 @@ class GameScene extends Phaser.Scene {
         this.pauseButton.setInteractive({ cursor: 'pointer' });
         this.pauseButton.setScale(2).setScrollFactor(0).setDepth(11);
         this.pauseButton.on('pointerdown', () => this.pauseGame());
+        this.sounds.background.setVolume(2.5).setLoop(false).play()
 
         gameSceneCreate(this);
     }
@@ -211,7 +216,7 @@ function gameSceneCreate(game) {
     game.physics.add.collider(game.bullets, game.enemies, function (bullet, enemy) {
         enemy.destroy();
         bullet.destroy();
-        this.sounds.destroy.setVolume(0.3).setLoop(false).play()
+        game.sounds.destroy.setVolume(0.3).setLoop(false).play();
         game.particleEmitter.explode(250, enemy.x, enemy.y);
         game.updateScore(10);
     });
@@ -221,7 +226,7 @@ function gameSceneCreate(game) {
     game.towerEmitter = game.vfx.createEmitter('redCircle', 0, 0, 1, 0, 1000).setAlpha(0.5);
     game.towerDestroyEmitter = game.vfx.createEmitter('collectible', 0, 0, 0.015, 0, 1500).setAlpha(0.5);
 
-    this.sounds.background.setVolume(2.5).setLoop(false).play()
+    
 }
 
 //UPDATE FUNCTION FOR THE GAME SCENE
