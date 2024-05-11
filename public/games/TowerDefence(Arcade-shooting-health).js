@@ -1,10 +1,18 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "collectible": "collectible",
     "player": "player",
     "projectile": "projectile",
     "enemy": "enemy",
 };
+
+let soundsLoader = {
+    "background": "background",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
+    "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav"
+}
 
 // Custom UI Elements
 const title = `Defend the yellow Tower`
@@ -45,11 +53,6 @@ class GameScene extends Phaser.Scene {
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3']);
-        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3']);
-        this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio('shoot', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3']);
-        this.load.audio('enemyKill', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav']);
         this.load.bitmapFont('pixelfont',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
@@ -64,6 +67,13 @@ class GameScene extends Phaser.Scene {
         this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
         const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
         this.bg.setScale(scale);
+
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
 
         // Add UI elements
         this.scoreText = this.add.bitmapText(this.width / 2, 30, 'pixelfont', 'Score: 0', 35).setOrigin(0.5).setTint(0xff7575);
@@ -201,7 +211,7 @@ function gameSceneCreate(game) {
     game.physics.add.collider(game.bullets, game.enemies, function (bullet, enemy) {
         enemy.destroy();
         bullet.destroy();
-        game.enemyKillMusic.play();
+        this.sounds.destroy.setVolume(0.3).setLoop(false).play()
         game.particleEmitter.explode(250, enemy.x, enemy.y);
         game.updateScore(10);
     });
@@ -211,13 +221,7 @@ function gameSceneCreate(game) {
     game.towerEmitter = game.vfx.createEmitter('redCircle', 0, 0, 1, 0, 1000).setAlpha(0.5);
     game.towerDestroyEmitter = game.vfx.createEmitter('collectible', 0, 0, 0.015, 0, 1500).setAlpha(0.5);
 
-    game.backgroundMusic = game.sound.add('backgroundMusic', { loop: true, volume: 2.5 });
-    game.backgroundMusic.play();
-    game.looseMusic = game.sound.add('loose', { volume: 0.5 });
-    game.damageMusic = game.sound.add('damage', { volume: 0.5 });
-    game.loseMusic = game.sound.add('loose', { loop: false, volume: 0.5 });
-    game.shootMusic = game.sound.add('shoot', { loop: false, volume: 0.2 });
-    game.enemyKillMusic = game.sound.add('enemyKill', { loop: false, volume: 0.3 });
+    this.sounds.background.setVolume(2.5).setLoop(false).play()
 }
 
 //UPDATE FUNCTION FOR THE GAME SCENE
@@ -241,7 +245,7 @@ function updateTowerHealth(tower, enemy) {
         this.sound.stopAll();
 
         this.time.delayedCall(1000, () => {
-            this.looseMusic.play();
+            this.sounds.lose.setVolume(0.5).setLoop(false).play()
             this.towerDestroyEmitter.explode(400, tower.x, tower.y);
             // this.looseMusic.play();
             this.vfx.shakeCamera(300, 0.04);
@@ -252,7 +256,7 @@ function updateTowerHealth(tower, enemy) {
 
         });
     } else {
-        this.damageMusic.play();
+        this.sounds.damage.setVolume(0.5).setLoop(false).play()
     }
     if (this.tower.health <= 30) {
         this.healthMeter.fillColor = 0xff0000;
@@ -287,7 +291,7 @@ function spawnEnemy() {
 function fireBullet(pointer) {
     let bullet = this.bullets.get(this.player.x, this.player.y);
     if (bullet) {
-        this.shootMusic.play();
+        this.sounds.shoot.setVolume(0.2).setLoop(false).play()
         bullet.setScale(0.05);
         bullet.body.setSize(
             bullet.body.width / 1.5,
