@@ -8,6 +8,20 @@ const assetsLoader = {
     "platform": "platform",
 };
 
+
+this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-1.mp3']);
+this.load.audio('jump', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3']);
+this.load.audio('enemyKill', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav']);
+this.load.audio('mushroomCollect1', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3']);
+this.load.audio('mushroomCollect2', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3']);
+this.load.audio('coinCollect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3']);
+this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3']);
+this.load.audio('shoot', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3']);
+this.load.audio('brick', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3']);
+this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3']);
+this.load.audio('success', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav']);
+
+
 // Custom UI Elements
 const title = `MARIO LITE`
 const description = `A Platformer game where you collect powerups and kill enemies by \n stomping them. Game ends after you reach 500m`

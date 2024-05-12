@@ -1,9 +1,16 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "projectile": "projectile",
     "enemy": "enemy",
 };
+
+let soundsLoader = {
+    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3",
+    "blast": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3",
+    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
+    "upgrade": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3",
+}
 
 // Custom UI Elements
 const title = `Ball Blast`
@@ -53,16 +60,16 @@ class GameScene extends Phaser.Scene {
         addEventListenersPhaser.bind(this)();
 
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         this.load.image("platform", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Glass/s2+Glass+03.png")
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("heart", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png");
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('blast', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3']);
-        this.load.audio('shoot', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3']);
-        this.load.audio('upgrade', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3']);
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
         this.load.bitmapFont('pixelfont', fontBaseURL + fontName + '.png', fontBaseURL + fontName + '.xml');
@@ -74,15 +81,21 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+        this.input.keyboard.disableGlobalCapture();
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
         this.width = this.game.config.width;
         this.height = this.game.config.height;
 
         this.vfx = new VFXLibrary(this);
 
-        this.sound.add('bgm', { loop: true, volume: 1 }).play();
-        this.bg = this.add.image(0, 0, "background").setOrigin(0, 0);
-        this.bg.displayHeight = this.game.config.height;
-        this.bg.displayWidth = this.game.config.width;
+        this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
+        const scale = Math.max(this.width / this.bg.displayWidth, this.height / this.bg.displayHeight);
+        this.bg.setScale(scale);
+        this.sounds.background.setVolume(1.5).setLoop(true).play();
 
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
@@ -152,7 +165,8 @@ class GameScene extends Phaser.Scene {
         });
         this.physics.add.collider(this.platform, this.enemies);
         this.physics.add.collider(this.bullets, this.enemies, (bullet, enemy) => {
-            this.sound.add('blast', { loop: false, volume: 0.01 }).play();
+            this.sounds.blast.setVolume(0.1).setLoop(false).play();
+
             this.vfx.createEmitter('enemy', enemy.x, enemy.y, 0, 0.03, 400).explode(50);
             if (enemy.level != 1) {
                 bullet.destroy();
@@ -199,7 +213,8 @@ class GameScene extends Phaser.Scene {
 
     updateGameLevel() {
         if (gameScore >= levelThreshold) {
-            this.sound.add('upgrade', { loop: false, volume: 0.5 }).play();
+            this.sounds.upgrade.setVolume(0.5).setLoop(false).play();
+
             this.centerText = this.add.bitmapText(this.width / 2, this.height / 2, 'pixelfont', "LEVEL UP!", 64).setOrigin(0.5, 0.5).setDepth(100);
             this.time.delayedCall(500, () => {
                 this.centerText.destroy();
@@ -230,7 +245,8 @@ class GameScene extends Phaser.Scene {
     }
 
     fireBullet() {
-        this.sound.add('shoot', { loop: false, volume: 0.01 }).play();
+        this.sounds.shoot.setVolume(0.1).setLoop(false).play();
+
         var bullet = this.bullets.create(this.player.x, this.player.y, 'projectile').setScale(.05);
         bullet.setVelocityY(-1000);
         var bulletDestroyTimer = this.time.addEvent({
