@@ -1,4 +1,4 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "enemy": "enemy",
@@ -21,12 +21,6 @@ let soundsLoader = {
     "stretch": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3",
     "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
 }
-
-// "collectible_1":mushroomCollect1
-// "collectible_2":mushroomCollect2
-// "collectible_3":coinCollect
-
-
 
 // Custom UI Elements
 const title = `MARIO LITE`
