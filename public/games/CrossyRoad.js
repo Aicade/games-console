@@ -1,9 +1,15 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "collectible": "collectible",
     "enemy": "enemy",
 };
+
+let soundsLoader = {
+    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+}
 
 // Custom UI Elements
 const title = `Crossy Road`
@@ -56,37 +62,39 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         // Load In-Game Assets from assetsLoader
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
         this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3']);
-        this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
 
         this.load.bitmapFont('pixelfont',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
 
 
-
-
         displayProgressLoader.call(this);
     }
 
     create() {
+        this.input.keyboard.disableGlobalCapture();
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
-        this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
-        this.bg.setScrollFactor(0);
-        this.bg.displayHeight = this.game.config.height;
-        this.bg.displayWidth = this.game.config.width;
-        this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 2.5 });
-        this.backgroundMusic.play();
-        this.loseMusic = this.sound.add('loose', { loop: false, volume: 0.5 });
-        this.collectSound = this.sound.add('collect', { loop: false, volume: 0.5 });
+
+        this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
+        const scale = Math.max(this.width / this.bg.displayWidth, this.height / this.bg.displayHeight);
+        this.bg.setScale(scale);
+        this.sounds.background.setVolume(2.5).setLoop(true).play();
+
         this.vfx = new VFXLibrary(this);
 
         // Add UI elements
@@ -208,7 +216,8 @@ class GameScene extends Phaser.Scene {
             //enemy collision
             if (Phaser.Geom.Intersects.RectangleToRectangle(this.player.getBounds(), enemies[i].getBounds())) {
                 this.playerDestroyEmitter.explode(400, this.player.x, this.player.y);
-                this.loseMusic.play();
+                this.sounds.collect.setVolume(.75).setLoop(false).play();
+
                 this.player.destroy();
                 enemies[i].destroy();
                 this.time.delayedCall(2000, () => {
@@ -231,7 +240,8 @@ class GameScene extends Phaser.Scene {
 
         this.level += 1;
         this.enemySpeed += 1;
-        this.collectSound.play();
+        this.sounds.damage.setVolume(.75).setLoop(false).play();
+
         Phaser.Actions.Call(this.enemies.getChildren(), function (enemy) {
             enemy.speed = this.enemySpeed;
         }, this);

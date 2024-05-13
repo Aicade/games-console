@@ -1,4 +1,4 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "enemy": "enemy",
@@ -7,6 +7,20 @@ const assetsLoader = {
     "projectile": "projectile",
     "platform": "platform",
 };
+
+let soundsLoader = {
+    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
+    "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
+    "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
+    "collectible_1": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
+    "collectible_2": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3",
+    "collectible_3": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
+    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
+    "stretch": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3",
+    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
+}
 
 // Custom UI Elements
 const title = `MARIO LITE`
@@ -76,24 +90,17 @@ class GameScene extends Phaser.Scene {
     preload() {
 
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-1.mp3']);
-        this.load.audio('jump', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3']);
-        this.load.audio('enemyKill', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav']);
-        this.load.audio('mushroomCollect1', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3']);
-        this.load.audio('mushroomCollect2', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3']);
-        this.load.audio('coinCollect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3']);
-        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3']);
-        this.load.audio('shoot', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3']);
-        this.load.audio('brick', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3']);
-        this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3']);
-        this.load.audio('success', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav']);
         this.load.bitmapFont('pixelfont',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
@@ -102,22 +109,15 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+        this.input.keyboard.disableGlobalCapture();
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
         isMobile = !this.sys.game.device.os.desktop;
         this.vfx = new VFXLibrary(this);
 
-        this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 2 });
-        this.jumpSound = this.sound.add('jump', { loop: false, volume: 1 });
-        this.mushCollectSound1 = this.sound.add('mushroomCollect1', { loop: false, volume: 1 });
-        this.mushCollectSound2 = this.sound.add('mushroomCollect2', { loop: false, volume: 1 });
-        this.coinSound = this.sound.add('coinCollect', { loop: false, volume: 1 });
-        this.damegeSound = this.sound.add('damage', { loop: false, volume: 1 });
-        this.shootSound = this.sound.add('shoot', { loop: false, volume: 1 });
-        this.enemyKill = this.sound.add('enemyKill', { loop: false, volume: 1 });
-        this.brickSound = this.sound.add('brick', { loop: false, volume: 1 });
-        this.looseSound = this.sound.add('loose', { loop: false, volume: 1 });
-        this.successSound = this.sound.add('success', { loop: false, volume: 1 });
-
-        this.backgroundMusic.play();
+        this.sounds.background.setVolume(2).setLoop(true).play();
         this.input.addPointer(3);
         this.score = 0;
         this.meter = 0;
@@ -253,8 +253,7 @@ class GameScene extends Phaser.Scene {
         }
 
         if ((this.cursors.up.isDown || this.buttonA.button.isDown) && this.player.body.touching.down) {
-
-            this.jumpSound.play();
+            this.sounds.jump.setVolume(1).setLoop(false).play();
             this.player.setVelocityY(-650);
         }
         if (time > this.nextEnemyTime) {
@@ -346,7 +345,8 @@ class GameScene extends Phaser.Scene {
 
     hitBrick(player, brick) {
         if (player.body.touching.up && brick.body.touching.down) {
-            this.brickSound.play();
+            this.sounds.stretch.setVolume(1).setLoop(false).play();
+
             this.tweens.add({
                 targets: this.cameras.main,
                 y: this.cameras.main.worldView.y - 5, // Adjust value for desired intensity
@@ -379,7 +379,8 @@ class GameScene extends Phaser.Scene {
             }
             if (brick.coin) {
                 brick.coin--;
-                this.coinSound.play();
+                this.sounds.collectible_3.setVolume(1).setLoop(false).play();
+
                 this.updateScore(1);
                 if (!brick.coin) {
                     delete brick.mushroom;
@@ -446,7 +447,8 @@ class GameScene extends Phaser.Scene {
             this.powerUpText.text = "SIZE POWER UP";
             this.blinkEffect(this.powerUpText, 200, 5);
             player.power_state++;
-            this.mushCollectSound1.play();
+            this.sounds.collectible_1.setVolume(1).setLoop(false).play();
+
             this.tweens.add({
                 targets: this.player,
                 y: player.y - 30,
@@ -459,7 +461,7 @@ class GameScene extends Phaser.Scene {
             this.powerUpText.text = "BULLET POWER UP"
             this.blinkEffect(this.powerUpText, 200, 5);
             player.power_state++;
-            this.mushCollectSound2.play();
+            this.sounds.collectible_2.setVolume(1).setLoop(false).play();
             player.setTint(0xff00ff);
             this.input.keyboard.on('keydown-SPACE', this.shootBullet, this);
             this.colorAnimation(true, this.player);
@@ -496,7 +498,7 @@ class GameScene extends Phaser.Scene {
 
     shootBullet() {
         if (this.player.power_state === PLAYER_STATE.BULLETS) {
-            this.shootSound.play();
+            this.sounds.shoot.setVolume(1).setLoop(false).play();
             let bullet = this.bullets.get(this.player.x, this.player.y);
             if (bullet) {
                 bullet.setActive(true).setVisible(true).setScale(0.04).setVelocityX(this.player.leftShoot ? -300 : 300)
@@ -512,7 +514,7 @@ class GameScene extends Phaser.Scene {
     }
 
     bulletHit(bullet, enemy) {
-        this.enemyKill.play();
+        this.sounds.destroy.setVolume(1).setLoop(false).play();
         bullet.setActive(false);
         bullet.setVisible(false);
         bullet.body.stop();
@@ -525,7 +527,7 @@ class GameScene extends Phaser.Scene {
 
     onPlayerEnemyCollision(player, enemy) {
         if (player.body.touching.down && enemy.body.touching.up) {
-            this.enemyKill.play();
+            this.sounds.destroy.setVolume(1).setLoop(false).play();
             enemy._scaleY = 0.01;
             enemy.refreshBody();
             this.tweens.add({
@@ -544,7 +546,7 @@ class GameScene extends Phaser.Scene {
         } else {
             this.input.keyboard.off('keydown-SPACE', this.shootBullet, this);
             if (player.power_state === PLAYER_STATE.BULLETS) {
-                this.damegeSound.play();
+                this.sounds.damage.setVolume(1).setLoop(false).play();
                 this.colorAnimation(false, this.player);
                 player.power_state--;
                 player.setAngularVelocity(-900);
@@ -555,7 +557,7 @@ class GameScene extends Phaser.Scene {
                 this.cameras.main.shake(50);
                 enemy.destroy();
             } else if (player.power_state === PLAYER_STATE.BIG) {
-                this.damegeSound.play();
+                this.sounds.damage.setVolume(1).setLoop(false).play();
 
                 player.power_state--;
                 player.setAngularVelocity(-900);
@@ -573,15 +575,17 @@ class GameScene extends Phaser.Scene {
                 this.cameras.main.shake(100);
                 enemy.destroy();
             } else {
+                console.log("lose");
                 player.setTint(0xff0000);
                 this.physics.pause();
                 this.cameras.main.shake(200);
 
                 this.sound.stopAll();
-                this.looseSound.play();
-                this.looseSound.on('complete', () => {
+                this.sounds.lose.setVolume(1).setLoop(false).play();
+                this.sounds.lose.on('complete', () => {
                     this.gameOver();
                 });
+
             }
         }
     }
@@ -706,7 +710,7 @@ const config = {
         default: "arcade",
         arcade: {
             gravity: { y: 300 },
-            debug: false,
+            debug: true,
         },
     },
     dataObject: {
