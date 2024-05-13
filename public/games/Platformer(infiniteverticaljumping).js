@@ -1,10 +1,19 @@
-const assetsLoader = {
+let assetsLoader = {
   "background": "background",
   "player": "player",
   "enemy": "enemy",
   "platform": "platform",
   "collectible": "collectible",
 };
+
+let soundsLoader = {
+  "background": "background",
+  "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
+  "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
+  "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
+  "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
+  "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav"
+}
 
 // Custom UI Elements
 const title = `ENDLESS JUMPER`
@@ -58,16 +67,15 @@ class GameScene extends Phaser.Scene {
 
     // Load In-Game Assets from assetsLoader
     for (const key in assetsLoader) {
-      this.load.image(key, assets_list[assetsLoader[key]]);
+      this.load.image(key, assetsLoader[key]);
     }
+
+    for (const key in soundsLoader) {
+      this.load.audio(key, [soundsLoader[key]]);
+    }
+
     this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
     this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-    this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-1.mp3']);
-    this.load.audio('jump', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3']);
-    this.load.audio('coinCollect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3']);
-    this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3']);
-    this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3']);
-    this.load.audio('success', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav']);
     this.load.bitmapFont('pixelfont',
       'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
       'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
@@ -76,6 +84,13 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+
+    this.sounds = {};
+    for (const key in soundsLoader) {
+      this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+    }
+
+    this.input.keyboard.disableGlobalCapture();
 
     this.width = this.game.config.width;
     this.height = this.game.config.height;
@@ -94,17 +109,7 @@ class GameScene extends Phaser.Scene {
       this.hearts[i] = this.add.image(x, 40, "heart").setScale(0.025).setDepth(11).setScrollFactor(0);
     }
 
-    this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 2 });
-    this.looseMusic = this.sound.add('loose', { volume: 0.5 });
-    this.jumpMusic = this.sound.add('jump', { volume: 0.5 });
-    this.coinCollectMusic = this.sound.add('coinCollect', { volume: 0.5 });
-    this.damageMusic = this.sound.add('damage', { volume: 0.5 });
-    this.backgroundMusic.play();
-    this.jumpSound = this.sound.add('jump', { loop: false, volume: 1 });
-    this.coinSound = this.sound.add('coinCollect', { loop: false, volume: 1 });
-    this.damegeSound = this.sound.add('damage', { loop: false, volume: 1 });
-    this.looseSound = this.sound.add('loose', { loop: false, volume: 1 });
-    this.successSound = this.sound.add('success', { loop: false, volume: 1 });
+    this.sounds.background.setVolume(2).setLoop(false).play()
 
     // Add UI elements
     this.scoreText = this.add.bitmapText(this.width / 2, 35, 'pixelfont', 'Meter: 0m', 35).setOrigin(0.5).setDepth(11);
@@ -302,7 +307,7 @@ function gameSceneCreate(game) {
 
         game.physics.pause();
         game.sound.stopAll();
-        game.successSound.play();
+        this.sounds.success.setVolume(0.5).setLoop(false).play()
         game.player.setTint(0x00ff00);
         game.time.delayedCall(2000, () => {
           game.gameOver();
@@ -355,7 +360,7 @@ function gameSceneUpdate(game, time, delta) {
   }
 
   if ((game.cursors.up.isDown || game.buttonA.button.isDown) && game.player.body.touching.down) {
-    game.jumpMusic.play();
+    game.sounds.jump.setVolume(0.5).setLoop(false).play()
     game.player.setVelocityY(-1200);
   }
 
@@ -399,7 +404,7 @@ function spawnEnemy(game) {
 }
 
 function collectPowerUp(player, powerUp) {
-  this.coinCollectMusic.play()
+  this.sounds.collect.setVolume(0.5).setLoop(false).play()
   this.followEmitter.start();
   powerUp.destroy();
 
@@ -423,7 +428,7 @@ function onPlayerEnemyCollision(player, enemy) {
   this.lives--;
   this.hearts[this.lives] && this.hearts[this.lives].destroy();
   if (this.lives > 0) {
-    this.damageMusic.play();
+    this.sounds.damage.setVolume(0.5).setLoop(false).play()
     enemy.destroy();
     this.time.delayedCall(1400, () => {
       player.setAlpha(1);
@@ -434,7 +439,7 @@ function onPlayerEnemyCollision(player, enemy) {
     this.physics.pause();
     player.setAngularVelocity(600);
     this.sound.stopAll();
-    this.looseMusic.play();
+    this.sounds.lose.setVolume(0.5).setLoop(false).play()
     this.player.setTint(0xff0000);
     this.vfx.shakeCamera(300, 0.04);
     this.time.delayedCall(2000, () => {

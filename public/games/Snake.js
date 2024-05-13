@@ -1,10 +1,18 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "collectible": "collectible",
         "collectible_1": "collectible_1",
     "avoidable": "avoidable",
 };
+
+let soundsLoader = {
+    "background": "background",
+    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3"
+}
 
 const orientationSizes = {
     "landscape": {
@@ -45,6 +53,14 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
+        for (const key in assetsLoader) {
+            this.load.image(key, assetsLoader[key]);
+        }
+      
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
+        }
+
         this.score = 0;
 
         addEventListenersPhaser.bind(this)();
@@ -57,12 +73,7 @@ class GameScene extends Phaser.Scene {
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
-        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3']);
-
+        
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
         this.load.bitmapFont('pixelfont', fontBaseURL + fontName + '.png', fontBaseURL + fontName + '.xml');
@@ -74,7 +85,14 @@ class GameScene extends Phaser.Scene {
     create() {
         isMobile = !this.sys.game.device.os.desktop;
 
-        this.sound.add('bgm', { loop: true, volume: 1 }).play();
+        this.sounds = {};
+        for (const key in soundsLoader) {
+          this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
+
+        this.sounds.background.setVolume(1).setLoop(false).play()
 
         this.vfx = new VFXLibrary(this);
 
@@ -219,7 +237,7 @@ class GameScene extends Phaser.Scene {
                 this.add.sprite(lastSegment.x, lastSegment.y, 'collectible_1')
                     .setDisplaySize(this.tileSize, this.tileSize).setOrigin(0)
             );
-            this.sound.add('damage', { loop: false, volume: .75 }).play();
+            this.sounds.damage.setVolume(0.75).setLoop(false).play()
 
             let bubble = this.add.graphics({ x: -100, y: 0, add: false });
 
@@ -303,7 +321,7 @@ class GameScene extends Phaser.Scene {
         this.vfx.shakeCamera();
 
         this.time.delayedCall(500, () => {
-            this.sound.add('lose', { loop: false, volume: 1 }).play();
+            this.sounds.lose.setVolume(1).setLoop(false).play()
             gameOverText.setVisible(true);
             this.tweens.add({
                 targets: gameOverText,
