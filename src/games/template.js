@@ -37,6 +37,8 @@ class GameScene {
         for (const key in soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
+
+        this.input.keyboard.disableGlobalCapture();
     }
 
     pauseGame() {
