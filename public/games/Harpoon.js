@@ -1,18 +1,10 @@
-let assetsLoader = {
+const assetsLoader = {
     "background": "background",
     "avoidable": "avoidable",
     "player": "player",
     "projectile": "projectile",
     "collectible": "collectible",
 }
-
-let soundsLoader = {
-    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-}
-
 
 const title = `Harpoon throw`
 const description = `Tap to throw harpoon.`
@@ -62,16 +54,16 @@ class GameScene extends Phaser.Scene {
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
         for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
-        }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+            this.load.image(key, assets_list[assetsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
-
+        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
+        this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
+        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
+        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
+        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3']);
 
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
@@ -82,20 +74,18 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        this.input.keyboard.disableGlobalCapture();
-        this.sounds = {};
-        for (const key in soundsLoader) {
-            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
-        }
-        this.sounds.background.setVolume(2.5).setLoop(true).play();
+
+        this.sound.add('bgm', { loop: true, volume: 1 }).play();
 
         this.vfx = new VFXLibrary(this);
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
-        this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
-        const scale = Math.max(this.width / this.bg.displayWidth, this.height / this.bg.displayHeight);
-        this.bg.setScale(scale);
+        this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0).setDepth(-10);
+        this.bg.setScrollFactor(0);
+        this.bg.displayHeight = this.game.config.height;
+        this.bg.displayWidth = this.game.config.width;
+
 
         // Add UI elements
         this.scoreText = this.add.bitmapText(this.width / 2, 40, 'pixelfont', '0', 128).setOrigin(0.5, 0.5);
@@ -231,7 +221,7 @@ class GameScene extends Phaser.Scene {
 
     releaseHarpoon(pointer) {
         if (!this.isGameOver) {
-            this.sounds.move.setVolume(1).setLoop(false).play();
+            this.sound.add('flap', { loop: false, volume: 1 }).play();
 
             if (this.isHarpoonCast || this.isHarpoonRetracting) {
                 return;
@@ -283,7 +273,7 @@ class GameScene extends Phaser.Scene {
     }
 
     harpoonHitsEnemy(harpoon, enemy) {
-        this.sounds.damage.setVolume(.5).setLoop(false).play();
+        this.sound.add('damage', { loop: false, volume: .5 }).play();
 
         let pointsText = this.add.bitmapText(enemy.x, enemy.y - 75, 'pixelfont', '+10', 45)
             .setOrigin(0.5, 0.5);
@@ -345,8 +335,7 @@ class GameScene extends Phaser.Scene {
         this.vfx.shakeCamera();
 
         this.time.delayedCall(500, () => {
-            this.sounds.lose.setVolume(1).setLoop(false).play();
-
+            this.sound.add('lose', { loop: false, volume: 1 }).play();
             gameOverText.setVisible(true);
             this.tweens.add({
                 targets: gameOverText,

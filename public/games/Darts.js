@@ -1,10 +1,4 @@
-let assetsLoader = { "background": "background", "player": "player", "projectile": "projectile" }
-
-let soundsLoader = {
-    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-}
+const assetsLoader = { "background": "image_2_background_background_1..png", "player": "image_6_player_player_1..png", "projectile": "image_4_projectile_cannonball_1..png" }
 
 const title = `Dart Throw`
 const description = `Tap to throw.`
@@ -40,13 +34,12 @@ class GameScene extends Phaser.Scene {
         addEventListenersPhaser.bind(this)();
 
         for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
-        }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+            this.load.image(key, assets_list[assetsLoader[key]]);
         }
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
+        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
+        this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
+        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
 
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
@@ -75,16 +68,10 @@ class GameScene extends Phaser.Scene {
         return ret;
     }
     create() {
-        this.input.keyboard.disableGlobalCapture();
-        this.sounds = {};
-        for (const key in soundsLoader) {
-            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
-        }
-
         this.isgameover = false;
 
         this.score = 0;
-        this.sounds.background.setVolume(2.5).setLoop(true).play();
+        this.sound.add('bgm', { loop: true, volume: 2.5 }).play();
 
         this.vfx = new VFXLibrary(this);
 
@@ -135,7 +122,7 @@ class GameScene extends Phaser.Scene {
     }
     releasePin() {
         if (!this.isgameover) {
-            this.sounds.move.setVolume(3).setLoop(false).play();
+            this.sound.add('flap', { loop: false, volume: 3 }).play();
             let pointsText = this.add.bitmapText(this.pinLaunch.x, this.pinLaunch.y - 75, 'pixelfont', '+10', 45)
                 .setOrigin(0.5, 0.5);
 
@@ -269,7 +256,7 @@ class GameScene extends Phaser.Scene {
                     .setAngle(-15);
 
                 this.time.delayedCall(500, () => {
-                    this.sounds.lose.setVolume(1).setLoop(false).play();
+                    this.sound.add('lose', { loop: false, volume: 1 }).play();
                     gameOverText.setVisible(true);
                     this.tweens.add({
                         targets: gameOverText,
