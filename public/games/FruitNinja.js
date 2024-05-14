@@ -4,6 +4,12 @@ const assetsLoader = {
     "avoidable": "avoidable"
 }
 
+const soundsLoader = {
+    "background": "background",
+    'destroy': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3',
+    'slice': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac',
+}
+
 const title = `Fruit and Meat Slasher`
 const description = `A game where the player slices through various fruits and meats to earn points and progress through levels.`
 const instructions = `Instructions:
@@ -78,17 +84,14 @@ class GameScene extends Phaser.Scene {
         addEventListenersPhaser.bind(this)();
 
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
         }
-        this.load.audio("slicesound", 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac');
-        this.load.audio("boomsound", 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3');
-        this.load.audio("backgroundsound", 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-1.mp3');
-        this.load.atlas('particles', 'assets/fruitninjaassets/particle/particles.png', 'assets/fruitninjaassets/particle/particles.json');
+        
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
+        }
+        
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
-        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
 
         this.load.bitmapFont('pixelfont',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
@@ -100,7 +103,12 @@ class GameScene extends Phaser.Scene {
         this.timeLeft = 25;
         this.cam = this.cameras.main;
 
-        this.sound.add('backgroundsound', { loop: true, volume: 1 }).play();
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.sounds.background.setVolume(3).setLoop(true).play();
 
         this.explosionEmitter = this.add.particles('avoidable', {
             speed: 150,
@@ -263,7 +271,7 @@ class GameScene extends Phaser.Scene {
         handlePauseGame.bind(this)();
     }
     gameSceneBackground() {
-        let bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
+        let bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
 
         // Use the larger scale factor to ensure the image covers the whole canvas
         const scale = Math.max(this.width / bg.displayWidth, this.height / bg.displayHeight);
@@ -272,7 +280,7 @@ class GameScene extends Phaser.Scene {
 
     cutFruit(fruit) {
         if (!this.pointerDown) return;
-        this.sound.add('slicesound', { loop: false, volume: 1 }).play();
+        this.sounds.slice.play();
         this.createParticles(fruit.x, fruit.y); // Create particles where the fruit is sliced
         fruit.setAlpha(0);
         this.time.delayedCall(100, () => {
@@ -294,7 +302,7 @@ class GameScene extends Phaser.Scene {
 
             this.time.delayedCall(500, () => {
                 this.cam.flash(200);
-                this.sound.add('boomsound', { loop: false, volume: 1 }).play();
+                this.sounds.destroy.play();
                 this.createParticles(bomb.x, bomb.y, "avoidable");
                 bomb.setAlpha(0);
                 this.bombs.remove(bomb, true, true);

@@ -4,6 +4,14 @@ const assetsLoader = {
     "enemy": "enemy",
 };
 
+const soundsLoader = {
+    "background": "background",
+    'upgrade': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3',
+    'stretch': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/stretch.mp3',
+    'shoot': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3',
+    'collect': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3',
+}
+
 const title = `Angry Birds`
 const description = `Aim and throw your character at targets with increasing difficulty to score the highest points possible.`
 const instructions =
@@ -26,13 +34,6 @@ const orientationSizes = {
 
 const orientation = "landscape";
 
-const joystickEnabled = false;
-const buttonEnabled = false;
-
-const rexJoystickUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js";
-
-const rexButtonUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexbuttonplugin.min.js";
-
 class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
@@ -45,22 +46,18 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         this.lives = 3;
 
-        this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
-        this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         this.load.image("platform", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Glass/s2+Glass+03.png")
         this.load.image("arrow", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/arrow.png")
         this.load.image("heart", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png");
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('upgrade', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3']);
-        this.load.audio('stretch', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/stretch.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
-        this.load.audio('shoot', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3']);
 
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
@@ -73,49 +70,31 @@ class GameScene extends Phaser.Scene {
 
         this.vfx = new VFXLibrary(this);
         this.physics.world.setFPS(120);
-        this.sound.add('bgm', { loop: true, volume: 1 }).play();
+
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.sounds.background.setVolume(3).setLoop(true).play();
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
-        this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
-        this.bg.setScrollFactor(0);
-        this.bg.displayHeight = this.game.config.height;
-        this.bg.displayWidth = this.game.config.width;
+        this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
 
-        this.scoreText = this.add.bitmapText(this.width / 2, 100, 'pixelfont', '0', 64).setOrigin(0.5, 0.5);
+        // Use the larger scale factor to ensure the image covers the whole canvas
+        const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
+        this.bg.setScale(scale);
+
+        this.scoreText = this.add.bitmapText(this.width / 2, 50, 'pixelfont', '0', 40).setOrigin(0.5, 0.5);
 
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
 
         this.pauseButton = this.add.sprite(this.game.config.width - 60, 60, "pauseButton").setOrigin(0.5, 0.5);
         this.pauseButton.setInteractive({ cursor: 'pointer' });
-        this.pauseButton.setScale(3);
+        this.pauseButton.setScale(2);
         this.pauseButton.on('pointerdown', () => this.pauseGame());
-
-        const joyStickRadius = 50;
-
-        if (joystickEnabled) {
-            this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
-                x: joyStickRadius * 2,
-                y: this.height - (joyStickRadius * 2),
-                radius: 50,
-                base: this.add.circle(0, 0, 80, 0x888888, 0.5),
-                thumb: this.add.circle(0, 0, 40, 0xcccccc, 0.5),
-
-            });
-        }
-
-        if (buttonEnabled) {
-            this.buttonA = this.add.rectangle(this.width - 80, this.height - 100, 80, 80, 0xcccccc, 0.5)
-            this.buttonA.button = this.plugins.get('rexbuttonplugin').add(this.buttonA, {
-                mode: 1,
-                clickInterval: 100,
-            });
-
-            this.buttonA.button.on('down', function (button, gameObject) {
-                console.log("button clicked");
-            });
-        }
 
         this.vfx.addCircleTexture('red', 0xFF0000, 1, 10);
         this.vfx.addCircleTexture('orange', 0xFFA500, 1, 10);
@@ -172,7 +151,7 @@ class GameScene extends Phaser.Scene {
             this.gameOver();
         }
         if (this.boxesLeft == 0) {
-            this.sound.add('upgrade', { loop: false, volume: 0.5 }).play();
+            this.sounds.upgrade.play();
             this.centerText = this.add.bitmapText(this.width / 2, this.height / 2, 'pixelfont', "LEVEL UP!", 64).setOrigin(0.5, 0.5).setDepth(100);
             this.time.delayedCall(500, () => {
                 this.centerText.destroy();
@@ -217,7 +196,7 @@ class GameScene extends Phaser.Scene {
         }
         this.hearts = this.add.group();
         for (var i = 0; i < count; i++) {
-            var heart = this.hearts.create(50 + (i * 60), 50, 'heart').setScale(0.05).setOrigin(0.5, 0.5);
+            var heart = this.hearts.create(50 + (i * 45), 50, 'heart').setScale(0.03).setOrigin(0.5, 0.5);
             this.vfx.scaleGameObject(heart, 1.2, 500, -1);
         }
     }
@@ -228,14 +207,14 @@ class GameScene extends Phaser.Scene {
         this.starty = pointer.worldY;
         if (this.canShoot == true) {
             this.arrow = this.add.sprite(this.player.x + this.player.displayWidth / 2, this.player.y - this.player.displayHeight / 2, 'arrow');
-            this.sound.add('stretch', { loop: false, volume: 1 }).play();
+            this.sounds.stretch.play();
         }
     }
 
     release(pointer) {
         if (this.canShoot == true) {
             this.arrow.destroy();
-            this.sound.add('shoot', { loop: false, volume: 1 }).play();
+            this.sounds.shoot.play();
             this.canShoot = false;
             let endx = pointer.worldX;
             let endy = pointer.worldY;
@@ -260,7 +239,7 @@ class GameScene extends Phaser.Scene {
     }
 
     removeBox(a, b) {
-        this.sound.add('collect', { loop: false, volume: 1 }).play();
+        this.sounds.collect.play();
         this.vfx.createEmitter('red', b.x, b.y, 1, 0, 500).explode(10);
         this.vfx.createEmitter('yellow', b.x, b.y, 1, 0, 500).explode(10);
         this.vfx.createEmitter('orange', b.x, b.y, 1, 0, 500).explode(10);

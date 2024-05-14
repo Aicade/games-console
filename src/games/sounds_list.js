@@ -10,3 +10,23 @@ export function populateSoundsLoader(soundsLoader) {
 
     return soundsLoader
 }
+
+
+/** KEYWORDS **/
+
+// "background",
+// "shoot",
+// "collect",
+// "jump",
+// "damage",
+// "success",
+// "lose",
+// "countdown",
+// "click",
+// "slice",
+// "destroy",
+// "stretch",
+// "collision",
+// "spawn",
+// "move",
+// "upgrade",
