@@ -35,7 +35,7 @@ const prodGamesList = [
     "TossTheCan.js",
     "TowerDefence(Arcade-shooting-health).js",
     "Whack-a-Mole.js",
-    "Go-around",
+    "Go-around.js",
 ]
 
 export default prodGamesList;

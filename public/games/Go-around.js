@@ -5,10 +5,12 @@ let assetsLoader = {
 }
 
 let soundsLoader = {
+
     "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
     "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
     "spawn": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
+
 }
 
 // this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
