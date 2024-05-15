@@ -30,6 +30,7 @@ const prodGamesList = [
     "RiseUp",
     "TaptoSave",
     "Rogue",
+    "Go-around",
 ]
 
 export default prodGamesList;
