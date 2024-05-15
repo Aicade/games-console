@@ -4,9 +4,9 @@ import VFXLibrary from "../vfxLibrary";
 import { populateAssetsLoader } from "./assets_list";
 import { populateSoundsLoader } from "./sounds_list";
 
-const assetsLoader = {}
+let assetsLoader = {}
 
-const soundsLoader = {
+let soundsLoader = {
     "background": "background"
 }
 
