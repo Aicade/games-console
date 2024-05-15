@@ -1,6 +1,6 @@
-const assetsLoader = { "background": "background", "player": "player" }
+let assetsLoader = { "background": "background", "player": "player" }
 
-const soundsLoader = {
+let soundsLoader = {
     "background": "background",
     'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3',
     'collect': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_2.mp3',
@@ -35,11 +35,11 @@ class GameScene extends Phaser.Scene {
     preload() {
         this.score = 0;
         addEventListenersPhaser.bind(this)();
-       
+
         for (const key in assetsLoader) {
             this.load.image(key, assetsLoader[key]);
         }
-        
+
         for (const key in soundsLoader) {
             this.load.audio(key, [soundsLoader[key]]);
         }
@@ -81,14 +81,14 @@ class GameScene extends Phaser.Scene {
         this.pauseButton.setScale(3).setScrollFactor(0);
         this.pauseButton.on('pointerdown', () => this.pauseGame());
 
-        
+
         this.sounds = {};
         for (const key in soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
         this.sounds.background.setVolume(3).setLoop(true).play();
-        
+
         this.groundObj = this.add.image(this.width / 2, this.height, 'pillar');
 
         // this.groundObj = this.add.rectangle(this.width / 2, this.height, this.width, this.height * 0.5, 0x000000, 0.5);

@@ -1,8 +1,16 @@
-const assetsLoader = {
+let assetsLoader = {
     "player": "player",
     "enemy": "enemy",
     "collectible": "collectible",
 };
+
+let soundsLoader = {
+    "background": "background",
+    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
+    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    "slice": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac",
+}
 
 // Custom UI Elements
 const title = `SLIDING PUZZLE`
@@ -97,15 +105,12 @@ class GameScene extends Phaser.Scene {
     preload() {
         addEventListenersPhaser.bind(this)();
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
         }
 
-        this.load.audio("backgroundsound", 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-1.mp3');
-        this.load.audio('success', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav']);
-        this.load.audio('shuffle', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
-        this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio("slide", 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac');
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
+        }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.bitmapFont('pixelfont',
@@ -116,6 +121,14 @@ class GameScene extends Phaser.Scene {
     }
 
     create(data) {
+
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
+
         this.grid_size = data.size || 3;
         this.default_time_limit = data.time_limit || 30;
         this.default_time_limit *= 1000;
@@ -132,13 +145,7 @@ class GameScene extends Phaser.Scene {
         // this.bg.displayWidth = this.width;
 
 
-        this.backgroundMusic = this.sound.add('backgroundsound', { loop: true, volume: 2.5 });
-        this.backgroundMusic.play()
-        this.successSound = this.sound.add('success', { volume: 1 });
-        this.slideound = this.sound.add('slide', { volume: 1 });
-        this.looseSound = this.sound.add('loose', { volume: 1 });
-        this.shuffleSound = this.sound.add('shuffle', { volume: 1 });
-
+        this.sounds.background.setVolume(1).setLoop(true).play()
         // Add UI elements
         this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '20px', fill: globalPrimaryFontColor }).setAlpha(0);
         this.levelUpText = this.add.bitmapText(this.width / 2, this.height / 2, "pixelfont", "YOU WON! \nLEVEL UP!", 90).setAlpha(0).setDepth(11).setOrigin(0.5);
@@ -434,7 +441,7 @@ class GameScene extends Phaser.Scene {
         }
         else {
             //  Otherwise, tween it into place
-            this.shuffleSound.play();
+            this.sounds.move.setVolume(1).setLoop(false).play()
             const tween = this.tweens.add({
                 targets: piece,
                 x,
@@ -546,7 +553,7 @@ class GameScene extends Phaser.Scene {
     slidePiece(piece, x, y) {
         this.action = SlidingPuzzle.TWEENING;
 
-        this.shuffleSound.play();
+        this.sounds.move.setVolume(1).setLoop(false).play()
         this.tweens.add({
             targets: piece,
             x,
@@ -597,7 +604,7 @@ class GameScene extends Phaser.Scene {
     }
 
     showLevelUp() {
-        this.successSound.play();
+        this.sounds.success.setVolume(1).setLoop(false).play()
         this.levelUpText.alpha = 1;
         this.time.delayedCall(2000, () => {
             this.levelUpText.alpha = 0;
@@ -661,7 +668,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
-        this.looseSound.play();
+        this.sounds.lose.setVolume(1).setLoop(false).play()
         this.gameOverText.setAlpha(1)
         this.time.delayedCall(2500, () => {
             initiateGameOver.bind(this)({

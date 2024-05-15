@@ -1,10 +1,10 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "platform": "platform",
     "player": "player",
 }
 
-const soundsLoader = {
+let soundsLoader = {
     "background": "background",
     'jump': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3',
     'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3',

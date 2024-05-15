@@ -1,4 +1,4 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "platform": "platform",
@@ -6,6 +6,16 @@ const assetsLoader = {
     "projectile": "projectile",
     "avoidable": "avoidable",
 };
+
+let soundsLoader = {
+    "background": "background",
+    "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
+    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
+    "upgrade": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+}
 
 // Custom UI Elements
 const title = `Elon Musk vs Jeff Bezos: The Ultimate Battle`
@@ -69,19 +79,15 @@ class GameScene extends Phaser.Scene {
 
         // Load In-Game Assets from assetsLoader
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         this.load.image("heart", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png");
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-
-        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('jump', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3']);
-        this.load.audio('shoot', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3']);
-        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3']);
-        this.load.audio('upgrade', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3']);
-        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
 
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
@@ -93,9 +99,14 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
         isMobile = !this.sys.game.device.os.desktop;
-        this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 1 });
-        this.backgroundMusic.play();
+        this.sounds.background.setVolume(1).setLoop(true).play()
 
 
         this.width = this.game.config.width;
@@ -252,17 +263,17 @@ class GameScene extends Phaser.Scene {
             // console.log("right");
         }
         if (joystickKeys.up.isDown && this.player.body.touching.down) {
-            this.sound.add('jump', { loop: false, volume: 1 }).play();
+            this.sounds.jump.setVolume(1).setLoop(false).play()
             this.player.setVelocityY(-400);
         }
 
         if (this.cursors.up.isDown && this.player.body.touching.down) {
-            this.sound.add('jump', { loop: false, volume: 1 }).play();
+            this.sounds.jump.setVolume(1).setLoop(false).play()
             this.player.setVelocityY(-400); // Adjust the jump velocity as needed
         }
 
         if (this.cursors.right.isDown && time > this.lastThrowTime + 700) {
-            this.sound.add('shoot', { loop: false, volume: 1 }).play();
+            this.sounds.shoot.setVolume(1).setLoop(false).play()
             this.throw();
             this.lastThrowTime = time; // Update last throw time
         }
@@ -321,7 +332,7 @@ class GameScene extends Phaser.Scene {
         }
     }
     respawnEnemy() {
-        this.sound.add('upgrade', { loop: false, volume: 1 }).play();
+        this.sounds.upgrade.setVolume(1).setLoop(false).play()
 
         this.text = this.add.bitmapText(this.width / 2, this.height * 0.2, 'pixelfont', 'LEVEL UP!', 24);
         this.text.setOrigin(0.5);
@@ -386,7 +397,7 @@ class GameScene extends Phaser.Scene {
 
     maybeJump(chance, time) {
         // Ensure the enemy is on the ground before jumping
-        if (this.enemy.body.touching.down && Phaser.Math.RND.between(0, 100) < chance) {
+        if (this.enemy.body.touching.down && Phaser.Math.Between(0, 100) < chance) {
             this.enemy.setVelocityY(-400); // Jump
             if (time > this.lastCooldown + 2000) {
                 this.spawnShield(false);
@@ -396,7 +407,7 @@ class GameScene extends Phaser.Scene {
 
     maybeShoot(chance, time) {
         // Check if cooldown has passed
-        if (time > this.lastThrowTime + this.throwCooldown && Phaser.Math.RND.between(0, 100) < chance) {
+        if (time > this.lastThrowTime + this.throwCooldown && Phaser.Math.Between(0, 100) < chance) {
             this.throw(false);
             this.lastThrowTime = time; // Update last throw time
             // if (time > this.lastCooldown + 300) {
@@ -410,7 +421,7 @@ class GameScene extends Phaser.Scene {
     }
 
     spawnShield(isPlayerCall = true) {
-        this.sound.add('collect', { loop: false, volume: 1 }).play();
+        this.sounds.collect.setVolume(1).setLoop(false).play()
         if (isPlayerCall) {
             if (!this.shield || !this.shield.active) {
                 this.shield = this.physics.add.sprite(this.player.x + this.offset, this.player.y, 'avoidable');
@@ -473,7 +484,7 @@ class GameScene extends Phaser.Scene {
         }
     }
     hitEnemy(enemy, projectile) {
-        this.sound.add('damage', { loop: false, volume: 1 }).play();
+        this.sounds.damage.setVolume(1).setLoop(false).play()
 
         // this.cameras.main.shake(250, 0.01, true);
         this.updateScore(10);
@@ -544,7 +555,7 @@ class GameScene extends Phaser.Scene {
 
     hitPlayer(player, projectile) {
 
-        this.sound.add('damage', { loop: false, volume: 1 }).play();
+        this.sounds.damage.setVolume(1).setLoop(false).play()
 
         this.cameras.main.shake(250, 0.01, true);
         projectile.destroy();

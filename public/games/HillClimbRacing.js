@@ -1,8 +1,15 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "collectible": "collectible"
 };
+
+let soundsLoader = {
+    "background": "background",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/car.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+}
 
 // Custom UI Elements
 const title = `Hill Climb Racing`
@@ -83,14 +90,14 @@ class GameScene extends Phaser.Scene {
 
         // Load In-Game Assets from assetsLoader
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
-        this.load.audio('car', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/car.mp3']);
-        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
 
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
@@ -101,10 +108,17 @@ class GameScene extends Phaser.Scene {
 
     create() {
 
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
+
         this.flipped = false;
 
-        this.sound.add('bgm', { loop: true, volume: 1 }).play();
-        this.carSound = this.sound.add('car', { loop: true, volume: 1 });
+        this.sounds.background.setVolume(1).setLoop(true).play()
+        this.carSound = this.sounds.move.setVolume(1).setLoop(true);
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
@@ -179,7 +193,7 @@ class GameScene extends Phaser.Scene {
                     var collectible = (pair.bodyA.gameObject === this.body || pair.bodyA.gameObject === this.frontWheel || pair.bodyA.gameObject === this.rearWheel) ? pair.bodyB.gameObject : pair.bodyA.gameObject;
                     if (this.collectibles.contains(collectible)) {
                         collectible.destroy();
-                        this.sound.add('collect', { loop: false, volume: 1 }).play();
+                        this.sounds.collect.setVolume(1).setLoop(false).play()
                         this.centerText = this.add.bitmapText(this.width / 2, this.height / 2, 'pixelfont', "FUEL +10", 64).setOrigin(0.5, 0.5).setDepth(100);
                         this.timerEvent.reset({
                             delay: this.timerEvent.getRemaining() + 10000,

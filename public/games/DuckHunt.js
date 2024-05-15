@@ -1,7 +1,15 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "enemy": "enemy",
 };
+
+let soundsLoader = {
+    "background": "background",
+    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
+}
 
 const title = `Duck HUnt`
 const description = `Tap to hunt ducks.`
@@ -49,17 +57,16 @@ class GameScene extends Phaser.Scene {
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
-        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3']);
 
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
@@ -71,7 +78,14 @@ class GameScene extends Phaser.Scene {
 
     create() {
 
-        this.sound.add('bgm', { loop: true, volume: 1 }).play();
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
+
+        this.sounds.background.setVolume(1).setLoop(true).play();
         this.lives = 3;
         this.hearts = [];
         for (let i = 0; i < this.lives; i++) {
@@ -154,7 +168,7 @@ class GameScene extends Phaser.Scene {
 
         this.input.on("pointerdown", function () {
             if (!this.isGameOver) {
-                this.sound.add('damage', { loop: false, volume: 1 }).play();
+                this.sounds.damage.setVolume(1).setLoop(false).play()
                 this.lives -= 1;
                 this.updateLives(this.lives);
                 this.cameras.main.flash(100);
@@ -208,7 +222,7 @@ class GameScene extends Phaser.Scene {
             .setAngle(-15);
 
         this.time.delayedCall(500, () => {
-            this.sound.add('lose', { loop: false, volume: 1 }).play();
+            this.sounds.lose.setVolume(1).setLoop(false).play();
             gameOverText.setVisible(true);
             this.tweens.add({
                 targets: gameOverText,
@@ -255,7 +269,7 @@ class GameScene extends Phaser.Scene {
             let spawnFromLeft = Math.random() < 0.5;
             let spawnX = Phaser.Math.Between(0, this.game.config.width);
             let spawnY = this.game.config.height;
-            let velocityX = spawnFromLeft ? 100 : -100;
+            let velocityX = spawnFromLeft ? 200 : -200;
 
             var enemy = this.enemies.create(spawnX, spawnY, 'enemy').setScale(.1);
             enemy.flipX = spawnFromLeft ? false : true;
@@ -269,7 +283,7 @@ class GameScene extends Phaser.Scene {
 
             enemy.on("pointerdown", function () {
                 if (!this.isGameOver) {
-                    this.sound.add('flap', { loop: false, volume: 4 }).play();
+                    this.sounds.move.setVolume(4).setLoop(false).play()
 
                     this.cameras.main.flash(100);
                     enemy.body.moves = false;
