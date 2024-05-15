@@ -1,7 +1,15 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
 };
+
+let soundsLoader = {
+    "background": "background",
+    "loose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3"
+}
 
 // Custom UI Elements
 const title = `Cadbury Gems`;
@@ -44,14 +52,15 @@ class GameScene extends Phaser.Scene {
     preload() {
 
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
         }
+      
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
+        }
+
+
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3']);
-        this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio('newCircles', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3']);
-        this.load.audio('wrong', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav']);
-        this.load.audio('correct', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3']);
         this.load.bitmapFont('pixelfont',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
@@ -63,6 +72,13 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         this.width = this.game.config.width;
         this.height = this.game.config.height;
+
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
 
         this.vfx = new VFXLibrary(this);
         // Add UI elements
@@ -107,12 +123,7 @@ class GameScene extends Phaser.Scene {
         this.circleGroup.setOrigin(0, 0);
         this.makeTimerMeter();
 
-        this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 2.5 });
-        this.backgroundMusic.play()
-        this.wrongSound = this.sound.add('wrong', { volume: 1 });
-        this.correctound = this.sound.add('correct', { volume: 1 });
-        this.looseSound = this.sound.add('loose', { volume: 1 });
-        this.newCirclesSound = this.sound.add('newCircles', { volume: 1 });
+        this.sounds.background.setVolume(1).setLoop(false).play()
     }
 
     startRound() {
@@ -205,7 +216,7 @@ class GameScene extends Phaser.Scene {
     }
 
     addNewCircles() {
-        this.newCirclesSound.play();
+        this.sounds.success.setVolume(1).setLoop(false).play()
         this.possibleColors = [];
         for (let i = 0; i < this.colorsInGame.length; i++) {
             for (let j = 0; j < this.circlesInGame - 1; j++) {
@@ -289,7 +300,7 @@ class GameScene extends Phaser.Scene {
     circleSelected(circle) {
         if (this.cover.alpha === 1) {
             if (circle.tintColor === this.cover.tint) {
-                this.correctound.play();
+                this.sounds.collect.setVolume(1).setLoop(false).play()
                 circle.destroy();
                 this.updateScore(10)
                 this.scorePointAnim(circle.x, circle.y)
@@ -313,7 +324,7 @@ class GameScene extends Phaser.Scene {
                     })
                 }
             } else {
-                this.wrongSound.play();
+                this.sounds.damage.setVolume(1).setLoop(false).play()
                 if (this.lifeUsed) {
                     this.tryAgainText.text = "Wrong Again! You Lost."
                     this.vfx.blinkEffect(this.tryAgainText, 400, 2)
@@ -323,7 +334,7 @@ class GameScene extends Phaser.Scene {
                         item.setAlpha(1);
                     });
                     this.time.delayedCall(1500, () => {
-                        this.looseSound.play();
+                        this.sounds.loose.setVolume(1).setLoop(false).play()
                         this.gameOverText.setAlpha(1);
                         this.time.delayedCall(2000, () => {
                             this.gameOver();

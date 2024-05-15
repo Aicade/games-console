@@ -40,7 +40,7 @@ const ProdGame = () => {
             const vfxUrl =
                 "/lib/vfxLibrary.js";
             const gameUrl =
-                `/games/${name}.js`
+                `/games/${name}`
             const assetsUrl =
                 `/assetsList.js`
             const soundsUrl =

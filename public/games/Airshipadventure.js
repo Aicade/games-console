@@ -1,9 +1,16 @@
-const assetsLoader = {
+let assetsLoader = {
   "background": "background",
   "player": "player",
   "avoidable": "avoidable",
   "collectible": "collectible",
 };
+
+let soundsLoader = {
+  "background": "background",
+  "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
+  "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/footsteps_1.mp3",
+  "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav"
+}
 
 // Custom UI Elements
 const title = `SILVER SURFER`
@@ -49,6 +56,13 @@ class GameScene extends Phaser.Scene {
   create() {
     this.score = 0;
 
+    this.sounds = {};
+    for (const key in soundsLoader) {
+      this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+    }
+
+    this.input.keyboard.disableGlobalCapture();
+
     this.width = this.game.config.width;
     this.height = this.game.config.height;
     gameSceneBackground(this);
@@ -82,7 +96,7 @@ class GameScene extends Phaser.Scene {
   }
 
   gameOver() {
-    initiateGameOver.bind(this)({score: this.score});
+    initiateGameOver.bind(this)({ score: this.score });
   }
 
   pauseGame() {
@@ -141,7 +155,7 @@ const config = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  pixelArt : true,
+  pixelArt: true,
   /* ADD CUSTOM CONFIG ELEMENTS HERE */
   physics: {
     default: "arcade",
@@ -157,9 +171,6 @@ const config = {
   },
   orientation: true
 };
-
-// Game instance
-const game = new Phaser.Game(config);
 
 let INIT_PLAYER_SPEED,
   PLAYER_SPEED = INIT_PLAYER_SPEED,
@@ -181,17 +192,18 @@ let INIT_PLAYER_SPEED,
 function gameScenePreload(game) {
   // Load In-Game Assets from assetsLoader
   for (const key in assetsLoader) {
-    game.load.image(key, assets_list[assetsLoader[key]]);
+    game.load.image(key, assetsLoader[key]);
   }
+
+  for (const key in soundsLoader) {
+    game.load.audio(key, [soundsLoader[key]]);
+  }
+
 
   game.load.bitmapFont('pixelfont',
     'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
     'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
   game.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-  game.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-1.mp3']);
-  game.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3']);
-  game.load.audio('footsteps', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/footsteps_1.mp3']);
-  game.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav']);
 }
 
 //FUNCTION FOR THE GAME SCENE BACKGROUND
@@ -209,11 +221,7 @@ function gameSceneCreate(game) {
   setVariables(game);
   createTimer(game);
   // game.levelText = game.add.bitmapText(10, 52, 'pixelfont', 'Level: 1', 28);
-  game.backgroundMusic = game.sound.add('backgroundMusic', { loop: true, volume: 2 });
-  game.backgroundMusic.play();
-  game.collectMusic = game.sound.add('collect', { volume: 0.5 });
-  game.looseMusic = game.sound.add('loose', { volume: 0.5 });
-  game.footStepsMusic = game.sound.add('footsteps', { volume: 2.5, loop:true });
+  game.sounds.background.setVolume(2).setLoop(false).play()
 
   game.enemies = game.physics.add.group();
   game.collectibles = game.physics.add.group();
@@ -307,12 +315,12 @@ function gameSceneUpdate(game, time, delta) {
     }
   }
   if (game.pointerTouched) {
-    game.footStepsMusic.play();
+    game.sounds.move.setVolume(2.5).setLoop(false).play()
     PLAYER_SPEED -= 4;
     if (PLAYER_SPEED > INIT_PLAYER_SPEED) PLAYER_SPEED -= 8;
     game.player.setVelocityY(PLAYER_SPEED);
   } else {
-    game.footStepsMusic.stop();
+    game.sounds.move.setVolume(2.5).setLoop(false).play()
     PLAYER_SPEED += 10;
     if (PLAYER_SPEED < INIT_PLAYER_SPEED) PLAYER_SPEED += 20;
     game.player.setVelocityY(PLAYER_SPEED);
@@ -405,7 +413,7 @@ function spawnEnemy() {
 }
 
 function collectPowerUp(player, collectible) {
-  this.collectMusic.play();
+  this.sounds.collect.setVolume(0.5).setLoop(false).play()
   collectible.destroy();
   manipulateTime(this, 5);
 }
@@ -413,11 +421,11 @@ function collectPowerUp(player, collectible) {
 function targetHit(player, enemy) {
   setVariables(this);
   this.physics.pause();
-  this.sound.stopAll()
+  this.sound.stopAll();
   this.gameOverFlag = true;
 
   this.timerEvent.destroy(); this.enemyTimer.destroy(); this.collectibleTimer.destroy();
-  this.looseMusic.play();
+  this.sounds.lose.setVolume(0.5).setLoop(false).play()
   player.setTint(0xff0000);
   this.cameras.main.shake(200);
   this.instructionText.setText("GAME OVER").setAlpha(1).setTint(0xff0000);

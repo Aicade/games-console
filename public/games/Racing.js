@@ -1,10 +1,18 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "enemy": "enemy",
     "collectible": "collectible",
     "avoidable": "avoidable",
 };
+
+let soundsLoader = {
+    "background": "background",
+    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
+}
 
 const orientationSizes = {
     "landscape": {
@@ -66,17 +74,15 @@ class GameScene extends Phaser.Scene {
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
-        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3']);
-
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
         this.load.bitmapFont('pixelfont', fontBaseURL + fontName + '.png', fontBaseURL + fontName + '.xml');
@@ -88,6 +94,13 @@ class GameScene extends Phaser.Scene {
     create() {
         isMobile = !this.sys.game.device.os.desktop;
 
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
+
         this.lives = 3;
         this.hearts = [];
         for (let i = 0; i < this.lives; i++) {
@@ -95,7 +108,7 @@ class GameScene extends Phaser.Scene {
             this.hearts[i] = this.add.image(x, 50, "heart").setScale(0.025).setDepth(11);
         }
 
-        this.sound.add('bgm', { loop: true, volume: 1 }).play();
+        this.sounds.background.setVolume(1).setLoop(true).play()
 
         this.vfx = new VFXLibrary(this);
 
@@ -344,7 +357,7 @@ class GameScene extends Phaser.Scene {
     }
 
     collectPowerup(player, powerup) {
-        this.sound.add('collect', { loop: false, volume: 1 }).play();
+        this.sounds.collect.setVolume(1).setLoop(false).play()
 
         let pointsText = this.add.bitmapText(powerup.x, powerup.y, 'pixelfont', '+10', 30)
             .setOrigin(0.5, 0.5);
@@ -365,7 +378,7 @@ class GameScene extends Phaser.Scene {
     policecar(player, enemy) {
         this.lives--;
         this.hearts[this.lives].destroy();
-        this.sound.add('damage', { loop: false, volume: 1 }).play();
+        this.sounds.damage.setVolume(1).setLoop(false).play()
         // this.vfx.shakeCamera();
         enemy.destroy();
 
@@ -394,7 +407,7 @@ class GameScene extends Phaser.Scene {
             .setAngle(-15);
 
         this.time.delayedCall(500, () => {
-            this.sound.add('lose', { loop: false, volume: 1 }).play();
+            this.sounds.lose.setVolume(1).setLoop(false).play()
             gameOverText.setVisible(true);
             this.tweens.add({
                 targets: gameOverText,

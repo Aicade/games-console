@@ -1,5 +1,12 @@
-const assetsLoader = {
+let assetsLoader = {
 };
+
+let soundsLoader = {
+    "background": "background",
+    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3"
+}
 
 // Custom UI Elements
 const title = `Click the different colour`
@@ -38,7 +45,11 @@ class GameScene extends Phaser.Scene {
 
         // Load In-Game Assets from assetsLoader
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
@@ -47,15 +58,18 @@ class GameScene extends Phaser.Scene {
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
 
-        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3']);
-        this.load.audio('success', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav']);
-        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav']);
-        this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3']);
         addEventListenersPhaser.bind(this)();
         displayProgressLoader.call(this);
     }
 
     create() {
+
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
@@ -99,7 +113,7 @@ class GameScene extends Phaser.Scene {
 
     gameOver() {
         this.sound.stopAll();
-        this.looseMusic.play();
+        this.sounds.lose.setVolume(0.5).setLoop(false).play()
         this.timerEvent.destroy()
         this.gameOverText.setAlpha(1);
         this.vfx.blinkEffect(this.gameOverText, 400, 3)
@@ -180,11 +194,7 @@ const config = {
 //CREATE FUNCTION FOR THE GAME SCENE
 function gameSceneCreate(game) {
 
-    game.backgroundMusic = game.sound.add('backgroundMusic', { loop: true, volume: 3 });
-    game.successMusic = game.sound.add('success', { volume: 0.5 });
-    game.damageMusic = game.sound.add('damage', { volume: 0.5 });
-    game.looseMusic = game.sound.add('loose', { volume: 0.5 });
-    game.backgroundMusic.play();
+    game.sounds.background.setVolume(3).setLoop(true).play()
 
     game.difficulty = 0.75;
 
@@ -244,7 +254,7 @@ function fillColour(game) {
                         if (game.difficulty > 0.05)
                             game.difficulty -= 0.05
                         game.updateScore(1);
-                        game.successMusic.play();
+                        game.sounds.success.setVolume(0.5).setLoop(false).play()
                         game.timerEvent.destroy();
                         game.time.delayedCall(0, restartTimer, null, game);
                         fillColour(game);
@@ -272,8 +282,7 @@ function checkLife(game) {
     game.hearts[game.lives].destroy();
 
     if (game.lives > 0) {
-        game.damageMusic.play();
-        // game.damageMusic.play();
+        game.sounds.damage.setVolume(0.5).setLoop(false).play();
         game.vfx.shakeCamera(100, 0.01);
     } else {
         game.gameOver();

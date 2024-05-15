@@ -1,11 +1,15 @@
-const assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "platform": "platform",
-    "enemy": "enemy",
+let assetsLoader = {
+  "background": "background",
+  "player": "player",
+  "platform": "platform",
+  "enemy": "enemy",
 };
 
-
+let soundsLoader = {
+  "background": "background",
+  "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+  "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3"
+}
 
 // Custom UI Elements
 const title = `Cannon Ball`
@@ -64,20 +68,22 @@ class GameScene extends Phaser.Scene {
 
     this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
     this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-    
+
 
     // Load In-Game Assets from assetsLoader
     for (const key in assetsLoader) {
-        this.load.image(key, assets_list[assetsLoader[key]]);
-      }
-  
+      this.load.image(key, assetsLoader[key]);
+    }
+
+    for (const key in soundsLoader) {
+      this.load.audio(key, [soundsLoader[key]]);
+    }
+
+
     this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-    this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3']);
-    this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-    this.load.audio('shoot', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3']);
     this.load.bitmapFont('pixelfont',
-    'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
-    'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
+      'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
+      'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
 
     gameScenePreload(this);
     displayProgressLoader.call(this);
@@ -85,28 +91,32 @@ class GameScene extends Phaser.Scene {
 
   create() {
 
+    this.sounds = {};
+    for (const key in soundsLoader) {
+      this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+    }
+
+    this.input.keyboard.disableGlobalCapture();
+
     this.width = this.game.config.width;
     this.height = this.game.config.height;
     this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
     this.bg.setScrollFactor(0);
     this.bg.displayHeight = this.game.config.height;
     this.bg.displayWidth = this.game.config.width;
-    this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 2.5 });
-    this.backgroundMusic.play();
-    this.loseMusic = this.sound.add('loose', { loop: false, volume: 0.5 });
-    this.shootSound = this.sound.add('shoot', { loop: false, volume: 0.5 });
+    this.sounds.background.setVolume(2.5).setLoop(true).play();
     this.vfx = new VFXLibrary(this);
 
     // Add UI elements
-    this.scoreText = this.add.bitmapText(this.width*0.5, this.height*0.05, 'pixelfont', 'Score: 0', 35).setOrigin(0.5);
-    this.livesText = this.add.bitmapText(this.width*0.12, this.height*0.05, 'pixelfont', 'Bullets: 3', 35).setOrigin(0.5);
-    this.instructionText = this.add.bitmapText(this.width*0.5, this.height*0.3, 'pixelfont', 'Tap to Shoot', 35).setOrigin(0.5).setDepth(11);
+    this.scoreText = this.add.bitmapText(this.width * 0.5, this.height * 0.05, 'pixelfont', 'Score: 0', 35).setOrigin(0.5);
+    this.livesText = this.add.bitmapText(this.width * 0.12, this.height * 0.05, 'pixelfont', 'Bullets: 3', 35).setOrigin(0.5);
+    this.instructionText = this.add.bitmapText(this.width * 0.5, this.height * 0.3, 'pixelfont', 'Tap to Shoot', 35).setOrigin(0.5).setDepth(11);
     this.time.delayedCall(2500, () => {
       this.instructionText.destroy();
-      })
+    })
     // Add input listeners
     this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
-    const pauseButton = this.add.sprite(this.game.config.width*0.9, this.game.config.height*0.05, "pauseButton").setOrigin(0.5, 0.5).setScale(1.5);
+    const pauseButton = this.add.sprite(this.game.config.width * 0.9, this.game.config.height * 0.05, "pauseButton").setOrigin(0.5, 0.5).setScale(1.5);
     pauseButton.setInteractive({ cursor: 'pointer' });
     pauseButton.on('pointerdown', () => this.pauseGame());
 
@@ -131,7 +141,7 @@ class GameScene extends Phaser.Scene {
         clickInterval: 100,
       });
 
-      this.buttonA.button.on('down', function(button, gameObject) {
+      this.buttonA.button.on('down', function (button, gameObject) {
         console.log("button clicked");
       });
     }
@@ -139,7 +149,7 @@ class GameScene extends Phaser.Scene {
 
     gameSceneCreate(this);
 
-  
+
   }
 
   update() {
@@ -179,13 +189,13 @@ class GameScene extends Phaser.Scene {
     this.livesText.setText(`Bullets: ${this.lives}`);
   }
 
-    gameOver() {
-        initiateGameOver.bind(this)({score:this.score});
-    }
+  gameOver() {
+    initiateGameOver.bind(this)({ score: this.score });
+  }
 
-    pauseGame() {
-        handlePauseGame.bind(this)();
-    }
+  pauseGame() {
+    handlePauseGame.bind(this)();
+  }
 }
 
 
@@ -217,10 +227,10 @@ function displayProgressLoader() {
     progressBar.fillStyle(0x364afe, 1);
     progressBar.fillRect(x, y, width * value, height);
   });
-  this.load.on('fileprogress', function(file) {
+  this.load.on('fileprogress', function (file) {
     console.log(file.src);
   });
-  this.load.on('complete', function() {
+  this.load.on('complete', function () {
     progressBar.destroy();
     progressBox.destroy();
     loadingText.destroy();
@@ -236,22 +246,22 @@ const config = {
   type: Phaser.AUTO,
   width: orientationSizes[orientation].width,
   height: orientationSizes[orientation].height,
-  scene: [ GameScene],
+  scene: [GameScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   pixelArt: true,
-    physics: {
-        default: "matter",
-        
-    },
-    dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
-    },
-    orientation: false,
+  physics: {
+    default: "matter",
+
+  },
+  dataObject: {
+    name: title,
+    description: description,
+    instructions: instructions,
+  },
+  orientation: false,
 };
 
 
@@ -307,7 +317,7 @@ function gameSceneCreate(game) {
 
 //UPDATE FUNCTION FOR THE GAME SCENE
 function gameSceneUpdate(game) {
-  
+
   let worldPoint = game.cameras.main.getWorldPoint(game.input.x, game.input.y);
   drawSniperScope(game, worldPoint.x, worldPoint.y);
 
@@ -322,13 +332,13 @@ function gameSceneUpdate(game) {
   })
 
   if (game.lives == 0) {
-     game.respawnTimer.remove(); 
-     game.loseMusic.play();
-     game.time.delayedCall(2000,()=>{
-         game.gameOver(); 
+    game.respawnTimer.remove();
+    this.sounds.lose.setVolume(0.5).setLoop(false).play();
+    game.time.delayedCall(2000, () => {
+      game.gameOver();
 
-     })
-    }
+    })
+  }
   if (game.boxesLeft == 0) {
     console.log("CLEARED");
     game.respawnTimer.remove();
@@ -369,7 +379,7 @@ function click(pointer) {
 function release(pointer) {
   if (this.canShoot == true) {
     this.canShoot = false;
-    this.shootSound.play();
+    this.sounds.shoot.setVolume(0.5).setLoop(false).play();
     let endx = pointer.worldX;
     let endy = pointer.worldY;
     this.startx = this.player.x;

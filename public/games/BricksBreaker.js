@@ -1,4 +1,4 @@
-const assetsLoader = {
+let assetsLoader = {
   "background": "background",
   "enemy": "enemy",
   "projectile": "projectile",
@@ -6,7 +6,7 @@ const assetsLoader = {
 
 };
 
-const orientationSizes = {
+let orientationSizes = {
   "landscape": {
     "width": 1280,
     "height": 720,
@@ -112,7 +112,7 @@ class GameScene extends Phaser.Scene {
         clickInterval: 100,
       });
 
-      this.buttonA.button.on('down', function(button, gameObject) {
+      this.buttonA.button.on('down', function (button, gameObject) {
         console.log("button clicked");
       });
     }
@@ -247,10 +247,10 @@ function displayProgressLoader() {
     progressBar.fillStyle(0x364afe, 1);
     progressBar.fillRect(x, y, width * value, height);
   });
-  this.load.on('fileprogress', function(file) {
+  this.load.on('fileprogress', function (file) {
     console.log(file.src);
   });
-  this.load.on('complete', function() {
+  this.load.on('complete', function () {
     progressBar.destroy();
     progressBox.destroy();
     loadingText.destroy();

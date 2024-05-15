@@ -1,8 +1,14 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "collectible": "collectible"
 };
+
+let soundsLoader = {
+    "background": "background",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
+}
 
 // Custom UI Elements
 const title = `Swing Mania`
@@ -65,7 +71,11 @@ class GameScene extends Phaser.Scene {
 
         // Load In-Game Assets from assetsLoader
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         addEventListenersPhaser.bind(this)();
@@ -86,7 +96,15 @@ class GameScene extends Phaser.Scene {
 
     create() {
         this.vfx = new VFXLibrary(this);
-        this.sound.add('bgm', { loop: true, volume: 1 }).play();
+
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
+
+        this.sounds.background.setVolume(1).setLoop(true).play()
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
@@ -160,7 +178,7 @@ class GameScene extends Phaser.Scene {
         this.matter.world.on('collisionstart', (event) => {
             event.pairs.forEach(pair => {
                 if ((pair.bodyA === this.player.body && pair.bodyB == this.collectible.body) || (pair.bodyB === this.player.body && pair.bodyA == this.collectible.body)) {
-                    this.sound.add('collect', { loop: false, volume: 1 }).play();
+                    this.sounds.collect.setVolume(1).setLoop(false).play()
                     this.spawnCollectible();
                     this.startTimer();
                     this.updateScore(10);
@@ -174,7 +192,7 @@ class GameScene extends Phaser.Scene {
         this.ropeGraphics = this.add.graphics();
 
         this.input.on('pointerdown', function (pointer) {
-            this.sound.add('flap', { loop: false, volume: 1 }).play();
+            this.sounds.move.setVolume(1).setLoop(false).play();
             this.closestHinge = this.getClosestHinge(pointer.x, pointer.y);
             const playerDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.closestHinge.x, this.closestHinge.y);
 

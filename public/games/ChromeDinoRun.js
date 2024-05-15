@@ -5,6 +5,14 @@ const assetsLoader = {
     "platform": "platform"
 };
 
+const soundsLoader = {
+    "background": "background",
+    'jump': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3',
+    'damage': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav',
+    'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3',
+    'countdown': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/countdown_1.mp3',
+}
+
 // Custom UI Elements
 const title = `Dino Runner`
 const description = `A horizontal side-scroller running game`
@@ -31,8 +39,6 @@ const orientation = "landscape";
 ------------------- GLOBAL CODE STARTS HERE -------------------
 */
 
-
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -42,20 +48,19 @@ class GameScene extends Phaser.Scene {
     preload() {
         this.score = 0;
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
         }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
+        }
+
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
         this.load.bitmapFont('pixelfont',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-
-        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('jump', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3']);
-        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav']);
-        this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3']);
-        this.load.audio('footsteps', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/footsteps_1.mp3']);
-        this.load.audio('countDown', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/countdown_1.mp3']);
+        
         addEventListenersPhaser.bind(this)();
         displayProgressLoader.call(this);
 
@@ -66,12 +71,6 @@ class GameScene extends Phaser.Scene {
         this.width = this.game.config.width;
         this.height = this.game.config.height;
         this.vfx = new VFXLibrary(this);
-        this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 1 });
-        this.jumpMusic = this.sound.add('jump', { volume: 0.1 });
-        this.damageMusic = this.sound.add('damage', { volume: 0.2 });
-        this.looseMusic = this.sound.add('loose', { volume: 0.7 });
-        this.countDownMusic = this.sound.add('countDown', { volume: 0.7 });
-        this.backgroundMusic.play();
 
         this.scoreText = this.add.bitmapText(30, 15, 'pixelfont', 'Score: 0', 25).setScrollFactor(0).setDepth(11);
 
@@ -81,6 +80,13 @@ class GameScene extends Phaser.Scene {
             let x = 50 + (i * 35);
             this.hearts[i] = this.add.image(x, 90, "heart").setScale(0.025).setDepth(11);
         }
+
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.sounds.background.setVolume(3).setLoop(true).play();
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
         this.pauseButton = this.add.image(this.game.config.width - 60, 60, "pauseButton");
@@ -92,7 +98,7 @@ class GameScene extends Phaser.Scene {
         this.scale.pageAlignVertically = true;
         this.scale.refresh();
 
-        this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
+        this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
 
         // Use the larger scale factor to ensure the image covers the whole canvas
         const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
@@ -204,7 +210,7 @@ class GameScene extends Phaser.Scene {
 
     jump() {
         if (this.player.body.touching.down) {
-            this.jumpMusic.play();
+            this.sounds.jump.play();
             this.stompEffect = true;
             this.player.body.velocity.y = -650;
             this.player.setAngularVelocity(280);
@@ -242,23 +248,25 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOverWithEffects(player, boxes) {
+        this.lives--;
+        this.hearts[this.lives].destroy();
+        
         if (this.lives === 1) {
-            this.countDownMusic.play({ volume: 0.6 }); // Duration in milliseconds
+            this.sounds.countdown.play({ volume: 0.6 }); // Duration in milliseconds
             this.time.delayedCall(3000, () => {
-                this.countDownMusic.stop();
+                this.sounds.countdown.stop();
             });
             this.instructionText.setAlpha(0);
             this.vfx.blinkEffect(this.lastLifeText, 400, 3)
         }
+
         if (this.lives > 0) {
-            this.damageMusic.play();
+            this.sounds.damage.play();
             boxes.destroy();
-            this.lives--;
-            this.hearts[this.lives].destroy();
             this.vfx.shakeCamera(200, 0.01);
         } else {
             this.sound.stopAll();
-            this.looseMusic.play();
+            this.sounds.lose.play();
             this.player.setTint(0xff0000);
             this.physics.pause();
             this.vfx.shakeCamera(300, 0.04);

@@ -4,9 +4,9 @@ import VFXLibrary from "../vfxLibrary";
 import { populateAssetsLoader } from "./assets_list";
 import { populateSoundsLoader } from "./sounds_list";
 
-const assetsLoader = {}
+let assetsLoader = {}
 
-const soundsLoader = {
+let soundsLoader = {
     "background": "background"
 }
 
@@ -37,6 +37,8 @@ class GameScene {
         for (const key in soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
+
+        this.input.keyboard.disableGlobalCapture();
     }
 
     pauseGame() {
