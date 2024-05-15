@@ -1,7 +1,14 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "platform": "platform",
     "player": "player",
+}
+
+let soundsLoader = {
+    "background": "background",
+    'jump': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3',
+    'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3',
+    'collect': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3',
 }
 
 const title = `Flappy Bird`
@@ -34,16 +41,6 @@ const gameConstants = {
     pipeSpawnTime: 100,
 }
 
-// Touuch Screen Controls
-const joystickEnabled = false;
-const buttonEnabled = false;
-
-// JOYSTICK DOCUMENTATION: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/virtualjoystick/
-const rexJoystickUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js";
-
-// BUTTON DOCMENTATION: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/button/
-const rexButtonUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexbuttonplugin.min.js";
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -53,18 +50,16 @@ class GameScene extends Phaser.Scene {
     preload() {
         addEventListenersPhaser.bind(this)();
 
-        if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
-        if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
-        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
 
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
@@ -76,7 +71,12 @@ class GameScene extends Phaser.Scene {
 
     create() {
 
-        this.sound.add('bgm', { loop: true, volume: 1 }).play();
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.sounds.background.setVolume(3).setLoop(true).play();
 
         this.vfx = new VFXLibrary(this);
 
@@ -92,9 +92,11 @@ class GameScene extends Phaser.Scene {
         this.pipeMovingSpeed = gameConstants.pipeMovingSpeed;
         this.pipeSpawnTime = gameConstants.pipeSpawnTime;
 
-        this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
-        // this.bg.displayWidth = this.game.config.width;
-        this.bg.displayHeight = this.game.config.height;
+        this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
+
+        // Use the larger scale factor to ensure the image covers the whole canvas
+        const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
+        this.bg.setScale(scale);
 
         // Add UI elements
         this.scoreText = this.add.bitmapText(this.width / 2, 100, 'pixelfont', '0', 128).setOrigin(0.5, 0.5);
@@ -131,33 +133,6 @@ class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.player, this.pipesGroup, this.hitBird, null, this);
         this.makePipes(this);
 
-        const joyStickRadius = 50;
-
-        if (joystickEnabled) {
-            this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
-                x: joyStickRadius * 2,
-                y: this.height - (joyStickRadius * 2),
-                radius: 50,
-                base: this.add.circle(0, 0, 80, 0x888888, 0.5),
-                thumb: this.add.circle(0, 0, 40, 0xcccccc, 0.5),
-                dir: '8dir',   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
-                // forceMin: 16,
-            });
-            this.joystickKeys = this.joyStick.createCursorKeys();
-        }
-
-        if (buttonEnabled) {
-            this.buttonA = this.add.rectangle(this.width - 80, this.height - 100, 80, 80, 0xcccccc, 0.5)
-            this.buttonA.button = this.plugins.get('rexbuttonplugin').add(this.buttonA, {
-                mode: 1,
-                clickInterval: 100,
-            });
-
-            this.buttonA.button.on('down', (button, gameObject) => {
-                console.log("buttonA clicked");
-            });
-        }
-
     }
 
     update(time, delta) {
@@ -192,7 +167,7 @@ class GameScene extends Phaser.Scene {
     }
 
     hitBird() {
-        this.sound.add('lose', { loop: false, volume: 0.5 }).play();
+        this.sounds.lose.play();
         this.vfx.shakeCamera();
         this.physics.pause();
         this.player.setTint(0xff0000);
@@ -218,11 +193,11 @@ class GameScene extends Phaser.Scene {
         pipeBottom.body.allowGravity = false;
         pipeBottom.setOrigin(0, 0);
         this.updateScore(1);
-        this.sound.add('collect', { loop: false, volume: 0.5 }).play();
+        this.sounds.collect.play();
     }
 
     moveBird() {
-        this.sound.add('flap', { loop: false, volume: 0.5 }).play();
+        this.sounds.jump.play();
         this.player.setVelocityY(-400);
         this.player.angle = -15;
         this.framesMoveUp = this.jumpDistance;

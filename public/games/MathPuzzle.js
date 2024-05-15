@@ -1,6 +1,14 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
 };
+
+let soundsLoader = {
+    "background": "background",
+    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3",
+}
 
 const orientationSizes = {
     "landscape": {
@@ -41,15 +49,14 @@ class GameScene extends Phaser.Scene {
     preload() {
         // Load In-Game Assets from assetsLoader
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3']);
-        this.load.audio('correct', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3']);
-        this.load.audio('wrong', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav']);
-        this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio('tick', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3']);
         this.load.bitmapFont('pixelfont',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
@@ -58,16 +65,19 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
+
         this.width = this.game.config.width;
         this.height = this.game.config.height;
         this.vfx = new VFXLibrary(this);
 
-        this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 1 });
-        this.backgroundMusic.play();
-        this.correctMusic = this.sound.add('correct', { volume: 0.4 });
-        this.wrongMusic = this.sound.add('wrong', { volume: 0.4 });
-        this.looseMusic = this.sound.add('loose', { volume: 0.4 });
-        this.tickMusic = this.sound.add('tick', { volume: 0.05 });
+        this.sounds.background.setVolume(1).setLoop(true).play()
 
         this.gameSceneBackground();
         this.lives = 3;
@@ -103,7 +113,7 @@ class GameScene extends Phaser.Scene {
         this.clickAllowed = false;
         if (playerChoice === this.correctAnswer) {
             this.greenEmitter.explode(250);
-            this.correctMusic.play();
+            this.sounds.success.setVolume(0.4).setLoop(false).play()
             this.tweens.add({
                 targets: this.correctText,
                 alpha: 1,
@@ -125,7 +135,7 @@ class GameScene extends Phaser.Scene {
     }
 
     wrongAnswer() {
-        this.wrongMusic.play();
+        this.sounds.damage.setVolume(0.4).setLoop(false).play()
         this.tweens.add({
             targets: this.wrongText,
             alpha: 1,
@@ -143,7 +153,7 @@ class GameScene extends Phaser.Scene {
 
                     } else {
                         this.sound.stopAll();
-                        this.looseMusic.play();
+                        this.sounds.lose.setVolume(0.4).setLoop(false).play()
                         this.vfx.shakeCamera(300, 0.04);
                         this.time.delayedCall(2000, () => {
                             this.gameOver();
@@ -261,7 +271,7 @@ class GameScene extends Phaser.Scene {
         };
         this.timeLeft--;
         this.timerText.setText(`Time left : ${this.timeLeft}s`);
-        this.tickMusic.play();
+        this.sounds.shoot.setVolume(0.05).setLoop(false).play()
         if (this.timeLeft <= 0) {
             this.gameOver();
         }

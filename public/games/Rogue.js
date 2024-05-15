@@ -1,10 +1,19 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "enemy": "enemy",
     "projectile": "projectile",
     "collectible": "collectible",
 };
+
+let soundsLoader = {
+    'background': "background",
+    'shoot': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
+    'damage': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
+    'upgrade': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
+    'lose': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    'collect': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+}
 
 // Custom UI Elements
 const title = `Rogue`
@@ -29,8 +38,8 @@ const orientationSizes = {
 }
 
 // Touuch Screen Controls
-const joystickEnabled = true;
-const buttonEnabled = true;
+const joystickEnabled = false;
+const buttonEnabled = false;
 
 // JOYSTICK DOCUMENTATION: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/virtualjoystick/
 const rexJoystickUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js";
@@ -52,15 +61,12 @@ class GameScene extends Phaser.Scene {
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
 
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
         }
 
-        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-6.mp3']);
-        this.load.audio('shoot', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3']);
-        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3']);
-        this.load.audio('upgrade', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3']);
-        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
+        }
 
         this.load.image('plus', this.createPlusTexture());
         const fontName = 'pix';
@@ -76,6 +82,13 @@ class GameScene extends Phaser.Scene {
     create() {
         this.vfx = new VFXLibrary(this);
         this.isMobile = !this.sys.game.device.os.desktop;
+
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
@@ -120,8 +133,7 @@ class GameScene extends Phaser.Scene {
         this.pauseButton.setScrollFactor(0);
         this.pauseButton.on('pointerdown', () => this.pauseGame());
 
-        this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 1 });
-        this.backgroundMusic.play();
+        this.sounds.background.setVolume(1).setLoop(true).play();
 
         this.player;
         this.enemies;
@@ -156,7 +168,7 @@ class GameScene extends Phaser.Scene {
         this.collectibles = this.physics.add.group();
 
         // Set up camera to follow player
-        this.cameras.main.startFollow(this.player);
+        this.cameras.main.startFollow(this.player, true, 0.03, 0.03);
 
         // Set up arrow key input
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -164,10 +176,10 @@ class GameScene extends Phaser.Scene {
         // Display score
         this.scoreText = this.add.bitmapText(this.width / 2, 100, 'pixelfont', this.score, 64).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
         this.healthIcon = this.add.image(80, 100, "plus").setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
-        this.healthText = this.add.bitmapText(180, 90, 'pixelfont', this.healthRegenPoints + "/" + this.healthRegenPointsRequired, 64).setOrigin(0.5, 0.5).setScrollFactor(0);
+        this.healthText = this.add.bitmapText(180, 90, 'pixelfont', this.healthRegenPoints + "/" + this.healthRegenPointsRequired, 64).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
 
         this.bulletIcon = this.add.image(80, 200, "projectile").setScale(0.08).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
-        this.bulletText = this.add.bitmapText(180, 190, 'pixelfont', this.bulletAddPoints + "/" + this.bulletAddPointsRequired, 64).setOrigin(0.5, 0.5).setScrollFactor(0);
+        this.bulletText = this.add.bitmapText(180, 190, 'pixelfont', this.bulletAddPoints + "/" + this.bulletAddPointsRequired, 64).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
 
         // Spawn enemies
         this.time.addEvent({
@@ -304,7 +316,7 @@ class GameScene extends Phaser.Scene {
         if (closestEnemy) {
             const bullet = this.bullets.create(this.player.x, this.player.y, 'projectile').setScale(0.025);
             this.physics.moveToObject(bullet, closestEnemy, 500);
-            this.sound.add('shoot', { loop: false, volume: 0.5 }).play();
+            this.sounds.shoot.setVolume(0.5).setLoop(false).play()
         }
     }
 
@@ -324,7 +336,7 @@ class GameScene extends Phaser.Scene {
     }
 
     playerEnemyCollision(player, enemy) {
-        this.sound.add('damage', { loop: false, volume: 1 }).play();
+        this.sounds.damage.setVolume(1).setLoop(false).play()
         this.vfx.shakeCamera(200, 0.015);
         this.vfx.createEmitter('heart', player.x, player.y, 0.025, 0, 1000).explode(10);
         this.playerHealth -= 10;
@@ -341,7 +353,7 @@ class GameScene extends Phaser.Scene {
                     .setDepth(100);
 
                 this.time.delayedCall(500, () => {
-                    this.sound.add('lose', { loop: false, volume: 1 }).play();
+                    this.sounds.lose.setVolume(1).setLoop(false).play()
                     gameOverText.setVisible(true);
                     this.tweens.add({
                         targets: gameOverText,
@@ -384,11 +396,11 @@ class GameScene extends Phaser.Scene {
 
     collectCollectible(player, collectible) {
         collectible.destroy();
-        this.sound.add('collect', { loop: false, volume: 1 }).play();
+        this.sounds.collect.setVolume(1).setLoop(false).play()
         this.healthRegenPoints += 1
         this.bulletAddPoints += 1
         if (this.healthRegenPoints >= this.healthRegenPointsRequired) {
-            this.sound.add('upgrade', { loop: false, volume: 1 }).play();
+            this.sounds.upgrade.setVolume(1).setLoop(false).play();
             this.vfx.createEmitter('plus', player.x, player.y, 1, 0, 1000).explode(10);
             this.healthRegenPoints = 0
             this.playerHealth = 100;
@@ -399,7 +411,7 @@ class GameScene extends Phaser.Scene {
             });
         }
         if (this.bulletAddPoints >= this.bulletAddPointsRequired) {
-            this.sound.add('upgrade', { loop: false, volume: 1 }).play();
+            this.sounds.upgrade.setVolume(1).setLoop(false).play();
             this.vfx.createEmitter('projectile', player.x, player.y, 0.025, 0, 1000).explode(10);
             this.bulletAddPoints = 0
             this.lastFiredDelay *= 0.9;
@@ -474,6 +486,11 @@ const config = {
             gravity: { y: 0 },
             debug: false
         }
+    },
+    dataObject: {
+        name: title,
+        description: description,
+        instructions: instructions,
     },
     orientation: true,
     parent: "game-container",

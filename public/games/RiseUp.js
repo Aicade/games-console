@@ -1,5 +1,12 @@
-const assetsLoader = { "background": "background", "player": "player", "platform": "platform", "enemy": "enemy" }
+let assetsLoader = { "background": "background", "player": "player", "platform": "platform", "enemy": "enemy" }
 
+let soundsLoader = {
+    "background": "background",
+    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
+}
 
 const title = `Rise Above`
 const description = `Tap to throw bombs.`
@@ -51,16 +58,15 @@ class GameScene extends Phaser.Scene {
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
-        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3']);
 
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
@@ -75,7 +81,14 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         this.enemySpawnDelay = 2000;
 
-        this.sound.add('bgm', { loop: true, volume: .75 }).play();
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
+
+        this.sounds.background.setVolume(0.75).setLoop(false).play()
 
         this.vfx = new VFXLibrary(this);
 
@@ -87,7 +100,7 @@ class GameScene extends Phaser.Scene {
         this.bg.displayHeight = this.game.config.height;
         this.bg.displayWidth = this.game.config.width;
 
-        this.player = this.physics.add.sprite(50, this.sys.game.config.height - 50, 'player').setScale(.1).setDepth(5);
+        this.player = this.physics.add.sprite(50, this.sys.game.config.height - 50, 'player').setScale(.1).setDepth(5).setOrigin(0.5, 1);
         this.player.body.setGravityY(100); // Adjust gravity strength as needed
         this.player.setCollideWorldBounds(true);
         var newBodyWidth = this.player.body.width * 0.5; // Decrease width by 20%
@@ -135,10 +148,10 @@ class GameScene extends Phaser.Scene {
         });
 
         this.input.on('pointerdown', (pointer) => {
-            this.sound.add('damage', { loop: false, volume: .5 }).play();
-            const platform = this.platforms.create(this.player.x, this.player.y - 27, 'platform').setScale(.09).setOrigin(0.5, 0);
+            this.sounds.damage.setVolume(0.5).setLoop(false).play()
+            const platform = this.platforms.create(this.player.x, this.player.y - 120, 'platform').setScale(.09).setOrigin(0.5, 0);
             platform.body.setAllowGravity(true);
-            this.player.setY(platform.y - 27);
+            this.player.setY(platform.y - 10);
         });
 
 
@@ -184,7 +197,7 @@ class GameScene extends Phaser.Scene {
     }
 
     enemyVFXEffect(bullet, enemy) {
-        this.sound.add('collect', { loop: false, volume: 1 }).play();
+        this.sounds.collect.setVolume(1).setLoop(false).play()
         // Tween for moving up
         // this.tweens.add({
         //     targets: enemy,
@@ -252,7 +265,7 @@ class GameScene extends Phaser.Scene {
                     .setAngle(-15);
 
                 this.time.delayedCall(500, () => {
-                    this.sound.add('lose', { loop: false, volume: 1 }).play();
+                    this.sounds.lose.setVolume(1).setLoop(false).play()
                     gameOverText.setVisible(true);
                     this.tweens.add({
                         targets: gameOverText,

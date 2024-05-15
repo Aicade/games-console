@@ -1,4 +1,15 @@
-const assetsLoader = { "background": "image_2_background_background_1..png", "collectible": "image_3_collectible_gold_coin_1..png" }
+let assetsLoader = {
+    "background": "background",
+    "collectible": "collectible"
+}
+
+let soundsLoader = {
+    "background": "background",
+    "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
+}
 
 // Custom UI Elements
 const title = `Tap to save`
@@ -67,11 +78,6 @@ function gameSceneCreate(game) {
         loop: true
     });
     enemies = game.physics.add.group();
-
-
-
-    game.input.keyboard.on('keydown-U', () => game.updateScore(1));
-    game.input.keyboard.on('keydown-G', () => game.gameOver());
 }
 
 //UPDATE FUNCTION FOR THE GAME SCENE
@@ -85,7 +91,7 @@ function gameSceneUpdate(game) {
         }
         if (enemy.y > game.game.config.height - 50) {
             game.vfx.shakeCamera();
-            game.looseSound.play();
+            game.sounds.lose.setVolume(1).setLoop(false).play();
             game.time.delayedCall(400, () => {
                 game.gameOver();
             })
@@ -106,7 +112,7 @@ function spawnEnemy(game) {
         game.instructionText.setAlpha(0);
 
         enemy.destroy();
-        game.coinSound.play();
+        game.sounds.collect.setVolume(0.05).setLoop(false).play()
         createParticles(game, enemy.x, enemy.y);
         increaseScore(game, 1);
 
@@ -175,16 +181,15 @@ class GameScene extends Phaser.Scene {
 
         // Load In-Game Assets from assetsLoader
         for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         // gameScenePreload(this);
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        this.load.audio('backgroundMusic', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-1.mp3']);
-        this.load.audio('jump', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3']);
-        this.load.audio('coinCollect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3']);
-        this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3']);
-        this.load.audio('loose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3']);
         this.load.bitmapFont('pixelfont',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
@@ -196,6 +201,13 @@ class GameScene extends Phaser.Scene {
 
     create() {
 
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
+
         this.width = this.game.config.width;
         this.height = this.game.config.height;
         this.vfx = new VFXLibrary(this);
@@ -203,11 +215,7 @@ class GameScene extends Phaser.Scene {
         this.bg.setScrollFactor(0);
         this.bg.displayHeight = this.game.config.height;
         this.bg.displayWidth = this.game.config.width;
-        this.backgroundMusic = this.sound.add('backgroundMusic', { loop: true, volume: 2 });
-        this.backgroundMusic.play();
-        this.coinSound = this.sound.add('coinCollect', { loop: false, volume: 0.7 });
-        this.damegeSound = this.sound.add('damage', { loop: false, volume: 0.7 });
-        this.looseSound = this.sound.add('loose', { loop: false, volume: 1 });
+        this.sounds.background.setVolume(1).setLoop(true).play();
         // Add UI elements
         // this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '20px', fill: globalPrimaryFontColor });
         this.instructionText = this.add.bitmapText(this.game.config.width * 0.5, this.game.config.height * 0.3, 'pixelfont', `Tap to play`, 25).setOrigin(0.5, 0.5);
