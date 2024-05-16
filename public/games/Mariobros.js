@@ -9,14 +9,14 @@ let assetsLoader = {
 };
 
 let soundsLoader = {
-    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
+    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-1.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
     "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
     "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
-    "collectible_1": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
-    "collectible_2": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3",
-    "collectible_3": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
+    "upgrade_1": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
+    "upgrade_2": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
     "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
     "stretch": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3",
     "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
@@ -379,7 +379,7 @@ class GameScene extends Phaser.Scene {
             }
             if (brick.coin) {
                 brick.coin--;
-                this.sounds.collectible_3.setVolume(1).setLoop(false).play();
+                this.sounds.collect.setVolume(1).setLoop(false).play();
 
                 this.updateScore(1);
                 if (!brick.coin) {
@@ -447,7 +447,7 @@ class GameScene extends Phaser.Scene {
             this.powerUpText.text = "SIZE POWER UP";
             this.blinkEffect(this.powerUpText, 200, 5);
             player.power_state++;
-            this.sounds.collectible_1.setVolume(1).setLoop(false).play();
+            this.sounds.upgrade_1.setVolume(1).setLoop(false).play();
 
             this.tweens.add({
                 targets: this.player,
@@ -461,7 +461,7 @@ class GameScene extends Phaser.Scene {
             this.powerUpText.text = "BULLET POWER UP"
             this.blinkEffect(this.powerUpText, 200, 5);
             player.power_state++;
-            this.sounds.collectible_2.setVolume(1).setLoop(false).play();
+            this.sounds.upgrade_2.setVolume(1).setLoop(false).play();
             player.setTint(0xff00ff);
             this.input.keyboard.on('keydown-SPACE', this.shootBullet, this);
             this.colorAnimation(true, this.player);
