@@ -12,11 +12,14 @@ let soundsLoader = {
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
 }
 
-const title = `GO-Around`
-const description = `GO around the circle and dodge the enemies`
+// Custom UI Elements
+const title = `Cut The Rope`
+const description = `A game where you have to slice 
+the rope at the right time`
 const instructions =
     `Instructions:
-  1. Tap to jump and dodge`;
+1. Swipe to slice the rope.
+2. Make the player reach the goal.`;
 
 //Slice Effect
 class SliceEffect {
