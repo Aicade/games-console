@@ -1,10 +1,10 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "collectible": "collectible",
     "avoidable": "avoidable"
 }
 
-const soundsLoader = {
+let soundsLoader = {
     "background": "background",
     'destroy': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3',
     'slice': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac',
@@ -86,11 +86,11 @@ class GameScene extends Phaser.Scene {
         for (const key in assetsLoader) {
             this.load.image(key, assetsLoader[key]);
         }
-        
+
         for (const key in soundsLoader) {
             this.load.audio(key, [soundsLoader[key]]);
         }
-        
+
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
 
         this.load.bitmapFont('pixelfont',

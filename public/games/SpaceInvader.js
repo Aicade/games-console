@@ -1,6 +1,6 @@
-const assetsLoader = { "background": "background", "player": "player", "enemy": "enemy", "projectile": "projectile" }
+let assetsLoader = { "background": "background", "player": "player", "enemy": "enemy", "projectile": "projectile" }
 
-const soundsLoader = {
+let soundsLoader = {
     "background": "background",
     'destroy': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3',
     'shoot': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3',
@@ -57,7 +57,7 @@ class GameScene extends Phaser.Scene {
         for (const key in assetsLoader) {
             this.load.image(key, assetsLoader[key]);
         }
-        
+
         for (const key in soundsLoader) {
             this.load.audio(key, [soundsLoader[key]]);
         }

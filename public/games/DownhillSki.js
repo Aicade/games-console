@@ -1,8 +1,15 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "enemy": "enemy",
 };
+
+let soundsLoader = {
+    "background": "background",
+    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3"
+}
 
 const title = `Down Hill Ski`
 const description = `Tap to change direction.`
@@ -45,20 +52,22 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         this.isGameOver = false;
 
+        for (const key in assetsLoader) {
+            this.load.image(key, assetsLoader[key]);
+        }
+
+        for (const key in soundsLoader) {
+            this.load.audio(key, [soundsLoader[key]]);
+        }
+
         addEventListenersPhaser.bind(this)();
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-        for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
-        }
+
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
-        this.load.audio('bgm', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3']);
-        this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
-        this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
-        this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
 
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
@@ -76,9 +85,17 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+
+        this.sounds = {};
+        for (const key in soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        }
+
+        this.input.keyboard.disableGlobalCapture();
+
         this.isGameOver = false;
 
-        this.sound.add('bgm', { loop: true, volume: .75 }).play();
+        this.sounds.background.setVolume(0.75).setLoop(true).play();
         this.gameSceneBackground();
 
         this.vfx = new VFXLibrary(this);
@@ -98,7 +115,7 @@ class GameScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.isMovingRight = true;
         this.input.on('pointerdown', () => {
-            this.sound.add('flap', { loop: false, volume: 1 }).play();
+            this.sounds.move.setVolume(1).setLoop(false).play()
             this.isMovingRight = !this.isMovingRight;
         });
 
@@ -226,7 +243,7 @@ class GameScene extends Phaser.Scene {
             .setAngle(-15);
 
         this.time.delayedCall(500, () => {
-            this.sound.add('lose', { loop: false, volume: .5 }).play();
+            this.sounds.lose.setVolume(0.5).setLoop(false).play()
             gameOverText.setVisible(true);
             this.tweens.add({
                 targets: gameOverText,

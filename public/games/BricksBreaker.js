@@ -1,4 +1,4 @@
-const assetsLoader = {
+let assetsLoader = {
   "background": "background",
   "enemy": "enemy",
   "projectile": "projectile",

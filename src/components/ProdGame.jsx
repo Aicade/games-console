@@ -40,7 +40,7 @@ const ProdGame = () => {
             const vfxUrl =
                 "/lib/vfxLibrary.js";
             const gameUrl =
-                `/games/${name}.js`
+                `/games/${name}`
             const assetsUrl =
                 `/assetsList.js`
             const soundsUrl =
@@ -138,6 +138,10 @@ const ProdGame = () => {
         setGameOverDetails(e.detail);
     };
 
+    const handleToggleGameSound = () => {
+        braincadeSDK.initiateToggleGameSounds(false);
+    }
+
     return (
         <div className="">
             <div className="">
@@ -150,6 +154,7 @@ const ProdGame = () => {
                             <div className="absolute top-0 flex flex-col">
                                 <div>GAME PAUSED</div>
                                 <button onClick={handleResumeGame}>Resume</button>
+                                <button onClick={handleToggleGameSound}>Sound</button>
                                 <button onClick={handleDestroyGame}>Destroy</button>
                                 <button onClick={handleRestartGame}>Restart</button>
                             </div>

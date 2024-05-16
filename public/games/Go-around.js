@@ -1,21 +1,13 @@
 let assetsLoader = {
     "background": "background",
     "enemy": "enemy",
-};
+    "player": "player",
+}
 
 let soundsLoader = {
     "background": "background",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3"
 }
-
-const title = `Duck HUnt`
-const description = `Tap to hunt ducks.`
-const instructions =
-    `Instructions:
-  1. Shoot and kill ducks.`;
 
 const orientationSizes = {
     "landscape": {
@@ -29,7 +21,15 @@ const orientationSizes = {
 }
 
 // Game Orientation
-const orientation = "landscape";
+const orientation = "portrait";
+
+
+// Custom UI Elements
+const title = `GO-Around`
+const description = `GO around the circle and dodge the enemies`
+const instructions =
+    `Instructions:
+  1. Tap to jump and dodge`;
 
 
 // Touuch Screen Controls
@@ -46,12 +46,11 @@ const rexButtonUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-n
 class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
+        this.score = 0;
+        this.enemySpawnDelay = 2000;
     }
 
     preload() {
-        this.score = 0;
-        this.lives = 3;
-
         addEventListenersPhaser.bind(this)();
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
@@ -64,7 +63,6 @@ class GameScene extends Phaser.Scene {
             this.load.audio(key, [soundsLoader[key]]);
         }
 
-        this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
 
@@ -77,22 +75,14 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-
+        this.input.keyboard.disableGlobalCapture();
         this.sounds = {};
         for (const key in soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
-
-        this.input.keyboard.disableGlobalCapture();
-
-        this.sounds.background.setVolume(1).setLoop(true).play();
-        this.lives = 3;
-        this.hearts = [];
-        for (let i = 0; i < this.lives; i++) {
-            let x = 50 + (i * 35);
-            this.hearts[i] = this.add.image(x, 50, "heart").setScale(0.025).setDepth(11);
-        }
-
+        this.score = 0;
+        this.enemySpawnDelay = 2000;
+        this.sounds.background.setVolume(2.5).setLoop(true).play();
 
         this.vfx = new VFXLibrary(this);
 
@@ -107,6 +97,9 @@ class GameScene extends Phaser.Scene {
         // Add UI elements
         this.scoreText = this.add.bitmapText(this.width / 2, 100, 'pixelfont', '0', 128).setOrigin(0.5, 0.5);
         this.scoreText.setDepth(11);
+
+        this.levelUpText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY - 50, 'pixelfont', 'LEVEL UP', 80).setOrigin(0.5, 0.5)
+            .setAlpha(0).setDepth(11).setTint(0xffff00);
 
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
@@ -143,83 +136,76 @@ class GameScene extends Phaser.Scene {
             });
         }
 
-        this.startx = 0;
-        this.starty = 0;
+        this.circle = new Phaser.Geom.Circle(400, 600, 300);
+        this.graphics = this.add.graphics({ fillStyle: { color: 0xffffff } });
+        this.graphics.setAlpha(0.6);
 
-        this.canShoot = false;
-        this.time.delayedCall(500, () => {
-            this.canShoot = true
+        this.graphics.fillCircleShape(this.circle);
+
+        this.enemies = this.physics.add.group();
+
+        this.playerAngle = 0;
+        this.playerDistance = 255;
+        this.player = this.physics.add.sprite(this.circle.x, this.circle.y - this.playerDistance, 'player').setScale(.1);
+        let currentWidth = this.player.body.width;
+        let currentHeight = this.player.body.height;
+        let newWidth = currentWidth * 0.5; // 30% decrease
+        let newHeight = currentHeight * 0.5; // 30% decrease
+
+        this.player.setBodySize(newWidth, newHeight, true);
+
+
+        // this.isJumping = false;
+        this.jumpCount = 0;
+        this.maxJump = 2; // Allow up to 2 jumps (double jump)
+
+
+        // Handle input
+        this.input.on('pointerdown', this.jump, this);
+        this.spawnEnemyTimer = this.time.addEvent({
+            delay: this.enemySpawnDelay,
+            callback: this.spawnEnemy,
+            callbackScope: this,
+            loop: true
         });
 
         this.time.addEvent({
-            delay: 750,
-            callback: this.enhancedEnemySpawn,
+            delay: 100,
+            callback: this.scorePoints,
             callbackScope: this,
-            loop: true,
-            args: [this]
+            loop: true
         });
 
-        this.enemies = this.physics.add.group({
-            allowGravity: false,
+        this.physics.add.overlap(this.player, this.enemies, (player, enemy) => {
+            player.destroy();
+            this.resetGame();
         });
 
-        this.sniperScope = this.add.graphics({ fillStyle: { color: 0x000000 } });
-        this.sniperScope.setDepth(11);
+    }
 
-        this.input.on("pointerdown", function () {
-            if (!this.isGameOver) {
-                this.sounds.damage.setVolume(1).setLoop(false).play()
-                this.lives -= 1;
-                this.updateLives(this.lives);
-                this.cameras.main.flash(100);
+    levelUp() {
+        this.levelUpText.setAlpha(1);  // Make the text fully visible before starting to blink
 
-                // Create the bitmap text object
-                let missedText = this.add.bitmapText(this.cameras.main.centerX,
-                    this.cameras.main.centerY, 'pixelfont', 'MISS',
-                    64).setOrigin(0.5, 0.5).setDepth(11);
-
-                // Apply red tint
-                missedText.setTint(0xff0000);
-
-                // Create the tween
-                this.tweens.add({
-                    targets: missedText,
-                    scaleX: 2, // Scale X to 1.5
-                    scaleY: 2, // Scale Y to 1.5
-                    alpha: 1, // Fade out
-                    duration: 500,
-                    angle: Phaser.Math.Between(-10, 10),
-                    onComplete: () => {
-                        missedText.destroy();
-                    }
-                });
-            }
-        }, this);
-
-        let bubble = this.add.graphics({ x: -100, y: 0, add: false });
-
-        // Define the bubble's properties
-        const bubbleRadius = 20;
-        const bubbleColor = 0xEF6C8B; // A nice bubble color
-
-        // Draw the bubble
-        bubble.fillStyle(bubbleColor, 1); // Semi-transparent
-        bubble.fillCircle(bubbleRadius, bubbleRadius, bubbleRadius);
-        bubble.generateTexture('bubbles', 100, 100);
-
+        this.tweens.add({
+            targets: this.levelUpText,
+            alpha: 0,  // Tween the alpha to 0
+            ease: 'Linear',  // Consistent blinking rate
+            duration: 500,  // Duration to fade out
+            repeat: 1,  // Calculate number of repeats to achieve approximately 500 seconds
+            yoyo: false  // Return to visible after reaching 0
+        });
     }
 
     resetGame() {
         this.isGameOver = true;
         this.physics.pause();
-        // this.player.destroy();
         this.score = 0;
         this.vfx.shakeCamera();
 
         let gameOverText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY - 200, 'pixelfont', 'Game Over', 64)
             .setOrigin(0.5)
             .setVisible(false)
-            .setAngle(-15);
+            .setAngle(-15).setTint(0xFF0000);
 
         this.time.delayedCall(500, () => {
             this.sounds.lose.setVolume(1).setLoop(false).play();
@@ -240,98 +226,67 @@ class GameScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        let worldPoint = this.cameras.main.getWorldPoint(this.input.x, this.input.y);
-        // this.drawSniperScope(worldPoint.x, worldPoint.y);
-
-        if (this.lives == 0 && !this.isGameOver) { this.resetGame(); }
+        this.playerAngle += 0.01;
+        const playerX = this.circle.x + Math.cos(this.playerAngle) * this.playerDistance;
+        const playerY = this.circle.y + Math.sin(this.playerAngle) * this.playerDistance;
+        this.player.setPosition(playerX, playerY);
+        // this.player.rotation = -this.playerAngle;
+        this.player.rotation = this.playerAngle - Math.PI - 30;
 
     }
-    // drawSniperScope(x, y) {
-    //     this.sniperScope.clear();
-    //     const scopeRadius = 50;
 
-    //     this.sniperScope.beginPath();
-    //     this.sniperScope.fillStyle(0xffffff, .1);
-    //     this.sniperScope.fillCircle(x, y, scopeRadius);
-    //     this.sniperScope.closePath();
+    jump() {
+        const jumpDistance = 200;
 
-    //     this.sniperScope.lineStyle(2, 0xffffff, 1);
-    //     this.sniperScope.beginPath();
-    //     this.sniperScope.moveTo(x, y - scopeRadius);
-    //     this.sniperScope.lineTo(x, y + scopeRadius);
-    //     this.sniperScope.moveTo(x - scopeRadius, y);
-    //     this.sniperScope.lineTo(x + scopeRadius, y);
-    //     this.sniperScope.strokePath();
-    // }
-
-    enhancedEnemySpawn() {
-        if (!this.isGameOver) {
-            let spawnFromLeft = Math.random() < 0.5;
-            let spawnX = Phaser.Math.Between(0, this.game.config.width);
-            let spawnY = this.game.config.height;
-            let velocityX = spawnFromLeft ? 200 : -200;
-
-            var enemy = this.enemies.create(spawnX, spawnY, 'enemy').setScale(.1);
-            enemy.flipX = spawnFromLeft ? false : true;
-            enemy.setInteractive();
-
-            let originalWidth = enemy.width;
-            let originalHeight = enemy.height;
-            let newWidth = originalWidth * 0.4;
-            let newHeight = originalHeight * 0.5;
-            enemy.body.setSize(newWidth, newHeight);
-
-            enemy.on("pointerdown", function () {
-                if (!this.isGameOver) {
-                    this.sounds.move.setVolume(4).setLoop(false).play()
-
-                    this.cameras.main.flash(100);
-                    enemy.body.moves = false;
-                    this.time.delayedCall(400, () => {
-                        enemy.body.moves = true;
-                    }, [], this);
-
-                    const emitter = this.add.particles(enemy.x, enemy.y, 'bubbles', {
-                        speed: { min: -100, max: 300 },
-                        scale: { start: .2, end: 0 },
-                        blendMode: 'MULTIPLY',
-                        lifespan: 550,
-                        tint: 0x93C54B
-                    });
-
-                    emitter.explode(200);
-
-                    if (enemy.flipX)
-                        enemy.angle -= (90 + 45);
-                    else
-                        enemy.angle += (90 + 45);
-                    enemy.flipTimer.remove();
-                    enemy.setVelocityX(0);
-                    enemy.setVelocityY(500);
-                    this.updateScore(1);
-                    enemy.removeInteractive();
+        if (this.playerDistance == 255) {
+            this.tweens.add({
+                targets: this,
+                playerDistance: this.circle.radius - jumpDistance,
+                duration: 500,
+                yoyo: true,
+                ease: 'Sine.easeInOut',
+                onUpdate: () => {
+                    this.player.x = this.circle.x + Math.cos(this.playerAngle) * this.playerDistance;
+                    this.player.y = this.circle.y + Math.sin(this.playerAngle) * this.playerDistance;
                 }
-            }, this);
-
-            enemy.setVelocityX(velocityX);
-            enemy.setVelocityY(-100);
-
-            let rand = Phaser.Math.Between(1000, 3000);
-
-            enemy.flipTimer = this.time.addEvent({
-                delay: rand,
-                callback: this.flip,
-                callbackScope: this,
-                loop: false,
-                args: [enemy, velocityX, enemy.flipX]
             });
         }
     }
 
-    flip(enemy, velX, flipX) {
-        enemy.setVelocityX(-velX);
-        enemy.flipX = !flipX;
+    spawnEnemy() {
+        if (!this.isGameOver) {
+            // Generate a random number between 0.7 and 1.3
+            const randomAngle = Phaser.Math.FloatBetween(0.7, 1.3);
+
+            // console.log(randomAngle);
+
+            const spawnAngle = this.playerAngle + randomAngle;
+            const x = this.circle.x + Math.cos(spawnAngle) * this.circle.radius;
+            const y = this.circle.y + Math.sin(spawnAngle) * this.circle.radius;
+            const enemy = this.enemies.create(x, y, 'enemy').setScale(.05);
+            const newWidth = enemy.body.width * 0.5; // Reduce width by 20%
+            const newHeight = enemy.body.height * 0.8; // Reduce height by 20%
+
+            enemy.body.setSize(newWidth, newHeight);
+
+            this.vfx.addShine(enemy, 4000, .3);
+            this.vfx.rotateGameObject(enemy);
+            this.time.delayedCall(5000, () => enemy.destroy(), [], this);
+        }
     }
+    scorePoints() {
+        if (!this.isGameOver) {
+            this.score++;
+            this.updateScore(1);
+            if (this.score % 100 === 0) {
+                this.levelUp();
+                this.timerDelay = this.enemySpawnDelay - 100;
+                this.enemySpawnDelay = this.timerDelay;
+                this.spawnEnemyTimer.delay = this.timerDelay;
+            }
+        }
+    }
+
 
     updateScore(points) {
         this.score += points;
@@ -342,14 +297,10 @@ class GameScene extends Phaser.Scene {
         this.scoreText.setText(this.score);
     }
 
-    updateLives(lives) {
-        this.hearts[this.lives].destroy();
-        this.lives = lives;
-        // this.updateLivesText();
-    }
-
     gameOver() {
-        initiateGameOver.bind(this)({ score: this.score });
+        initiateGameOver.bind(this)({
+            score: this.score
+        });
     }
 
     pauseGame() {
@@ -417,5 +368,5 @@ const config = {
         description: description,
         instructions: instructions,
     },
-    orientation: true
+    orientation: false,
 };

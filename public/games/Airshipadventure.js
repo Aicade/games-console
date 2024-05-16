@@ -55,7 +55,7 @@ class GameScene extends Phaser.Scene {
 
   create() {
     this.score = 0;
-    
+
     this.sounds = {};
     for (const key in soundsLoader) {
       this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
@@ -96,7 +96,7 @@ class GameScene extends Phaser.Scene {
   }
 
   gameOver() {
-    initiateGameOver.bind(this)({score: this.score});
+    initiateGameOver.bind(this)({ score: this.score });
   }
 
   pauseGame() {
@@ -155,7 +155,7 @@ const config = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  pixelArt : true,
+  pixelArt: true,
   /* ADD CUSTOM CONFIG ELEMENTS HERE */
   physics: {
     default: "arcade",
@@ -171,9 +171,6 @@ const config = {
   },
   orientation: true
 };
-
-// Game instance
-const game = new Phaser.Game(config);
 
 let INIT_PLAYER_SPEED,
   PLAYER_SPEED = INIT_PLAYER_SPEED,

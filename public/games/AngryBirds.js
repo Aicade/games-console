@@ -1,10 +1,10 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "enemy": "enemy",
 };
 
-const soundsLoader = {
+let soundsLoader = {
     "background": "background",
     'upgrade': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3',
     'stretch': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/stretch.mp3',
