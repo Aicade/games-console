@@ -10,7 +10,7 @@ let soundsLoader = {
   "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
   "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/footsteps_1.mp3",
   "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav"
-}
+};
 
 // Custom UI Elements
 const title = `SILVER SURFER`

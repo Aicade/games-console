@@ -6,10 +6,10 @@ let assetsLoader = {
 };
 
 let soundsLoader = {
-    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3",
+    "background": "background",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-}
+};
 
 
 const title = `Spin Master Game`

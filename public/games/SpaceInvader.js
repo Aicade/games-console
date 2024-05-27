@@ -1,11 +1,16 @@
-let assetsLoader = { "background": "background", "player": "player", "enemy": "enemy", "projectile": "projectile" }
+let assetsLoader = {
+    "background": "background",
+    "player": "player",
+    "enemy": "enemy",
+    "projectile": "projectile"
+};
 
 let soundsLoader = {
     "background": "background",
     'destroy': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3',
     'shoot': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3',
     'upgrade': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3',
-}
+};
 
 // Custom UI Elements
 const title = `Space Drive`

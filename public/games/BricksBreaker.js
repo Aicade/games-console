@@ -3,16 +3,15 @@ let assetsLoader = {
   "enemy": "enemy",
   "projectile": "projectile",
   "platform": "platform",
-
 };
 
-const soundsLoader = {
+let soundsLoader = {
   "background": "background",
   'jump': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3',
   'destroy': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav',
   'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3',
   "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
-}
+};
 
 const orientationSizes = {
   "landscape": {
@@ -206,7 +205,7 @@ function gameSceneCreate(game) {
 
   game.input.on('pointerdown', releaseBall, game);
 
-  game.gameOverText = game.add.bitmapText(game.width/2, 40, 'pixelfont', 'GAME OVER !', 40).setDepth(11).setOrigin(0.5).setTint(0xff0000).setAlpha(0);
+  game.gameOverText = game.add.bitmapText(game.width / 2, 40, 'pixelfont', 'GAME OVER !', 40).setDepth(11).setOrigin(0.5).setTint(0xff0000).setAlpha(0);
 }
 
 function gameSceneUpdate(game) {
@@ -222,7 +221,7 @@ function gameSceneUpdate(game) {
     ball.x = paddle.x;
   }
 
-  if (ball.body.y > game.height){
+  if (ball.body.y > game.height) {
     game.gameOverText.setAlpha(1);
     game.sound.stopAll();
     game.sounds.lose.play();

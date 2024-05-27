@@ -1,10 +1,14 @@
-let assetsLoader = { "background": "background", "player": "player", "projectile": "projectile" }
+let assetsLoader = {
+    "background": "background",
+    "player": "player",
+    "projectile": "projectile"
+};
 
 let soundsLoader = {
-    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3",
+    "background": "background",
     "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-}
+};
 
 const title = `Dart Throw`
 const description = `Tap to throw.`

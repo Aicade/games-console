@@ -1,17 +1,17 @@
-const assetsLoader = {
+let assetsLoader = {
     "background": "background",
     "player": "player",
     "avoidable": "avoidable",
     "platform": "platform"
 };
 
-const soundsLoader = {
+let soundsLoader = {
     "background": "background",
     'jump': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3',
     'damage': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav',
     'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3',
     'countdown': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/countdown_1.mp3',
-}
+};
 
 // Custom UI Elements
 const title = `Dino Runner`
@@ -60,7 +60,7 @@ class GameScene extends Phaser.Scene {
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        
+
         addEventListenersPhaser.bind(this)();
         displayProgressLoader.call(this);
 
@@ -250,7 +250,7 @@ class GameScene extends Phaser.Scene {
     gameOverWithEffects(player, boxes) {
         this.lives--;
         this.hearts[this.lives].destroy();
-        
+
         if (this.lives === 1) {
             this.sounds.countdown.play({ volume: 0.6 }); // Duration in milliseconds
             this.time.delayedCall(3000, () => {

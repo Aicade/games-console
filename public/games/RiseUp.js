@@ -1,4 +1,9 @@
-let assetsLoader = { "background": "background", "player": "player", "platform": "platform", "enemy": "enemy" }
+let assetsLoader = {
+    "background": "background",
+    "player": "player",
+    "platform": "platform",
+    "enemy": "enemy"
+};
 
 let soundsLoader = {
     "background": "background",
@@ -6,7 +11,7 @@ let soundsLoader = {
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-}
+};
 
 const title = `Rise Above`
 const description = `Tap to throw bombs.`

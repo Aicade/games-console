@@ -9,7 +9,7 @@ let soundsLoader = {
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-}
+};
 
 const title = `Duck HUnt`
 const description = `Tap to hunt ducks.`

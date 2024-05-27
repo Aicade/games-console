@@ -4,14 +4,13 @@ let assetsLoader = {
     "platform": "platform",
 };
 
-// Make loader for all #sounds just like the asset loader
 let soundsLoader = {
     "background": "background",
     "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
-}
+};
 
 const orientationSizes = {
     "landscape": {
