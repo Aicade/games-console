@@ -2,14 +2,14 @@ let assetsLoader = {
     "background": "background",
     "platform": "platform",
     "player": "player",
-}
+};
 
 let soundsLoader = {
     "background": "background",
     'jump': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3',
     'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3',
     'collect': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3',
-}
+};
 
 const title = `Flappy Bird`
 const description = `Reaction and survival game.`

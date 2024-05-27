@@ -1,10 +1,13 @@
-let assetsLoader = { "background": "background", "player": "player" }
+let assetsLoader = {
+    "background": "background",
+    "player": "player"
+};
 
 let soundsLoader = {
     "background": "background",
     'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3',
     'collect': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_2.mp3',
-}
+};
 
 const orientationSizes = {
     "landscape": {

@@ -9,7 +9,7 @@ let soundsLoader = {
     "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3"
-}
+};
 
 // Custom UI Elements
 const title = `Cadbury Gems`;
@@ -54,7 +54,7 @@ class GameScene extends Phaser.Scene {
         for (const key in assetsLoader) {
             this.load.image(key, assetsLoader[key]);
         }
-      
+
         for (const key in soundsLoader) {
             this.load.audio(key, [soundsLoader[key]]);
         }

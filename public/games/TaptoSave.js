@@ -1,7 +1,7 @@
 let assetsLoader = {
     "background": "background",
     "collectible": "collectible"
-}
+};
 
 let soundsLoader = {
     "background": "background",
@@ -9,7 +9,7 @@ let soundsLoader = {
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
-}
+};
 
 // Custom UI Elements
 const title = `Tap to save`

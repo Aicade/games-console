@@ -3,13 +3,13 @@ let assetsLoader = {
     "collectible_1": "collectible_1",
     "collectible_2": "collectible_2",
     "collectible_3": "collectible_3"
-}
+};
 
 let soundsLoader = {
     "background": "background",
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
     "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-}
+};
 
 const title = `Slot Match`
 const description = `Slot Match is a Match3 game where the player needs to match similar elements like casino slot machine elements to progress through levels and earn points.`

@@ -8,7 +8,7 @@ let soundsLoader = {
     "background": "background",
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
     "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-}
+};
 
 // Custom UI Elements
 const title = `Swing Mania`

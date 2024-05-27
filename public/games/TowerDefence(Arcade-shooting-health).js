@@ -7,12 +7,12 @@ let assetsLoader = {
 };
 
 let soundsLoader = {
-    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3",
+    "background": "background",
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
     "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
     "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav"
-}
+};
 
 // Custom UI Elements
 const title = `Defend the yellow Tower`
@@ -50,11 +50,11 @@ class GameScene extends Phaser.Scene {
         // Load In-Game Assets from assetsLoader
         for (const key in assetsLoader) {
             this.load.image(key, assetsLoader[key]);
-          }
-      
-          for (const key in soundsLoader) {
+        }
+
+        for (const key in soundsLoader) {
             this.load.audio(key, [soundsLoader[key]]);
-          }
+        }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.bitmapFont('pixelfont',
@@ -226,7 +226,7 @@ function gameSceneCreate(game) {
     game.towerEmitter = game.vfx.createEmitter('redCircle', 0, 0, 1, 0, 1000).setAlpha(0.5);
     game.towerDestroyEmitter = game.vfx.createEmitter('collectible', 0, 0, 0.015, 0, 1500).setAlpha(0.5);
 
-    
+
 }
 
 //UPDATE FUNCTION FOR THE GAME SCENE

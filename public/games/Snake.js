@@ -2,7 +2,7 @@ let assetsLoader = {
     "background": "background",
     "player": "player",
     "collectible": "collectible",
-        "collectible_1": "collectible_1",
+    "collectible_1": "collectible_1",
     "avoidable": "avoidable",
 };
 
@@ -12,7 +12,7 @@ let soundsLoader = {
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3"
-}
+};
 
 const orientationSizes = {
     "landscape": {
@@ -56,7 +56,7 @@ class GameScene extends Phaser.Scene {
         for (const key in assetsLoader) {
             this.load.image(key, assetsLoader[key]);
         }
-      
+
         for (const key in soundsLoader) {
             this.load.audio(key, [soundsLoader[key]]);
         }
@@ -73,7 +73,7 @@ class GameScene extends Phaser.Scene {
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
-        
+
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
         this.load.bitmapFont('pixelfont', fontBaseURL + fontName + '.png', fontBaseURL + fontName + '.xml');
@@ -87,7 +87,7 @@ class GameScene extends Phaser.Scene {
 
         this.sounds = {};
         for (const key in soundsLoader) {
-          this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
         this.input.keyboard.disableGlobalCapture();
