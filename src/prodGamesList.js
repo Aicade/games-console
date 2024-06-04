@@ -23,6 +23,7 @@ const prodGamesList = [
     "MathPuzzle.js",
     "MessidodgeCorona.js",
     "Platformer(infiniteverticaljumping).js",
+    "Pong.js",
     "Racing.js",
     "RiseUp.js",
     "Rogue.js",

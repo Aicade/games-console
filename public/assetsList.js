@@ -11,8 +11,10 @@ const assets_list = {
     "enemy_1": "/assets/enemy_1.png",
     "projectile": "/assets/projectile.png",
     "projectile_1": "/assets/projectile_1.png",
+    "projectile_2": "/assets/projectile_2.png",
     "avoidable": "/assets/avoidable.png",
     "platform": "/assets/platform.png",
+    "platform_1": "/assets/platform_1.png",
 }
 
 for (const key in assetsLoader) {
