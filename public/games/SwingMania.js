@@ -102,8 +102,6 @@ class GameScene extends Phaser.Scene {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.input.keyboard.disableGlobalCapture();
-
         this.sounds.background.setVolume(1).setLoop(true).play()
 
         this.width = this.game.config.width;
@@ -219,6 +217,7 @@ class GameScene extends Phaser.Scene {
         this.timerGraphics = this.add.graphics();
         this.updateTimerGraphics();
         this.startTimer();
+        this.input.keyboard.disableGlobalCapture();
     }
 
     getClosestHinge(x, y) {
@@ -351,7 +350,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        console.log(file.src);
+         
     });
     this.load.on('complete', function () {
         progressBar.destroy();

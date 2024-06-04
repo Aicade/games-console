@@ -206,7 +206,7 @@ class GameScene extends Phaser.Scene {
             this.buttonB.button.on('down', this.shootBullet, this);
         }
         this.toggleControlsVisibility(isMobile)
-
+        this.input.keyboard.disableGlobalCapture();
     }
 
     toggleControlsVisibility(visibility) {
@@ -377,7 +377,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        console.log(file.src);
+         
     });
     this.load.on('complete', function () {
         progressBar.destroy();

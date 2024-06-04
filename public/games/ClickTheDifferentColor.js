@@ -69,8 +69,6 @@ class GameScene extends Phaser.Scene {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.input.keyboard.disableGlobalCapture();
-
         this.width = this.game.config.width;
         this.height = this.game.config.height;
         // this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
@@ -96,6 +94,7 @@ class GameScene extends Phaser.Scene {
             this.hearts[i] = this.add.image(x, 60, "heart").setScale(0.025).setDepth(11);
         }
         gameSceneCreate(this);
+        this.input.keyboard.disableGlobalCapture();
     }
 
     update() {
@@ -158,7 +157,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        console.log(file.src);
+         
     });
     this.load.on('complete', function () {
         progressBar.destroy();

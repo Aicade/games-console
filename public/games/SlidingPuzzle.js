@@ -127,8 +127,6 @@ class GameScene extends Phaser.Scene {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.input.keyboard.disableGlobalCapture();
-
         this.grid_size = data.size || 3;
         this.default_time_limit = data.time_limit || 30;
         this.default_time_limit *= 1000;
@@ -163,7 +161,8 @@ class GameScene extends Phaser.Scene {
         window.solve = () => {
             this.nextRound();
         };
-        this.startPuzzle('player', this.grid_size, this.grid_size)
+        this.startPuzzle('player', this.grid_size, this.grid_size);
+        this.input.keyboard.disableGlobalCapture();
     }
 
     /**
@@ -710,7 +709,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        console.log(file.src);
+         
     });
     this.load.on('complete', function () {
         progressBar.destroy();

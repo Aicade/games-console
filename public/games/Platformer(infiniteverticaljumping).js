@@ -90,8 +90,6 @@ class GameScene extends Phaser.Scene {
       this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
     }
 
-    this.input.keyboard.disableGlobalCapture();
-
     this.width = this.game.config.width;
     this.height = this.game.config.height;
     isMobile = !this.sys.game.device.os.desktop;
@@ -125,7 +123,7 @@ class GameScene extends Phaser.Scene {
     this.createMobileButtons();
     gameSceneCreate(this);
 
-    // game.player = this.add.sprite(300, 200, 'player').setScale(0.2);
+    this.input.keyboard.disableGlobalCapture();
   }
 
   createMobileButtons() {
@@ -207,7 +205,7 @@ function displayProgressLoader() {
     progressBar.fillRect(x, y, width * value, height);
   });
   this.load.on('fileprogress', function (file) {
-    console.log(file.src);
+     
   });
   this.load.on('complete', function () {
     progressBar.destroy();

@@ -82,7 +82,6 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        this.input.keyboard.disableGlobalCapture();
         this.sounds = {};
         for (const key in soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
@@ -180,6 +179,7 @@ class GameScene extends Phaser.Scene {
             player.destroy();
             this.resetGame();
         });
+        this.input.keyboard.disableGlobalCapture();
 
     }
 
@@ -337,8 +337,7 @@ function displayProgressLoader() {
         progressBar.fillStyle(0x364afe, 1);
         progressBar.fillRect(x, y, width * value, height);
     });
-    this.load.on('fileprogress', function (file) {
-        // console.log(file.src);
+    this.load.on('fileprogress', function (file) {  
     });
     this.load.on('complete', function () {
         progressBar.destroy();

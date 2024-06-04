@@ -91,8 +91,6 @@ class GameScene extends Phaser.Scene {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.input.keyboard.disableGlobalCapture();
-
         this.sounds.background.setVolume(0.75).setLoop(false).play()
 
         this.vfx = new VFXLibrary(this);
@@ -198,6 +196,7 @@ class GameScene extends Phaser.Scene {
                 console.log("buttonA clicked");
             });
         }
+        this.input.keyboard.disableGlobalCapture();
 
     }
 
@@ -369,7 +368,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        // console.log(file.src);
+          
     });
     this.load.on('complete', function () {
         progressBar.destroy();

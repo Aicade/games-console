@@ -82,7 +82,6 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        this.input.keyboard.disableGlobalCapture();
         this.sounds = {};
         for (const key in soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
@@ -181,9 +180,7 @@ class GameScene extends Phaser.Scene {
             loop: false
         });
         this.timerText = this.add.bitmapText(120, 20, 'pixelfont', 'Timer: ', 40).setOrigin(0.5, 0.5);
-
-        // this.timerText = this.add.text(this.this.config.width - 70, 20, 'Timer: ', { fontSize: '20px', fill: globalPrimaryFontColor }).setOrigin(0.5);
-
+        this.input.keyboard.disableGlobalCapture();
     }
 
     spawnEnemies() {
@@ -453,7 +450,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        // console.log(file.src);
+          
     });
     this.load.on('complete', function () {
         progressBar.destroy();

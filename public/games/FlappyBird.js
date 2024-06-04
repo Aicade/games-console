@@ -132,6 +132,7 @@ class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.player, this.ground, this.hitBird, null, this);
         this.physics.add.collider(this.player, this.pipesGroup, this.hitBird, null, this);
         this.makePipes(this);
+        this.input.keyboard.disableGlobalCapture();
 
     }
 
@@ -251,7 +252,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        // console.log(file.src);
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();

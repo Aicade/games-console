@@ -83,8 +83,6 @@ class GameScene extends Phaser.Scene {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.input.keyboard.disableGlobalCapture();
-
         this.sounds.background.setVolume(1).setLoop(true).play();
         this.lives = 3;
         this.hearts = [];
@@ -206,6 +204,7 @@ class GameScene extends Phaser.Scene {
         bubble.fillStyle(bubbleColor, 1); // Semi-transparent
         bubble.fillCircle(bubbleRadius, bubbleRadius, bubbleRadius);
         bubble.generateTexture('bubbles', 100, 100);
+        this.input.keyboard.disableGlobalCapture();
 
     }
 
@@ -385,7 +384,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        // console.log(file.src);
+        
     });
     this.load.on('complete', function () {
         progressBar.destroy();
