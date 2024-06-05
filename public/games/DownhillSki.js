@@ -91,8 +91,6 @@ class GameScene extends Phaser.Scene {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.input.keyboard.disableGlobalCapture();
-
         this.isGameOver = false;
 
         this.sounds.background.setVolume(0.75).setLoop(true).play();
@@ -187,6 +185,7 @@ class GameScene extends Phaser.Scene {
             emitZone: { type: 'edge', source: new Phaser.Geom.Line(-10, -10, 10, 10), quantity: .2, yoyo: false }
         });
         this.trail.startFollow(this.player);
+        this.input.keyboard.disableGlobalCapture();
     }
 
     update(time, delta) {
@@ -307,7 +306,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        // console.log(file.src);
+          
     });
     this.load.on('complete', function () {
         progressBar.destroy();

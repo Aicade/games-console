@@ -81,7 +81,6 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        this.input.keyboard.disableGlobalCapture();
         this.score = 0;
         this.vfx = new VFXLibrary(this);
 
@@ -129,6 +128,7 @@ class GameScene extends Phaser.Scene {
 
         this.createPortal();
         this.createPlayer();
+        this.input.keyboard.disableGlobalCapture();
     }
 
     createPlayer() {

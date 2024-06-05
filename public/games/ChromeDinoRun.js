@@ -168,6 +168,7 @@ class GameScene extends Phaser.Scene {
 
         this.lastLifeText = this.add.bitmapText(this.width / 2, this.height / 3, 'pixelfont', 'Last life!', 50).setOrigin(0.5, 0.5);
         this.lastLifeText.setScrollFactor(0).setAlpha(0).setDepth(11).setTint(0xff2f2f);
+        this.input.keyboard.disableGlobalCapture();
 
     }
 
@@ -306,7 +307,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        console.log(file.src);
+         
     });
     this.load.on('complete', function () {
         progressBar.destroy();

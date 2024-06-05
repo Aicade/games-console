@@ -121,6 +121,7 @@ class GameScene extends Phaser.Scene {
 
         // Create a text object for displaying the time
         timerText = this.add.bitmapText(150, 50, 'pixelfont', '0', 64).setOrigin(0.5).setDepth(100);
+        this.input.keyboard.disableGlobalCapture();
     }
 
     update(delta) {

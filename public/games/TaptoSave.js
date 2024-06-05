@@ -206,8 +206,6 @@ class GameScene extends Phaser.Scene {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.input.keyboard.disableGlobalCapture();
-
         this.width = this.game.config.width;
         this.height = this.game.config.height;
         this.vfx = new VFXLibrary(this);
@@ -252,28 +250,13 @@ class GameScene extends Phaser.Scene {
             });
         }
 
-
         gameSceneCreate(this);
 
+        this.input.keyboard.disableGlobalCapture();
 
     }
 
     update() {
-
-        // How to use joystick with keyboard
-
-        // var joystickKeys = this.joyStick.createCursorKeys();
-        // var keyboardKeys = this.input.keyboard.createCursorKeys();
-        // if (joystickKeys.right.isDown || keyboardKeys.right.isDown) {
-        //     console.log("right");
-        // }
-
-        // How to use button
-
-        // if (this.buttonA.button.isDown) {
-        //     console.log("button pressed");
-        // }
-
         gameSceneUpdate(this);
     }
 
@@ -324,7 +307,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        console.log(file.src);
+         
     });
     this.load.on('complete', function () {
         progressBar.destroy();

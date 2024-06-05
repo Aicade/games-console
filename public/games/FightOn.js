@@ -105,8 +105,6 @@ class GameScene extends Phaser.Scene {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.input.keyboard.disableGlobalCapture();
-
         isMobile = !this.sys.game.device.os.desktop;
         this.sounds.background.setVolume(1).setLoop(true).play()
 
@@ -208,35 +206,10 @@ class GameScene extends Phaser.Scene {
         this.playerHealthBar = this.add.graphics();
         this.enemyHealthBar = this.add.graphics();
         this.updateHealthBars();
-        // let graphics = this.make.graphics({ x: 0, y: 0, add: false });
-
-        // // Set the line style for the outline: 4 pixels thick, black color
-        // graphics.lineStyle(3, 0x000000, 1);
-
-        // // Set fill color to red
-        // graphics.fillStyle(0xff0000, .3);
-
-        // // Start drawing a stylized, fighting-style heart with an outline
-        // graphics.beginPath();
-        // graphics.moveTo(50, 80); // Starting point at the bottom of the heart
-        // // Left side
-        // graphics.lineTo(20, 50); // Left bottom edge
-        // graphics.lineTo(25, 20); // Curve up to the left top
-        // graphics.lineTo(50, 40); // Middle top left
-        // // Right side, mirrored
-        // graphics.lineTo(75, 20); // Curve up to the right top
-        // graphics.lineTo(80, 50); // Right bottom edge
-        // graphics.lineTo(50, 80); // Back to the starting point
-        // graphics.closePath();
-
-        // // Fill the heart shape and draw the outline
-        // graphics.fillPath();
-        // graphics.strokePath();
-
-        // // Generate a texture named 'fightingHeart' from the Graphics object
 
         // graphics.generateTexture('heart', 100, 100);
         this.toggleControlsVisibility(isMobile);
+        this.input.keyboard.disableGlobalCapture();
     }
 
     toggleControlsVisibility(visibility) {
@@ -690,7 +663,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        // console.log(file.src);
+        
     });
     this.load.on('complete', function () {
         progressBar.destroy();

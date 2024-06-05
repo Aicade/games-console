@@ -85,6 +85,7 @@ class GameScene extends Phaser.Scene {
     }
 
     this.sounds.background.setVolume(3).setLoop(true).play();
+    this.input.keyboard.disableGlobalCapture();
   }
 
   update(time, delta) {
@@ -140,7 +141,7 @@ function displayProgressLoader() {
     progressBar.fillRect(x, y, width * value, height);
   });
   this.load.on('fileprogress', function (file) {
-    console.log(file.src);
+     
   });
   this.load.on('complete', function () {
     progressBar.destroy();
