@@ -257,17 +257,17 @@ class GameScene extends Phaser.Scene {
 
     }
 
-    playerHit(player, enemy) {
+     playerHit(player, enemy) {
+        this.lives--;
         if (this.lives > 0) {
-            this.sounds.damage.setVolume(0.5).setLoop(false).play()
+            this.damageMusic.play();
             this.particleEmitter.explode(100, enemy.x, enemy.y)
             enemy.destroy();
-            this.lives--;
             this.hearts[this.lives].destroy();
             this.vfx.shakeCamera(200, 0.01);
         } else {
             this.gameOverFlag = true;
-
+            this.hearts[this.lives].destroy();
             this.followEmitter.stop();
             this.physics.pause();
             this.sound.stopAll();
@@ -276,7 +276,7 @@ class GameScene extends Phaser.Scene {
             this.time.delayedCall(1000, () => {
 
                 this.playerParticleEmitter.explode(400, player.x, player.y);
-                this.sounds.loose.setVolume(0.5).setLoop(false).play()
+                this.looseMusic.play();
                 this.vfx.shakeCamera(300, 0.04);
                 this.player.destroy();
                 this.time.delayedCall(2000, () => {
