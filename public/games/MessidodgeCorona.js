@@ -60,9 +60,7 @@ class GameScene extends Phaser.Scene {
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
         addEventListenersPhaser.bind(this)();
-        for (const key in assetsLoader) {
-            this.load.image(key, assets_list[assetsLoader[key]]);
-        }
+        
         displayProgressLoader.call(this)
     }
 
