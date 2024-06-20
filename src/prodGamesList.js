@@ -8,6 +8,7 @@ const prodGamesList = [
     "CandyCrush.js",
     "CannonBalls.js",
     "CannonShooter.js",
+    "cardMemory.js",
     "ChromeDinoRun.js",
     "ClickTheDifferentColor.js",
     "CrossyRoad.js",
