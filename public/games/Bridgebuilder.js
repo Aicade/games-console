@@ -2,12 +2,13 @@ let assetsLoader = {
     "background": "background",
     "player": "player",
     "projectile": "projectile",
-}
+};
+
 let soundsLoader = {
-    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3",
+    "background": "background",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-}
+};
 
 const title = `Bridge Builder`
 const description = `Tap to create the bridges.`

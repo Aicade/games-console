@@ -10,7 +10,7 @@ let soundsLoader = {
     'stretch': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/stretch.mp3',
     'shoot': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3',
     'collect': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3',
-}
+};
 
 const title = `Angry Birds`
 const description = `Aim and throw your character at targets with increasing difficulty to score the highest points possible.`

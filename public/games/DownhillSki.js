@@ -9,7 +9,7 @@ let soundsLoader = {
     "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3"
-}
+};
 
 const title = `Down Hill Ski`
 const description = `Tap to change direction.`

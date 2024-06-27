@@ -8,7 +8,7 @@ let soundsLoader = {
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
     "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3",
-}
+};
 
 const orientationSizes = {
     "landscape": {

@@ -2,13 +2,13 @@ let assetsLoader = {
     "background": "background",
     "collectible": "collectible",
     "avoidable": "avoidable"
-}
+};
 
 let soundsLoader = {
     "background": "background",
     'destroy': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3',
     'slice': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac',
-}
+};
 
 const title = `Fruit and Meat Slasher`
 const description = `A game where the player slices through various fruits and meats to earn points and progress through levels.`

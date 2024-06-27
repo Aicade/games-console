@@ -13,7 +13,7 @@ let soundsLoader = {
     'upgrade': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
     'lose': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
     'collect': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-}
+};
 
 // Custom UI Elements
 const title = `Rogue`

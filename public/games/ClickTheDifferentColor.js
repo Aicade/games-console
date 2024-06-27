@@ -6,7 +6,7 @@ let soundsLoader = {
     "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3"
-}
+};
 
 // Custom UI Elements
 const title = `Click the different colour`

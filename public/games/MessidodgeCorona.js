@@ -9,7 +9,7 @@ let soundsLoader = {
     "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
     "loose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3"
-}
+};
 
 // Custom UI Elements
 const title = `CORONA DODGE`
@@ -49,7 +49,7 @@ class GameScene extends Phaser.Scene {
         for (const key in assetsLoader) {
             this.load.image(key, assetsLoader[key]);
         }
-      
+
         for (const key in soundsLoader) {
             this.load.audio(key, [soundsLoader[key]]);
         }
@@ -92,7 +92,7 @@ class GameScene extends Phaser.Scene {
 
         this.sounds = {};
         for (const key in soundsLoader) {
-        this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
         this.input.keyboard.disableGlobalCapture();
@@ -198,8 +198,8 @@ class GameScene extends Phaser.Scene {
         this.level = Math.floor(this.score / this.levelScoreThreshold);
         this.updateLevel(this.level);
         if (oldLevel < this.level) {
-            
-            if(this.gameOverFlag) return;
+
+            if (this.gameOverFlag) return;
             this.vfx.blinkEffect(this.levelUpText, 400, 3);
             this.sounds.success.setVolume(0.7).setLoop(false).play()
             if (this.enemySpawnTimeInteval > this.minSpawnerInterval && !(this.level % 3)) {
@@ -268,7 +268,7 @@ class GameScene extends Phaser.Scene {
             this.vfx.shakeCamera(200, 0.01);
         } else {
             this.gameOverFlag = true;
-            
+
             this.followEmitter.stop();
             this.physics.pause();
             this.sound.stopAll();
@@ -302,7 +302,7 @@ class GameScene extends Phaser.Scene {
         this.enemyTimer.destroy();
         initiateGameOver.bind(this)({
             score: this.score,
-            level: this.level,  
+            level: this.level,
             time: this.time.now * 0.001
         })
     }
@@ -376,5 +376,5 @@ const config = {
         description: description,
         instructions: instructions,
     },
-  orientation: true
+    orientation: true
 };

@@ -10,7 +10,7 @@ let soundsLoader = {
     "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
     "slice": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac",
-}
+};
 
 // Custom UI Elements
 const title = `SLIDING PUZZLE`

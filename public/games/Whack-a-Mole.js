@@ -4,17 +4,17 @@ let assetsLoader = {
 };
 
 let soundsLoader = {
-  "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-3.mp3",
-  "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/whack.mp3",
-  "spawn": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/pop.mp3"
-}
+    "background": "background",
+    "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/whack.mp3",
+    "spawn": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/pop.mp3"
+};
 
 // Custom UI Elements
 const title = `Whack a Mole`;
 const description = `Reaction arcade game. Tap to kill. `;
 const instructions =
     `   Instructions:
-        1. Click the enemies to killlll them.
+        1. Click the enemies to kill them.
         2. Set the highest score in the given time.`;
 
 const orientationSizes = {
@@ -58,13 +58,13 @@ class GameScene extends Phaser.Scene {
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-        
+
         for (const key in assetsLoader) {
-          this.load.image(key, assetsLoader[key]);
+            this.load.image(key, assetsLoader[key]);
         }
-    
+
         for (const key in soundsLoader) {
-          this.load.audio(key, [soundsLoader[key]]);
+            this.load.audio(key, [soundsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -85,7 +85,7 @@ class GameScene extends Phaser.Scene {
         this.sounds = {};
 
         for (const key in soundsLoader) {
-          this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
         this.input.keyboard.disableGlobalCapture();
