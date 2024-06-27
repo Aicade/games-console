@@ -1,8 +1,8 @@
 const assetsLoader = {
     "background": "background",
     "projectile": "projectile_2",
-    "platform": "platform",
-    "platform_1": "platform_1"
+    "platform_1": "platform",
+    "platform_2": "platform"
 };
 
 const soundsLoader = {
@@ -103,7 +103,7 @@ class GameScene extends Phaser.Scene {
         this.ball.setCollideWorldBounds(true).setBounce(1).setScale(0.05);
 
         // Create paddles
-        this.leftPaddle = this.physics.add.sprite(30, this.height / 2, 'platform').setCollideWorldBounds(true);
+        this.leftPaddle = this.physics.add.sprite(30, this.height / 2, 'platform_1').setCollideWorldBounds(true);
         this.leftPaddle.displayHeight = this.height * 0.2;
         this.leftPaddle.displayWidth = 20;
         this.leftPaddle.body.setOffset(-10, -10);
@@ -111,7 +111,7 @@ class GameScene extends Phaser.Scene {
         this.leftPaddle.name = "PLAYER";
         this.leftPaddle.refreshBody();
 
-        this.rightPaddle = this.physics.add.sprite(this.width - 30, 0, 'platform_1').setCollideWorldBounds(true);
+        this.rightPaddle = this.physics.add.sprite(this.width - 30, 0, 'platform_2').setCollideWorldBounds(true);
         this.rightPaddle.displayHeight = this.height * 0.2;
         this.rightPaddle.displayWidth = 20;
         this.rightPaddle.body.setOffset(-10, -10);
