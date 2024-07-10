@@ -28,6 +28,7 @@ const prodGamesList = [
     "Racing.js",
     "RiseUp.js",
     "Rogue.js",
+    "saveEarth.js",
     "SlidingPuzzle.js",
     "Snake.js",
     "SpaceInvader.js",
