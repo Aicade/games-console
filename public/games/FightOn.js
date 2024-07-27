@@ -26,7 +26,7 @@ const instructions =
   2. Use SPACE to call Shield`;
 
 
-const orientationSizes = {
+  const orientationSizes = {
     "landscape": {
         "width": 1280,
         "height": 720,
@@ -67,6 +67,7 @@ class GameScene extends Phaser.Scene {
         this.difficultyLevel = 'easy';
         this.throwCooldown = 700;
         this.lastCooldown = 0;
+        this.platformHeight =100;
 
     }
 
@@ -111,13 +112,11 @@ class GameScene extends Phaser.Scene {
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
-        this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
-        this.bg.setScrollFactor(0);
-        this.bg.displayHeight = this.game.config.height;
-        this.bg.displayWidth = this.game.config.width;
+        this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
+        const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
+        this.bg.setScale(scale);
 
         // Add UI elements
-        // this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '20px', fill: globalPrimaryFontColor });
         this.scoreText = this.add.bitmapText(10, 10, 'pixelfont', 'Score: 0', 24);
 
         // Add input listeners
@@ -156,22 +155,24 @@ class GameScene extends Phaser.Scene {
         }
 
         this.platforms = this.physics.add.staticGroup();
-        let platform = this.platforms.create(470, 600, 'platform').setScale(2, .3);
+
+        let platform = this.platforms.create(0, this.height - this.platformHeight, 'platform').setOrigin(0, 0);
+        platform.displayHeight = this.platformHeight;
+        platform.displayWidth = this.width;
         platform.refreshBody();
-        platform.body.setSize(platform.body.width * 0.8, platform.body.height * 0.8, true);
 
         // Create the player and scale it to 0.2
         this.player = this.physics.add.sprite(100, 300, 'player').setScale(0.15);
         // this.player.setBounce(0.2); // Optional bounce
         this.player.setCollideWorldBounds(true);
         this.player.body.setGravityY(800);
-        this.player.body.setSize(this.player.body.width * 0.2, this.player.body.height * 0.8, true);
+        this.player.body.setSize(this.player.body.width * 0.2, this.player.body.height * 0.8);
 
         this.enemy = this.physics.add.sprite(this.game.config.width - 200, 300, 'enemy').setScale(0.15);
         // this.enemy.setBounce(0.2); // Optional bounce
         this.enemy.setCollideWorldBounds(true);
         this.enemy.body.setGravityY(800);
-        this.enemy.body.setSize(this.enemy.body.width * 0.2, this.enemy.body.height * 0.8, true);
+        this.enemy.body.setSize(this.enemy.body.width * 0.2, this.enemy.body.height * 0.8);
 
         this.projectiles = this.physics.add.group({
             defaultKey: 'projectile',
@@ -402,7 +403,7 @@ class GameScene extends Phaser.Scene {
                 this.shield = this.physics.add.sprite(this.player.x + this.offset, this.player.y, 'avoidable');
                 this.shield.setScale(0.12).setDepth(1).setAlpha(0.5);
 
-                this.shield.body.setSize(this.shield.body.width * 0.32, this.shield.body.height * 1.2, true);
+                this.shield.body.setSize(this.shield.body.width * 0.32, this.shield.body.height * 1.2);
                 this.time.delayedCall(2000, () => {
                     this.shield.destroy();
                     this.shield = undefined;
@@ -417,7 +418,7 @@ class GameScene extends Phaser.Scene {
                 this.enemyShield = this.physics.add.sprite(this.enemy.x - this.offset, this.enemy.x.y, 'avoidable');
                 this.enemyShield.setScale(0.12).setDepth(1).setAlpha(0.5);
 
-                this.enemyShield.body.setSize(this.enemyShield.body.width * 0.3, this.enemyShield.body.height * 0.8, true);
+                this.enemyShield.body.setSize(this.enemyShield.body.width * 0.3, this.enemyShield.body.height * 0.8);
                 this.time.delayedCall(2000, () => {
                     this.enemyShield.destroy();
                     this.enemyShield = undefined;
@@ -450,7 +451,7 @@ class GameScene extends Phaser.Scene {
             projectile.setScale(0.06);
             projectile.setVelocityX(velocityX);
 
-            projectile.body.setSize(projectile.body.width * 0.8, projectile.body.height * 0.6, true);
+            projectile.body.setSize(projectile.body.width * 0.8, projectile.body.height * 0.6);
 
             // Destroy projectile after 8 seconds
             this.time.delayedCall(4000, () => {
@@ -582,21 +583,6 @@ class GameScene extends Phaser.Scene {
         // emitter.setPosition(x, y);
         emitter.explode(25);
 
-
-        // let emitter = this.add.particles(projectile.x, projectile.y, 'collectible', {
-        //     // frame: ['red'],
-        //     lifespan: 4000,
-        //     speed: { min: 150, max: 250 },
-        //     scale: { start: 0.1, end: .05 },
-        //     gravityY: -150,
-        //     blendMode: 'SCREEN',
-        //     emitting: true
-        // });
-        // emitter.explode(16);
-
-        // this.time.delayedCall(6000, () => {
-        //     emitter.destroy(); // Clean up the particles after the effect
-        // }, [], this);
         // Tween to fade out the player's bloom effect after 1 second
         this.tweens.add({
             targets: playerBloom,
@@ -678,6 +664,10 @@ const config = {
     width: orientationSizes[orientation].width,
     height: orientationSizes[orientation].height,
     scene: [GameScene],
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+    },
     pixelArt: true,
     physics: {
         default: 'arcade',
