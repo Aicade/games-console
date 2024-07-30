@@ -144,9 +144,9 @@ class GameScene extends Phaser.Scene {
         const centerX = this.game.config.width / 2;
         const centerY = this.game.config.height / 2;
 
-        this.player = this.physics.add.image(centerX, this.game.config.height, 'player').setScale(0.15);
+        this.player = this.physics.add.image(centerX, this.game.config.height, 'player').setScale(0.4);
         this.player.setCollideWorldBounds(true);
-        this.player.body.setSize(this.player.body.width / 1.1, this.player.body.height)
+        this.player.body.setSize(this.player.body.width / 2, this.player.body.height)
         this.vfx.scaleGameObject(this.player, 1.1);
 
         // // Bullets
@@ -259,7 +259,7 @@ class GameScene extends Phaser.Scene {
             const hen = Phaser.Utils.Array.GetRandom(this.hens.getChildren());
             if (hen) {
                 const egg = this.eggs.create(hen.x, hen.y, 'collectible');
-                egg.setScale(0.07);
+                egg.setScale(0.1);
             }
         }
     }

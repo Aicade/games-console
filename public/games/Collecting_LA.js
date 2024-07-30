@@ -144,9 +144,9 @@ class GameScene extends Phaser.Scene {
         const centerX = this.game.config.width / 2;
         const centerY = this.game.config.height / 2;
 
-        this.player = this.physics.add.image(centerX, this.game.config.height, 'player').setScale(0.15);
+        this.player = this.physics.add.image(centerX, this.game.config.height, 'player').setScale(0.2);
         this.player.setCollideWorldBounds(true);
-        this.player.body.setSize(this.player.body.width / 1.1, this.player.body.height)
+        this.player.body.setSize(this.player.body.width / 2, this.player.body.height)
         this.vfx.scaleGameObject(this.player, 1.1);
 
         // Keyboard Controls
@@ -174,7 +174,7 @@ class GameScene extends Phaser.Scene {
         this.hens.children.iterate((hen) => {
             hen.setScale(0.1);
             // this.vfx.scaleGameObject(hen);
-            // hen.setVisible(false);
+            hen.setVisible(false);
         });
         // Eggs setup
         this.eggs = this.physics.add.group();
@@ -246,14 +246,12 @@ class GameScene extends Phaser.Scene {
             if (hen) {
                 if (Math.random() < 0.7) {
                     const egg = this.eggs.create(hen.x, hen.y, 'collectible');
-                    egg.setScale(0.07);
+                    egg.setScale(0.1);
                     this.vfx.scaleGameObject(egg);
-
                 } else {
                     const avoidable = this.avoidables.create(hen.x, hen.y, 'avoidable');
-                    avoidable.setScale(0.07);
+                    avoidable.setScale(0.1);
                     this.vfx.scaleGameObject(avoidable);
-
                 }
             }
         }
