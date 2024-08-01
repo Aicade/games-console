@@ -4,7 +4,7 @@ let assetsLoader = {
     "enemy": "enemy",
     "player": "player",
     "collectible": "collectible"
-}
+};
 
 let soundsLoader = {
     "background": "background",
@@ -13,7 +13,7 @@ let soundsLoader = {
     "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac",
     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
 
-}
+};
 
 const title = `Ninja Blades`
 const description = ` Throw Blades.`
@@ -52,6 +52,9 @@ class GameScene extends Phaser.Scene {
         this.bulletsRemainingImages = [];
         this.enemies = [];
         this.bridges = [];
+
+
+        this.happyName = "Aicade";
     }
 
     preload() {
@@ -481,12 +484,12 @@ class GameScene extends Phaser.Scene {
             .setVisible(true)
             .setAngle(-15);
 
-        let gametext1 = this.add.text(this.cameras.main.centerX - 200, this.cameras.main.centerY, '🎈', { font: '64px Arial', color: '#ff0000' })
+        let gametext1 = this.add.text(this.cameras.main.centerX - 300, this.cameras.main.centerY, '🎈', { font: '64px Arial', color: '#ff0000' })
             .setOrigin(0.5)
             .setVisible(true)
             .setAngle(-15);
 
-        let gametext2 = this.add.text(this.cameras.main.centerX + 200, this.cameras.main.centerY, '🎂', { font: '64px Arial', color: '#ff0000' })
+        let gametext2 = this.add.text(this.cameras.main.centerX + 200, this.cameras.main.centerY - 200, '🎂', { font: '64px Arial', color: '#ff0000' })
             .setOrigin(0.5)
             .setVisible(true)
             .setAngle(-15);
@@ -495,10 +498,10 @@ class GameScene extends Phaser.Scene {
         this.vfx.scaleGameObject(gametext1);
         this.vfx.scaleGameObject(gametext2);
 
-        let gameOverText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY - 400, 'pixelfont', 'Happy Birthday!!!', 64)
+        let gameOverText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY - 300, 'pixelfont', `Happy Birthday !!!`, 64)
             .setOrigin(0.5)
             .setVisible(false)
-            .setAngle(-15).setTint(0xffff00);
+            .setAngle(-15).setTint(0xFFFF00).setDepth(15);
 
         this.time.delayedCall(500, () => {
             gameOverText.setVisible(true);
