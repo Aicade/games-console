@@ -1,7 +1,7 @@
 const prodGamesList = [
     "numberCollect.js",
     "FightOn2.js",
-    "Airshipadventure.js",
+    "Airshipadventure",
     "AngryBirds.js",
     "BoxTower.js",
     "BricksBreaker.js",

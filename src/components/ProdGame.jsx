@@ -39,8 +39,10 @@ const ProdGame = () => {
                 "/lib/braincadeSDK.js";
             const vfxUrl =
                 "/lib/vfxLibrary.js";
+            const gameJson =
+                `/games/${name}.json`
             const gameUrl =
-                `/games/${name}`
+                `/games/${name}.js`
             const assetsUrl =
                 `/assetsList.js`
             const soundsUrl =
@@ -52,6 +54,8 @@ const ProdGame = () => {
                 const vfxScript = await fetch(vfxUrl);
                 const assetsScript = await fetch(assetsUrl);
                 const soundsScript = await fetch(soundsUrl);
+                const gameScriptJson = await fetch(gameJson);
+                
                 const gameScript = await fetch(gameUrl);
 
                 const compiledScript =
@@ -62,6 +66,8 @@ const ProdGame = () => {
                     (await vfxScript.text())
                         .replaceAll("export default VFXLibrary;", "")
                         .replaceAll("export", "") +
+                    "\n\n" +
+                    "let _CONFIG = " + (await gameScriptJson.text()) +
                     "\n\n" +
                     (await gameScript.text()) +
                     "\n\n" +

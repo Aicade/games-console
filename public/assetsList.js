@@ -17,6 +17,6 @@ const assets_list = {
     "platform_1": "/assets/platform_1.png",
 }
 
-for (const key in assetsLoader) {
-    assetsLoader[key] = assets_list[assetsLoader[key]]
+for (const key in _CONFIG.imageLoader) {
+    _CONFIG.imageLoader[key] = assets_list[_CONFIG.imageLoader[key]]
 }
