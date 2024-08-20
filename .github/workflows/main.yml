@@ -21,6 +21,8 @@ jobs:
         uses: bahmutov/npm-install@v1
 
       - name: Build project
+        env:
+          VITE_BASE_URL: ${{ vars.VITE_BASE_URL }}
         run: npm run build
 
       - name: Upload production-ready build files
