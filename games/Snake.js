@@ -1,8 +1,8 @@
 let assetsLoader = {
     "background": "background",
     "player": "player",
-    "collectible": "collectible",
     "collectible_1": "collectible_1",
+    "collectible_2": "collectible",
     "avoidable": "avoidable",
 };
 
@@ -153,7 +153,7 @@ class GameScene extends Phaser.Scene {
 
         // this.vfx.addShine(this.snakeBody);
 
-        this.apple = this.add.sprite(50, 50, 'collectible').setDisplaySize(this.tileSize, this.tileSize).setOrigin(0).setDepth(15);
+        this.apple = this.add.sprite(50, 50, 'collectible_2').setDisplaySize(this.tileSize, this.tileSize).setOrigin(0).setDepth(15);
         this.vfx.addGlow(this.apple, .9);
         this.vfx.scaleGameObject(this.apple, 1.1, 500);
         this.positionapple();
@@ -429,6 +429,7 @@ const config = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
+    pixelArt: true,
     /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "arcade",

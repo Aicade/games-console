@@ -238,7 +238,7 @@ class GameScene extends Phaser.Scene {
 
         this.level += 1;
         this.enemySpeed += 1;
-        this.sounds.damage.setVolume(.75).setLoop(false).play();
+        this.sounds.lose.setVolume(.75).setLoop(false).play();
 
         Phaser.Actions.Call(this.enemies.getChildren(), function (enemy) {
             enemy.speed = this.enemySpeed;
