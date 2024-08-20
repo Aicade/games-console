@@ -4,6 +4,7 @@ let assetsLoader = {
     "platform": "platform",
     "enemy": "enemy",
     "projectile": "projectile",
+    "collectible": "collectible",
     "avoidable": "avoidable",
 };
 
@@ -87,7 +88,7 @@ class GameScene extends Phaser.Scene {
             this.load.audio(key, [soundsLoader[key]]);
         }
 
-        this.load.image("heart", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png");
+        this.load.image("heart", "/assets/dollar.png");
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
 
         const fontName = 'pix';
@@ -117,7 +118,8 @@ class GameScene extends Phaser.Scene {
         this.bg.setScale(scale);
 
         // Add UI elements
-        this.scoreText = this.add.bitmapText(10, 10, 'pixelfont', 'Score: 0', 24);
+        this.scoreText = this.add.bitmapText(10, 10, 'pixelfont', 'Score: 0', 44);
+        this.scoreText.setTint(0xffa500);
 
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
@@ -157,18 +159,19 @@ class GameScene extends Phaser.Scene {
         this.platforms = this.physics.add.staticGroup();
 
         let platform = this.platforms.create(0, this.height - this.platformHeight, 'platform').setOrigin(0, 0);
-        platform.displayHeight = this.platformHeight;
-        platform.displayWidth = this.width;
+        // platform.displayHeight = this.platformHeight;
+        // platform.displayWidth = this.width;
+        platform.setScale(2)
         platform.refreshBody();
 
         // Create the player and scale it to 0.2
-        this.player = this.physics.add.sprite(100, 300, 'player').setScale(0.15);
+        this.player = this.physics.add.sprite(150, 300, 'player').setScale(0.4);
         // this.player.setBounce(0.2); // Optional bounce
         this.player.setCollideWorldBounds(true);
         this.player.body.setGravityY(800);
         this.player.body.setSize(this.player.body.width * 0.2, this.player.body.height * 0.8);
 
-        this.enemy = this.physics.add.sprite(this.game.config.width - 200, 300, 'enemy').setScale(0.15);
+        this.enemy = this.physics.add.sprite(this.game.config.width - 200, 300, 'enemy').setScale(0.4);
         // this.enemy.setBounce(0.2); // Optional bounce
         this.enemy.setCollideWorldBounds(true);
         this.enemy.body.setGravityY(800);
@@ -179,10 +182,15 @@ class GameScene extends Phaser.Scene {
             maxSize: 1000, // Adjust as needed
         });
 
+        this.enemyProjectiles = this.physics.add.group({
+            defaultKey: 'collectible',
+            maxSize: 1000, // Adjust as needed
+        });
+
         // Enable collision between the player and the platform
         this.physics.add.collider(this.player, this.platforms);
         this.physics.add.collider(this.enemy, this.platforms);
-        this.physics.add.overlap(this.projectiles, this.enemy, this.hitEnemy, null, this);
+        this.physics.add.overlap(this.enemyProjectiles, this.enemy, this.hitEnemy, null, this);
         this.physics.add.overlap(this.projectiles, this.player, this.hitPlayer, null, this);
 
 
@@ -240,12 +248,12 @@ class GameScene extends Phaser.Scene {
         }
         if (joystickKeys.up.isDown && this.player.body.touching.down) {
             this.sounds.jump.setVolume(1).setLoop(false).play()
-            this.player.setVelocityY(-400);
+            this.player.setVelocityY(-450);
         }
 
         if (this.cursors.up.isDown && this.player.body.touching.down) {
             this.sounds.jump.setVolume(1).setLoop(false).play()
-            this.player.setVelocityY(-400); // Adjust the jump velocity as needed
+            this.player.setVelocityY(-450); // Adjust the jump velocity as needed
         }
 
         if (this.cursors.right.isDown && time > this.lastThrowTime + 700) {
@@ -345,7 +353,7 @@ class GameScene extends Phaser.Scene {
         // Create a tween for the respawn effect
         this.tweens.add({
             targets: this.enemy,
-            scale: 0.15, // Assuming 0.15 is the normal scale
+            scale: 0.35, // Assuming 0.15 is the normal scale
             alpha: 1, // Fade in to full visibility
             ease: 'Power1',
             duration: 1000, // Adjust duration according to the desired effect
@@ -356,8 +364,8 @@ class GameScene extends Phaser.Scene {
     }
 
     updateHealthBars() {
-        this.drawHealthBar(this.playerHealthBar, this.player.x - 40, this.player.y - 80, this.playerHealth, 0x00ff00);
-        this.drawHealthBar(this.enemyHealthBar, this.enemy.x - 40, this.enemy.y - 80, this.enemyHealth, 0xff0000);
+        this.drawHealthBar(this.playerHealthBar, this.player.x - 40, this.player.y - 120, this.playerHealth, 0x00ff00);
+        this.drawHealthBar(this.enemyHealthBar, this.enemy.x - 40, this.enemy.y - 120, this.enemyHealth, 0xff0000);
     }
 
     drawHealthBar(graphics, x, y, health, color) {
@@ -374,7 +382,7 @@ class GameScene extends Phaser.Scene {
     maybeJump(chance, time) {
         // Ensure the enemy is on the ground before jumping
         if (this.enemy.body.touching.down && Phaser.Math.Between(0, 100) < chance) {
-            this.enemy.setVelocityY(-400); // Jump
+            this.enemy.setVelocityY(-450); // Jump
             if (time > this.lastCooldown + 2000) {
                 this.spawnShield(false);
             }
@@ -423,7 +431,7 @@ class GameScene extends Phaser.Scene {
                     this.enemyShield.destroy();
                     this.enemyShield = undefined;
                 }, [], this);
-                this.physics.add.overlap(this.enemyShield, this.projectiles, this.powerupTime, null, this);
+                this.physics.add.overlap(this.enemyShield, this.enemyProjectiles, this.powerupTime, null, this);
             } else {
                 console.log("this.enemyShield already active.");
             }
@@ -433,23 +441,25 @@ class GameScene extends Phaser.Scene {
     }
 
     throw(isPlayerThrowing = true) {
-        let startX, velocityX;
+        let startX, velocityX, projectile;
 
         if (isPlayerThrowing) {
             startX = this.player.x + 60;
             velocityX = 300;
+            projectile = this.enemyProjectiles.get(startX, this.player.y); // Adjust Y position as needed
         } else {
             startX = this.enemy.x - 60;
             velocityX = -300; // Enemy's projectile velocity
+            projectile = this.projectiles.get(startX, this.player.y); // Adjust Y position as needed
         }
 
-        let projectile = this.projectiles.get(startX, this.player.y); // Adjust Y position as needed
 
         if (projectile) {
             projectile.setActive(true).setVisible(true);
             projectile.body.gravity.y = 0;
-            projectile.setScale(0.06);
+            projectile.setScale(0.1);
             projectile.setVelocityX(velocityX);
+            projectile.setAngularVelocity(isPlayerThrowing ? 300 : -300);
 
             projectile.body.setSize(projectile.body.width * 0.8, projectile.body.height * 0.6);
 
@@ -481,14 +491,14 @@ class GameScene extends Phaser.Scene {
             }
         });
         const emitter = this.add.particles(projectile.x, projectile.y, 'heart', {
-            speed: { min: -100, max: 300 },
-            scale: { start: 0.1, end: 0 },
+            speed: { min: 100, max: 500 },
+            scale: { start: 0.05, end: 0 },
             blendMode: 'NORMAL',
-            lifespan: 750,
+            lifespan: 300,
         });
 
         // emitter.setPosition(x, y);
-        emitter.explode(25);
+        emitter.explode(5);
 
         let pointText = this.add.text(projectile.x, projectile.y, '-20', {
             fontSize: '48px',
@@ -530,7 +540,6 @@ class GameScene extends Phaser.Scene {
     }
 
     hitPlayer(player, projectile) {
-
         this.sounds.damage.setVolume(1).setLoop(false).play()
 
         this.cameras.main.shake(250, 0.01, true);
@@ -574,14 +583,14 @@ class GameScene extends Phaser.Scene {
 
         // collectible
         const emitter = this.add.particles(projectile.x - 75, projectile.y, 'heart', {
-            speed: { min: -100, max: 300 },
-            scale: { start: 0.1, end: 0 },
+            speed: { min: 100, max: 500 },
+            scale: { start: 0.05, end: 0 },
             blendMode: 'NORMAL',
-            lifespan: 750,
+            lifespan: 300,
         });
 
         // emitter.setPosition(x, y);
-        emitter.explode(25);
+        emitter.explode(5);
 
         // Tween to fade out the player's bloom effect after 1 second
         this.tweens.add({
