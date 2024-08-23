@@ -1,0 +1,31 @@
+{
+    "title": "Puzzle Shooter",
+    "description": "A puzzle shooter where you break objects by controlling a projectile.",
+    "deviceOrientation": "landscape",
+    "imageLoader": {
+        "background": "background",
+        "enemy": "enemy",
+        "projectile": "projectile",
+        "platform": "platform"
+    },
+    "instructions": "Instructions: 1. Move the paddle to bounce the projectile 2. Break the objects using the projectile.",
+    "deviceOrientationSizes": {
+        "landscape": {
+            "height": 720,
+            "width": 1280
+        },
+        "portrait": {
+            "height": 1280,
+            "width": 720
+        }
+    },
+    "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
+    "phaserVersion": "3.80.1",
+    "soundsLoader": {
+        "background": "background",
+        "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
+        "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
+        "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
+        "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav"
+    }
+}
