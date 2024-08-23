@@ -1,36 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3",
-};
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Custom UI Elements. Fill the code below based on the game idea.
-const title = `Math Quiz`
-const description = `Check if equation is right.`
-const instructions =
-    `Instructions:
-    1. Tap on correct OR incorrect option.`
-
-// Game Orientation
-const orientation = "landscape";
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -39,21 +6,21 @@ class GameScene extends Phaser.Scene {
         this.questionText = null;
         this.rightButton = null;
         this.wrongButton = null;
-        this.timerText = null; // Text object to display the timer
-        this.timeLeft = 10; // Time in seconds given to answer each question
-        this.timerEvent = null; // Phaser timer event
-        this.particles = null; // To hold the particle manager
-        this.emitter = null; // To hold the particle emitter
+        this.timerText = null;
+        this.timeLeft = 10;
+        this.timerEvent = null;
+        this.particles = null;
+        this.emitter = null;
     }
 
     preload() {
-        // Load In-Game Assets from assetsLoader
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -67,10 +34,9 @@ class GameScene extends Phaser.Scene {
     create() {
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
-
         this.width = this.game.config.width;
         this.height = this.game.config.height;
         this.vfx = new VFXLibrary(this);
@@ -337,7 +303,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-         
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -354,25 +320,26 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
-        default: 'arcade',
+        default: "arcade",
         arcade: {
             gravity: { y: 200 },
-            debug: false
-        }
+            debug: false,
+        },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true
+    orientation: _CONFIG.deviceOrientation === "landscape"
 };
