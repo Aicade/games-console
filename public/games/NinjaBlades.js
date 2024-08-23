@@ -1,26 +1,4 @@
 
-let assetsLoader = {
-    "background": "background",
-    "enemy": "enemy",
-    "player": "player",
-    "projectile": "projectile"
-}
-
-let soundsLoader = {
-    "background": "background",
-    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
-    "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
-
-}
-
-const title = `Ninja Blades`
-const description = ` Throw Blades.`
-const instructions =
-    `Instructions:
-    Tap to throw`;
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -55,14 +33,15 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+
+            this.load.image(key, _CONFIG.imageLoader[key]);
+
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
-
         addEventListenersPhaser.bind(this)();
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -89,7 +68,7 @@ class GameScene extends Phaser.Scene {
         else
             return;
         var ninjaStar = this.physics.add.sprite(this.player.x, this.player.y, 'projectile');
-        ninjaStar.setScale(0.03);
+        ninjaStar.setScale(0.25);
         ninjaStar.setDepth(1);
         this.physics.moveTo(ninjaStar, pointer.x + offset, pointer.y + offset, 600);
         ninjaStar.setCollideWorldBounds(true);
@@ -106,25 +85,6 @@ class GameScene extends Phaser.Scene {
             repeat: -1, // Repeat forever
             ease: 'Linear'
         });
-        // let bubble = this.add.graphics({ x: -100, y: 0, add: false });
-
-        // const bubbleRadius = 10;
-        // const bubbleColor = 0xffffff; // A nice bubble color
-
-        // bubble.fillStyle(bubbleColor, .3); // Semi-transparent
-        // bubble.fillCircle(bubbleRadius, bubbleRadius, bubbleRadius);
-        // bubble.generateTexture('bubbles', 100, 100);
-
-        // this.trail = this.add.particles(0, 70, 'bubbles', {
-        //     speed: 100,
-        //     scale: { start: 0.5, end: 0 },
-        //     blendMode: 'ADD',
-        //     lifespan: 600,
-        //     angle: { min: -40, max: -10 },
-        //     emitZone: { type: 'edge', source: new Phaser.Geom.Line(-10, -10, 10, 10), quantity: .2, yoyo: false }
-        // });
-        // this.trail.startFollow(this.player);
-
 
     }
 
@@ -154,7 +114,8 @@ class GameScene extends Phaser.Scene {
         let enemy = this.physics.add.sprite(x, y, enemyObj);
         enemy.name = enemyObj;
         this.enemies.push(enemy);
-        enemy.setScale(0.15);
+        enemy.setScale(0.3);
+        enemy.body.setSize(enemy.body.width * 1.2, enemy.body.height / 1.5);
         this.vfx.scaleGameObject(enemy, 1.1);
         let distance = Math.sqrt(distX * distX + distY * distY);
         let fps = 60;
@@ -184,13 +145,6 @@ class GameScene extends Phaser.Scene {
         // let x = enemy.x;
         // let y = enemy.y;
         enemy.destroy();
-        // let defeatedEnemy = this.add.sprite(x, y, 'tengu_defeat');
-        // defeatedEnemy.setScale(0.5);
-        // defeatedEnemy.play('tengu_defeat');
-        // // this.sound.play('enemy_death_sound');
-        // this.time.delayedCall(800, () => {
-        //     defeatedEnemy.destroy();
-        // }, [], this);
     }
     bulletHitsEnemy(bullet, enemy) {
         this.sounds.destroy.setVolume(1).setLoop(false).play();
@@ -231,7 +185,7 @@ class GameScene extends Phaser.Scene {
         this.cursor = this.input.keyboard.createCursorKeys();
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -262,7 +216,7 @@ class GameScene extends Phaser.Scene {
         this.ground.body.setSize(this.ground.width * 5, this.ground.height);
 
         this.player = this.physics.add.sprite(150, 800, 'player');
-        this.player.setScale(0.2);
+        this.player.setScale(0.4);
         // this.player.play('idle');
 
         this.add_colliders();
@@ -436,8 +390,8 @@ class GameScene extends Phaser.Scene {
         this.sounds.success.setVolume(1).setLoop(false).play();
 
         // this.sound.play('next_level_sound');
-        var enemyKilledGraphic = this.add.image(200, 380, 'enemy').setScale(0.07).setVisible(false);
-        var ninjaStarGraphic = this.add.image(200, 438, 'projectile').setScale(0.07).setVisible(false);
+        var enemyKilledGraphic = this.add.image(200, 380, 'enemy').setScale(0.2).setVisible(false);
+        var ninjaStarGraphic = this.add.image(200, 438, 'projectile').setScale(0.2).setVisible(false);
         if (!this.levelOverText) {
             this.levelOverText = this.add.bitmapText(this.width / 2, 550, 'pixelfont', '0', 64)
                 .setOrigin(0.5, 0.5).setDepth(100);
@@ -505,9 +459,9 @@ class GameScene extends Phaser.Scene {
         let startingX = 25;
         let y = 20;
         for (let i = 0; i < this.playerBulletsRemaining; i++) {
-            let x = startingX + i * 25;
+            let x = startingX + i * 45;
             let image = this.add.image(x, y, "projectile");
-            image.setScale(0.03);
+            image.setScale(0.25);
             this.bulletsRemainingImages.push(image);
         }
     }
@@ -562,31 +516,17 @@ class GameScene extends Phaser.Scene {
     }
 }
 
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "portrait";
-
-// Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "arcade",
         arcade: {
@@ -595,12 +535,11 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: false,
+    orientation: _CONFIG.deviceOrientation === "portrait"
 };
-
 
 
