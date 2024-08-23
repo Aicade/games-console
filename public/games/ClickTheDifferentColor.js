@@ -1,39 +1,3 @@
-let assetsLoader = {
-};
-
-let soundsLoader = {
-    "background": "background",
-    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3"
-};
-
-// Custom UI Elements
-const title = `Click the different colour`
-const description = `A puzzle game where you have to click the colour which is different`
-const instructions =
-    `Instructions:
-1. Click the colour which is different from the rest`;
-
-
-// Custom Font Colors
-const globalPrimaryFontColor = "#FFF";
-const globalSecondaryFontColor = "#0F0"
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -44,13 +8,13 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
 
         // Load In-Game Assets from assetsLoader
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
+        }
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
-        }
 
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
         this.load.bitmapFont('pixelfont',
@@ -65,16 +29,13 @@ class GameScene extends Phaser.Scene {
     create() {
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
-        // this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
-        // this.bg.setScrollFactor(0);
-        // this.bg.displayHeight = this.game.config.height;
-        // this.bg.displayWidth = this.game.config.width;
+
 
         this.vfx = new VFXLibrary(this);
         // Add UI elements
@@ -157,7 +118,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-         
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -170,23 +131,30 @@ function displayProgressLoader() {
 ------------------- GLOBAL CODE ENDS HERE -------------------
 */
 
-// Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
-    orientation: true,
-    dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
+    physics: {
+        default: "arcade",
+        arcade: {
+            gravity: { y: 0 },
+            debug: false,
+        },
     },
+    dataObject: {
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
+    },
+    orientation: _CONFIG.deviceOrientation === "portrait"
 };
 
 
