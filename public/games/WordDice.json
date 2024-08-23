@@ -1,0 +1,27 @@
+{
+    "description": "Select Word.",
+    "deviceOrientation": "portrait",
+    "imageLoader": {
+        "background": "background"
+    },
+    "instructions": "Instructions: 1.Tap to Select Word.",
+    "deviceOrientationSizes": {
+        "landscape": {
+            "height": 720,
+            "width": 1280
+        },
+        "portrait": {
+            "height": 1280,
+            "width": 720
+        }
+    },
+    "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
+    "phaserVersion": "3.80.1",
+    "soundsLoader": {
+        "background": "background",
+        "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
+        "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
+        "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3"
+    },
+    "title": "Word Game"
+}
