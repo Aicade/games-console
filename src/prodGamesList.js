@@ -1,8 +1,7 @@
-<<<<<<< Updated upstream
-const prodGamesList = [
-=======
+
 const prodGamesList = ["WordDice",
->>>>>>> Stashed changes
+    "numberCollect.js",
+    "FightOn2.js",
     "Airshipadventure.js",
     "AngryBirds.js",
     "BoxTower.js",

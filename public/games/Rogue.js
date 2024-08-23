@@ -38,14 +38,11 @@ const orientationSizes = {
 }
 
 // Touuch Screen Controls
-const joystickEnabled = false;
-const buttonEnabled = false;
+const joystickEnabled = true;
+var isMobile = false;
 
 // JOYSTICK DOCUMENTATION: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/virtualjoystick/
 const rexJoystickUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js";
-
-// BUTTON DOCMENTATION: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/button/
-const rexButtonUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexbuttonplugin.min.js";
 
 
 // Game Scene
@@ -74,7 +71,6 @@ class GameScene extends Phaser.Scene {
         this.load.bitmapFont('pixelfont', fontBaseURL + fontName + '.png', fontBaseURL + fontName + '.xml');
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
-        if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
 
         displayProgressLoader.call(this);
     }
@@ -82,6 +78,9 @@ class GameScene extends Phaser.Scene {
     create() {
         this.vfx = new VFXLibrary(this);
         this.isMobile = !this.sys.game.device.os.desktop;
+        isMobile = !this.sys.game.device.os.desktop;
+        this.maxCoverage = 20000;
+        this.minCoverage = -this.maxCoverage / 2;
 
         this.sounds = {};
         for (const key in soundsLoader) {
@@ -91,13 +90,17 @@ class GameScene extends Phaser.Scene {
         this.width = this.game.config.width;
         this.height = this.game.config.height;
 
-        this.add.image(0, 0, 'background').setOrigin(0).setScrollFactor(0);
+        this.bg = this.add
+            .tileSprite(this.minCoverage, this.minCoverage, this.maxCoverage, this.maxCoverage, "background")
+            .setOrigin(0, 0)
+            .setScrollFactor(1);
+        this.cameras.main.setBounds(this.minCoverage, this.minCoverage, this.maxCoverage, this.maxCoverage);
 
         const joyStickRadius = 50;
 
         if (joystickEnabled) {
             this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
-                x: joyStickRadius * 2,
+                x: this.width - (joyStickRadius * 2),
                 y: this.height - (joyStickRadius * 2),
                 radius: 50,
                 base: this.add.circle(0, 0, 80, 0x888888, 0.5),
@@ -107,17 +110,6 @@ class GameScene extends Phaser.Scene {
             });
             this.joystickKeys = this.joyStick.createCursorKeys();
         }
-
-        if (buttonEnabled) {
-            this.buttonA = this.add.rectangle(this.width - 80, this.height - 100, 80, 80, 0xcccccc, 0.5)
-            this.buttonA.button = this.plugins.get('rexbuttonplugin').add(this.buttonA, {
-                mode: 1,
-                clickInterval: 100,
-            });
-
-            this.buttonA.button.on('down', () => this.fireBullet(), this);
-        }
-
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
 
@@ -151,7 +143,7 @@ class GameScene extends Phaser.Scene {
         this.gameOverTrigerred = false;
 
         // Create player
-        this.player = this.physics.add.sprite(this.width / 2, this.height / 2, 'player').setScale(0.08);
+        this.player = this.physics.add.sprite(this.width / 2, this.height / 2, 'player').setScale(0.1);
         this.player.preFX.addShadow(0, 0, 0.1, 1, 0x000000, 6, 1);
         // this.player.postFX.addShadow();
         this.healthBar = this.add.graphics();
@@ -172,12 +164,13 @@ class GameScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
 
         // Display score
-        this.scoreText = this.add.bitmapText(this.width / 2, 100, 'pixelfont', this.score, 64).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
-        this.healthIcon = this.add.image(80, 100, "plus").setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
-        this.healthText = this.add.bitmapText(180, 90, 'pixelfont', this.healthRegenPoints + "/" + this.healthRegenPointsRequired, 64).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
 
-        this.bulletIcon = this.add.image(80, 200, "projectile").setScale(0.08).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
-        this.bulletText = this.add.bitmapText(180, 190, 'pixelfont', this.bulletAddPoints + "/" + this.bulletAddPointsRequired, 64).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
+        this.scoreText = this.add.bitmapText(this.width / 2 - 30, 0, 'pixelfont', this.score, 32).setScrollFactor(0).setDepth(100);
+        this.enemyIcon = this.add.image(this.width / 2 - 70, 30, "enemy").setScale(0.06).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
+        this.healthIcon = this.add.image(20, 20, "plus").setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
+        this.healthText = this.add.bitmapText(140, 20, 'pixelfont', this.healthRegenPoints + "/" + this.healthRegenPointsRequired, 32).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
+        this.bulletIcon = this.add.image(this.width / 2 + 150, 30, "projectile").setScale(0.04).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100).setAngle(-50);
+        this.bulletText = this.add.bitmapText(this.width / 2 + 280, 30, 'pixelfont', this.bulletAddPoints + "/" + this.bulletAddPointsRequired, 32).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
 
         // Spawn enemies
         this.time.addEvent({
@@ -196,22 +189,62 @@ class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.bullets, this.enemies, this.bulletEnemyCollision, null, this);
         this.physics.add.collider(this.player, this.collectibles, this.collectCollectible, null, this);
         this.input.keyboard.disableGlobalCapture();
+        this.toggleControlsVisibility(isMobile)
+
+        this.rehealthBar = this.createBar(40, 10, 200, 30, 'Health', 0x00ff00);
+        // Create weapon bar
+        this.weaponBar = this.createBar(this.width / 2 + 170, 20, 200, 30, 'Weapon', 0x0000ff);
+    }
+
+    createBar(x, y, width, height, label, color) {
+        const bar = {};
+        bar.value = 0;
+        bar.graphics = this.add.graphics();
+        bar.graphics.setScrollFactor(0).setDepth(10);
+        bar.update = () => {
+            bar.graphics.clear();
+            const filledWidth = Phaser.Math.Clamp(bar.value / 100 * width, 0, width);
+            bar.graphics.fillStyle(0x000000);
+            bar.graphics.fillRect(x, y, width, height);
+            bar.graphics.fillStyle(color);
+            bar.graphics.fillRect(x, y, filledWidth, height);
+            bar.graphics.lineStyle(2, 0xffffff);
+            bar.graphics.strokeRect(x, y, width, height);
+        };
+        bar.update();
+        return bar;
+    }
+    increaseBar(bar, value) {
+        bar.value = Phaser.Math.Clamp(bar.value + value, 0, 100);
+        if (bar.value == 100) {
+            bar.value = 0;
+        }
+        bar.update();
+    }
+    decreaseBar(bar, value) {
+        bar.value = Phaser.Math.Clamp(bar.value - value, 0, 100);
+        bar.update();
+    } s
+
+    toggleControlsVisibility(visibility) {
+        this.joyStick.base.visible = visibility;
+        this.joyStick.thumb.visible = visibility;
     }
 
     update() {
-        if (this.cursors.left.isDown) {
+        if (this.cursors.left.isDown || this.joystickKeys.left.isDown) {
             this.player.setVelocityX(-this.playerSpeed);
             this.player.flipX = true;
-        } else if (this.cursors.right.isDown) {
+        } else if (this.cursors.right.isDown || this.joystickKeys.right.isDown) {
             this.player.setVelocityX(this.playerSpeed);
             this.player.flipX = false;
         } else {
             this.player.setVelocityX(0);
         }
 
-        if (this.cursors.up.isDown) {
+        if (this.cursors.up.isDown || this.joystickKeys.up.isDown) {
             this.player.setVelocityY(-this.playerSpeed);
-        } else if (this.cursors.down.isDown) {
+        } else if (this.cursors.down.isDown || this.joystickKeys.down.isDown) {
             this.player.setVelocityY(this.playerSpeed);
         } else {
             this.player.setVelocityY(0);
@@ -229,8 +262,30 @@ class GameScene extends Phaser.Scene {
 
         this.healthBar.setPosition(this.player.x - 50, this.player.y - 60);
 
-        // Update score
-        this.scoreText.setText('Score: ' + this.score);
+        this.scoreText.setText(': ' + this.score);
+    }
+
+    updateHealthMeterBar() {
+        // Clear previous graphics
+        this.HealthMeterBar.clear();
+        // Define the meter bar dimensions and position
+        const barX = 100;
+        const barY = 40;
+        const barWidth = 250; // Total width of the bar
+        const barHeight = 35; // Height of the bar
+        const filledWidth = Phaser.Math.Clamp(this.HealthMeterBarValue / 100 * barWidth, 0, barWidth);
+        console.log(this.meterValue);
+        // Draw the background of the bar
+        this.HealthMeterBar.fillStyle(0x000000); // Black color for background
+        this.HealthMeterBar.fillRect(barX, barY, barWidth, barHeight);
+        // Set the color based on the increase condition (e.g., green when increased)
+        const fillColor = 0x00ff00; // Green color for increase
+        // Draw the filled portion of the bar
+        this.HealthMeterBar.fillStyle(fillColor);
+        this.HealthMeterBar.fillRect(barX, barY, filledWidth, barHeight);
+        // Draw the outline of the bar
+        this.HealthMeterBar.lineStyle(2, 0xffffff); // White outline
+        this.HealthMeterBar.strokeRect(barX, barY, barWidth, barHeight);
     }
 
     updateHealthBar() {
@@ -252,10 +307,10 @@ class GameScene extends Phaser.Scene {
         graphics.fillStyle(0x00ff00);
 
         // Draw the horizontal bar
-        graphics.fillRect(0, 15, 50, 20);
-
+    
+        graphics.fillRect(10, 20, 30, 10);  // Smaller and repositioned
         // Draw the vertical bar
-        graphics.fillRect(15, 0, 20, 50);
+        graphics.fillRect(20, 10, 10, 30);
 
         // Generate the texture from the graphics object
         graphics.generateTexture('plus', 50, 50);
@@ -349,6 +404,7 @@ class GameScene extends Phaser.Scene {
                     .setOrigin(0.5)
                     .setVisible(false)
                     .setAngle(-15)
+                    .setScrollFactor(0)
                     .setDepth(100);
 
                 this.time.delayedCall(500, () => {
@@ -386,6 +442,8 @@ class GameScene extends Phaser.Scene {
     }
 
     createCollectible(x, y) {
+        this.increaseBar(this.weaponBar, 10);
+        this.increaseBar(this.rehealthBar, 7);
         const collectible = this.physics.add.image(x, y, 'collectible').setScale(0.05);
         this.vfx.addShine(collectible, 500);
         // this.vfx.addGlow(collectible);
@@ -461,7 +519,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -473,6 +531,8 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
+    width: orientationSizes[orientation].width,
+    height: orientationSizes[orientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
@@ -492,5 +552,4 @@ const config = {
         instructions: instructions,
     },
     orientation: true,
-    parent: "game-container",
 };

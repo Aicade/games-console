@@ -1,3 +1,4 @@
+
 var isMobile = false;
 
 // Touuch Screen Controls
@@ -118,7 +119,7 @@ class GameScene extends Phaser.Scene {
 
         // this.vfx.addShine(this.snakeBody);
 
-        this.apple = this.add.sprite(50, 50, 'collectible').setDisplaySize(this.tileSize, this.tileSize).setOrigin(0).setDepth(15);
+        this.apple = this.add.sprite(50, 50, 'collectible_2').setDisplaySize(this.tileSize, this.tileSize).setOrigin(0).setDepth(15);
         this.vfx.addGlow(this.apple, .9);
         this.vfx.scaleGameObject(this.apple, 1.1, 500);
         this.positionapple();

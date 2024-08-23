@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 gameListRAG.xlsx
 xlsxGenerator.py
+
+
+.env
