@@ -1,26 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "platform": "platform",
-    "player": "player",
-    "projectile": "projectile"
-}
-
-let soundsLoader = {
-    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-1.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
-    "stretch": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
-}
-
-// Custom UI Elements
-const title = `Cut The Rope`
-const description = `A game where you have to slice 
-the rope at the right time`
-const instructions =
-    `Instructions:
-1. Swipe to slice the rope.
-2. Make the player reach the goal.`;
-
 //Slice Effect
 class SliceEffect {
     constructor(scene) {
@@ -63,12 +40,12 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         addEventListenersPhaser.bind(this)();
@@ -87,7 +64,7 @@ class GameScene extends Phaser.Scene {
         this.cursor = this.input.keyboard.createCursorKeys();
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -138,8 +115,8 @@ class GameScene extends Phaser.Scene {
         this.jointsR = [];
         var distance = 300;
         var rand = Phaser.Math.Between(0 + 50, this.game.config.width - (distance + 50));
-        this.firstLeft = this.matter.add.image(rand, 80, 'projectile', null, { shape: 'circle', mass: 10, ignoreGravity: true }).setDisplaySize(30, 30);
-        this.firstRight = this.matter.add.image(rand + distance, 80, 'projectile', null, { shape: 'circle', mass: 10, ignoreGravity: true }).setDisplaySize(30, 30);
+        this.firstLeft = this.matter.add.image(rand, 80, 'projectile', null, { shape: 'circle', mass: 10, ignoreGravity: true }).setDisplaySize(35, 35);
+        this.firstRight = this.matter.add.image(rand + distance, 80, 'projectile', null, { shape: 'circle', mass: 10, ignoreGravity: true }).setDisplaySize(35, 35);
         this.firstLeft.setStatic(true);
         this.firstRight.setStatic(true);
         this.ballsL.push(this.firstLeft);
@@ -214,7 +191,7 @@ class GameScene extends Phaser.Scene {
         this.player.label = 'player';
         this.player.setMass(0.00001);
         this.player.setOrigin(0.5);
-        this.player.setDisplaySize(64, 64);
+        this.player.setDisplaySize(96, 96);
         leftJoint = this.matter.add.joint(lastL, this.player, 35, 0.01);
         rightJoint = this.matter.add.joint(lastR, this.player, 35, 0.01);
 
@@ -261,7 +238,7 @@ class GameScene extends Phaser.Scene {
     createPortal() {
         let x = Phaser.Math.Between(0 + 50, this.game.config.width - 50);
         let y = Phaser.Math.Between(this.game.config.height / 2 + 100, this.game.config.height - 50);
-        this.portal = this.matter.add.sprite(x, y, 'platform', null, { ignoreGravity: true }).setScale(0.1, 0.1);
+        this.portal = this.matter.add.sprite(x, y, 'platform', null, { ignoreGravity: true }).setScale(0.25, 0.25);
         this.portal.setStatic(true);
     }
 
@@ -309,13 +286,13 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
-        braincadeSDK.initiateGameOver.bind(this)({
+        initiateGameOver.bind(this)({
             "score": this.score
         });
     }
 
     pauseGame() {
-        braincadeSDK.handlePauseGame.bind(this)();
+        handlePauseGame.bind(this)();
     }
 }
 
@@ -355,39 +332,27 @@ function displayProgressLoader() {
         loadingText.destroy();
     });
 }
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "portrait";
 
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: 'matter',
         matter: { debug: false }
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: false,
+    orientation: _CONFIG.deviceOrientation === "portrait"
 };
