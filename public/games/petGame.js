@@ -1,51 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "enemy": "enemy",
-    "collectible_1": "collectible_1",
-    "collectible_2": "collectible_2",
-    "projectile": "projectile",
-    "platform": "platform",
-    "collectible_3": "collectible_3",
-    "projectile_1": "projectile_1"
-};
-
-let soundsLoader = {
-    "background": "background",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
-    "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
-    "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
-    "upgrade_1": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
-    "upgrade_2": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
-    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
-    "stretch": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3",
-    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
-};
-
-// Custom UI Elements
-const title = `MARIO LITE`
-const description = `A Platformer game where you collect powerups and kill enemies by \n stomping them. Game ends after you reach 500m`
-const instructions =
-    `Instructions:
-    1. Use LEFT / RIGHT arrow key to move.
-    2. Use UP arrow / Square button to jump
-    3. Use SPACE/ round button to shoot and destroy enemies`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-// Game Orientation
-const orientation = "landscape";
-
 // Touuch Screen Controls
 const joystickEnabled = true;
 const buttonEnabled = true;
@@ -91,13 +43,12 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
-
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
@@ -116,9 +67,10 @@ class GameScene extends Phaser.Scene {
         this.oneTime = false;
         this.input.keyboard.disableGlobalCapture();
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
+
         isMobile = !this.sys.game.device.os.desktop;
         this.vfx = new VFXLibrary(this);
 
@@ -150,7 +102,7 @@ class GameScene extends Phaser.Scene {
         // Draw the initial meter bar
         this.updateMeterBar();
 
-        this.scoreImg = this.add.image(30, 60, 'projectile_1').setScale(0.05, 0.05).setScrollFactor(0).setDepth(11)
+        this.scoreImg = this.add.image(30, 60, 'collectible').setScale(.2).setScrollFactor(0).setDepth(11)
         this.scoreText = this.add.bitmapText(60, 30, 'pixelfont', 'x 0', 28);
         this.scoreText.setScrollFactor(0).setDepth(11);
         this.powerUpText = this.add.bitmapText(this.width / 2, 200, 'pixelfont', 'POWER UP', 60).setOrigin(0.5, 0.5);
@@ -168,16 +120,16 @@ class GameScene extends Phaser.Scene {
         this.physics.world.setBoundsCollision(true);
 
 
-        this.player = this.physics.add.sprite(0, 0, 'player').setScale(0.17).setBounce(0.1).setCollideWorldBounds(true);
+        this.player = this.physics.add.sprite(0, 0, 'player').setScale(0.3).setBounce(0.1).setCollideWorldBounds(true);
         this.player.body.setSize(this.player.body.width / 4, this.player.body.height / 1.2);
         this.player.setGravityY(500);
 
-        this.pet = this.physics.add.sprite(0, 0, 'collectible_3').setScale(0.09).setBounce(0.1).setCollideWorldBounds(true);
+        this.pet = this.physics.add.sprite(0, 0, 'projectile').setScale(0.3).setBounce(0.1).setCollideWorldBounds(true);
         this.pet.body.setSize(this.pet.body.width / 1.5, this.pet.body.height / 1.5);
         this.pet.setGravityY(500).setDepth(5);
 
 
-        this.petIcon = this.add.image(380, 50, 'collectible_3').setScale(0.09).setDepth(11).setScrollFactor(0);
+        this.petIcon = this.add.image(380, 50, 'collectible').setScale(0.3).setDepth(11).setScrollFactor(0);
 
 
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -188,7 +140,7 @@ class GameScene extends Phaser.Scene {
             maxSize: 20
         });
 
-        this.firstEnemy = this.physics.add.sprite(700, 600, 'enemy').setScale(.2);
+        this.firstEnemy = this.physics.add.sprite(700, 600, 'enemy').setScale(.4);
         this.firstEnemy.body.setSize(this.firstEnemy.body.width / 3, this.firstEnemy.body.height / 2);
         this.firstEnemy.setGravityY(100);
         this.firstEnemy.setBounceX(1);
@@ -206,6 +158,7 @@ class GameScene extends Phaser.Scene {
 
         this.physics.add.collider(this.firstEnemy, this.ground);
         this.physics.add.collider(this.player, this.ground);
+        this.physics.add.collider(this.player, this.firstEnemy, this.gameOver, null, this);
         this.physics.add.collider(this.pet, this.ground);
 
         this.enemies = this.physics.add.group();
@@ -216,12 +169,12 @@ class GameScene extends Phaser.Scene {
 
         // });
         this.verticalCollectibles = this.physics.add.group({
-            defaultKey: 'projectile_1',
+            defaultKey: 'collectible',
             runChildUpdate: true,
             allowGravity: false
         });
         this.waveCollectibles = this.physics.add.group({
-            defaultKey: 'projectile_1',
+            defaultKey: 'collectible',
             runChildUpdate: true,
             allowGravity: false
         });
@@ -473,7 +426,7 @@ class GameScene extends Phaser.Scene {
         let y = this.game.config.height - 200;
         // console.log("enemy out");
 
-        let enemy = this.enemies.create(x, y, 'enemy').setScale(.2);
+        let enemy = this.enemies.create(x, y, 'enemy').setScale(.4);
         enemy.body.setSize(enemy.body.width / 3, enemy.body.height / 2);
         enemy.setGravityY(100);
         enemy.setBounceX(1);
@@ -491,7 +444,7 @@ class GameScene extends Phaser.Scene {
 
             if (type === 0) {
                 // Vertical movement collectible
-                let collectible = this.verticalCollectibles.create(x, y, 'projectile_1').setScale(.1);
+                let collectible = this.verticalCollectibles.create(x, y, 'collectible').setScale(.2);
                 collectible.body.setSize(collectible.body.width / 1.2, collectible.body.height / 1.5);
 
                 this.tweens.add({
@@ -504,7 +457,7 @@ class GameScene extends Phaser.Scene {
                 });
 
             } else {
-                let collectible = this.waveCollectibles.create(x, y, 'projectile_1').setScale(.1);
+                let collectible = this.waveCollectibles.create(x, y, 'collectible').setScale(.2);
                 collectible.setVelocityX(speed);
                 collectible.body.setSize(collectible.body.width / 1.2, collectible.body.height / 1.5);
                 this.vfx.scaleGameObject(collectible);
@@ -626,7 +579,6 @@ class GameScene extends Phaser.Scene {
         this.sound.stopAll();
         // this.scene.stop();
         initiateGameOver.bind(this)({
-            meter: this.meter,
             coins: this.score,
         });
     }
@@ -677,8 +629,8 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
@@ -690,13 +642,13 @@ const config = {
         default: "arcade",
         arcade: {
             gravity: { y: 300 },
-            debug: false,
+            debug: true,
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true
+    orientation: _CONFIG.deviceOrientation === "portrait"
 };
