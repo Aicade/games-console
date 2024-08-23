@@ -1,0 +1,30 @@
+{
+    "description": "Reaction game.",
+    "deviceOrientation": "landscape",
+    "imageLoader": {
+        "background": "background",
+        "player": "player",
+        "avoidable": "avoidable"
+    },
+    "instructions": "Instructions: 1.Tap to destory.",
+    "deviceOrientationSizes": {
+        "landscape": {
+            "height": 720,
+            "width": 1280
+        },
+        "portrait": {
+            "height": 1280,
+            "width": 720
+        }
+    },
+    "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
+    "phaserVersion": "3.80.1",
+    "soundsLoader": {
+        "background": "background",
+        "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
+        "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3",
+        "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
+        "loose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3"
+    },
+    "title": "Save Earth"
+}
