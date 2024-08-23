@@ -1,40 +1,3 @@
-
-let assetsLoader = { "background": "background", "player": "player", "enemy": "enemy", "collectible": "collectible", "projectile": "projectile", "platform": "platform" }
-
-let soundsLoader = {
-    "background": "background",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
-    "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3",
-    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3",
-    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
-}
-
-// Custom UI Elements
-const title = `Money Chase`
-const description = `Help player to collect collectibles and to
-save himself from enemies. Enemies come whenever
-all the collectibles has been collected.`
-const instructions =
-    `Instructions:
-    1. Use LEFT / RIGHT arrow key to move.
-    2. Use UP arrow to jump
-    3. Use SPACE to shoot and destroy enemies`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-// Game Orientation
-const orientation = "landscape";
-
 // Touuch Screen Controls
 const joystickEnabled = true;
 const buttonEnabled = true;
@@ -55,12 +18,12 @@ class GameScene extends Phaser.Scene {
     preload() {
         addEventListenersPhaser.bind(this)();
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -82,7 +45,7 @@ class GameScene extends Phaser.Scene {
         this.height = this.game.config.height;
         this.gameIsOver = false;
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
         isMobile = !this.sys.game.device.os.desktop;
@@ -98,10 +61,10 @@ class GameScene extends Phaser.Scene {
         this.bg.setScale(scale);
 
         // Add UI elements
-        this.scoreLabel = this.add.sprite(40, 40, 'collectible').setScale(0.03);
+        this.scoreLabel = this.add.sprite(40, 40, 'collectible').setScale(0.2);
         this.scoreText = this.add.bitmapText(65, 8, 'pixelfont', 'x 0', 28);
-        
-        this.levelUpText = this.add.bitmapText(this.width/2, 180, 'pixelfont', 'LEVEL UP!', 48).setOrigin(0.5).setDepth(11).setVisible(false);
+
+        this.levelUpText = this.add.bitmapText(this.width / 2, 180, 'pixelfont', 'LEVEL UP!', 48).setOrigin(0.5).setDepth(11).setVisible(false);
 
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
@@ -117,26 +80,26 @@ class GameScene extends Phaser.Scene {
         let base = this.platforms.create(0, this.game.config.height, 'platform').setScale(5, 0.035).setOrigin(0, 1).refreshBody();
 
         this.platforms.create(this.game.config.width, this.game.config.height * 0.8, 'platform')
-            .setScale(0.26, 0.03)
+            .setScale(0.5, 0.03)
             .setOrigin(1, 0).refreshBody();
 
         this.platforms.create(this.game.config.width / 2, this.game.config.height * 0.7, 'platform')
-            .setScale(0.25, 0.03)
+            .setScale(0.5, 0.03)
             .setOrigin(0.5, 0.5).refreshBody();
 
         this.platforms.create(0, this.game.config.height * 0.45, 'platform')
-            .setScale(0.2, 0.03)
+            .setScale(0.4, 0.03)
             .setOrigin(0, 0).refreshBody();
 
         this.platforms.create(this.game.config.width, this.game.config.height * 0.42, 'platform')
-            .setScale(0.4, 0.03)
+            .setScale(0.8, 0.03)
             .setOrigin(1, 0).refreshBody();
 
         this.platforms.create(this.game.config.width / 2.2, this.game.config.height * 0.32, 'platform')
-            .setScale(0.2, 0.03)
+            .setScale(0.4, 0.03)
             .setOrigin(0.5, 0.5).refreshBody();
 
-        this.player = this.physics.add.sprite(this.game.config.width / 4, this.game.config.height * 0.6, 'player').setScale(0.1);
+        this.player = this.physics.add.sprite(this.game.config.width / 4, this.game.config.height * 0.6, 'player').setScale(0.2);
 
         this.player.body.setSize(this.player.body.width / 1.5, this.player.body.height);
 
@@ -152,7 +115,7 @@ class GameScene extends Phaser.Scene {
         });
 
         this.cheeseGroup.children.iterate(child => {
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8)).setScale(0.03);
+            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8)).setScale(0.2);
             child.body.setSize(child.body.width / 1.5, child.body.height / 1.5);
 
         });
@@ -283,7 +246,7 @@ class GameScene extends Phaser.Scene {
                 this.cheeseGroup.children.iterate(child => {
                     child.enableBody(true, child.x, 0, true, true);
                 });
-                
+
                 this.levelUpText.setVisible(false);
                 let bombCount = Math.floor(this.score / 100)
                 this.spawnBomb(bombCount);
@@ -294,7 +257,7 @@ class GameScene extends Phaser.Scene {
     spawnBomb(numberOfBombs) {
         const x = (this.player.x < this.game.config.width / 2) ? Phaser.Math.Between(this.game.config.width / 2, this.game.config.width) : Phaser.Math.Between(0, this.game.config.width / 2);
         for (let i = 0; i < numberOfBombs; i++) {
-            const bomb = this.bombs.create(x, 16, 'enemy').setBounce(1).setScale(0.05)
+            const bomb = this.bombs.create(x, 16, 'enemy').setBounce(1).setScale(0.12)
                 .setCollideWorldBounds(true).setVelocity(Phaser.Math.Between(-200, 200), 20);
             bomb.body.setSize(bomb.body.width / 1.5, bomb.body.height);
         }
@@ -377,7 +340,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-         
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -386,17 +349,17 @@ function displayProgressLoader() {
     });
 }
 
-// Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "arcade",
         arcade: {
@@ -405,10 +368,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: false,
+    orientation: _CONFIG.deviceOrientation === "landscape"
 };
-
