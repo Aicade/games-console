@@ -1,0 +1,29 @@
+{
+    "title": "GO-Around",
+    "description": "GO around the circle and dodge the enemies.",
+    "deviceOrientation": "portrait",
+    "imageLoader": {
+        "background": "background",
+        "enemy": "enemy",
+        "player": "player"
+    },
+    "instructions": "Instructions: 1. Tap to jump and dodge.",
+    "deviceOrientationSizes": {
+        "landscape": {
+            "height": 720,
+            "width": 1280
+        },
+        "portrait": {
+            "height": 1280,
+            "width": 720
+        }
+    },
+    "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
+    "phaserVersion": "3.80.1",
+    "soundsLoader": {
+        "background": "background",
+        "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+        "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
+        "spawn": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3"
+    }
+}
