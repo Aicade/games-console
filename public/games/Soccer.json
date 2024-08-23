@@ -1,0 +1,34 @@
+{
+    "description": "1. Use arrow keys to move the player. 2. Click to shoot the ball towards the goal. 3. Avoid defenders to keep possession.",
+    "deviceOrientation": "landscape",
+    "imageLoader": {
+        "background": "background_1",
+        "player": "player_1",
+        "ball": "collectible_2",
+        "defender": "elon",
+        "powerUp": "collectible_1",
+        "powerUp2": "collectible_3"
+    },
+    "soundsLoader": {
+        "background": "background",
+        "goal": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/whack.mp3",
+        "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/pop.mp3",
+        "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+        "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
+        "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3"
+    },
+    "instructions": "1. Use arrow keys to move the player. 2. Click to shoot the ball towards the goal. 3. Avoid defenders to keep possession.",
+    "orientationSizes": {
+        "landscape": {
+            "height": 720,
+            "width": 1280
+        },
+        "portrait": {
+            "height": 1280,
+            "width": 720
+        }
+    },
+    "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
+    "phaserVersion": "3.80.1",
+    "title": "Soccer Shootout"
+}
