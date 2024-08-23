@@ -1,64 +1,20 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "loose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3"
-};
-
-// Custom UI Elements
-const title = `Cadbury Gems`;
-const description = `Learning & Development game where you
-have to memorize the color & position
-of the objects.`;
-const instructions =
-    `
-      Instructions:
-        1. Observe closely & memorize the color and
-        the position of the objects.
-
-        2. Once the background fades to a color, touch
-        the objects with the same color as of the
-        background`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "portrait";
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
         super('GameScene');
         this.gridSize = 80;
-        this.colorsInGame = [0xff0000, 0xff8800, 0x00ff00, 0x0000ff, 0xff00ff, 0x555555];
+        this.colorsInGame = [0xff0000, 0xff8800, 0x00ff00, 0x0000ff, 0xff00ff, 0xccb600];
         this.circlesInGame = 5;
     }
 
     preload() {
-
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
-
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.bitmapFont('pixelfont',
@@ -74,7 +30,7 @@ class GameScene extends Phaser.Scene {
         this.height = this.game.config.height;
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -215,7 +171,7 @@ class GameScene extends Phaser.Scene {
     }
 
     addNewCircles() {
-        this.sounds.success.setVolume(1).setLoop(false).play()
+        this.sounds.success.setVolume(.5).setLoop(false).play()
         this.possibleColors = [];
         for (let i = 0; i < this.colorsInGame.length; i++) {
             for (let j = 0; j < this.circlesInGame - 1; j++) {
@@ -237,7 +193,7 @@ class GameScene extends Phaser.Scene {
             let posY = (1 + Math.floor(randomPosition / boardWidth)) * this.gridSize;
             posY = posY > this.game.height - 150 ? this.game.height - 150 : posY;
             posY = posY < 200 ? 200 : posY;
-            let circle = this.add.sprite(posX, posY, 'player').setInteractive({ cursor: 'pointer' }).setScale(0.1);
+            let circle = this.add.sprite(posX, posY, 'player').setInteractive({ cursor: 'pointer' }).setScale(0.25);
             circle.on('pointerdown', () => this.circleSelected(circle));
             this.circleGroup.add(circle);
             circle.tintColor = Phaser.Utils.Array.RemoveRandomElement(this.possibleColors);
@@ -299,7 +255,7 @@ class GameScene extends Phaser.Scene {
     circleSelected(circle) {
         if (this.cover.alpha === 1) {
             if (circle.tintColor === this.cover.tint) {
-                this.sounds.collect.setVolume(1).setLoop(false).play()
+                this.sounds.collect.setVolume(.1).setLoop(false).play()
                 circle.destroy();
                 this.updateScore(10)
                 this.scorePointAnim(circle.x, circle.y)
@@ -323,7 +279,7 @@ class GameScene extends Phaser.Scene {
                     })
                 }
             } else {
-                this.sounds.damage.setVolume(1).setLoop(false).play()
+                this.sounds.damage.setVolume(.5).setLoop(false).play()
                 if (this.lifeUsed) {
                     this.tryAgainText.text = "Wrong Again! You Lost."
                     this.vfx.blinkEffect(this.tryAgainText, 400, 2)
@@ -333,7 +289,7 @@ class GameScene extends Phaser.Scene {
                         item.setAlpha(1);
                     });
                     this.time.delayedCall(1500, () => {
-                        this.sounds.loose.setVolume(1).setLoop(false).play()
+                        this.sounds.loose.setVolume(.5).setLoop(false).play()
                         this.gameOverText.setAlpha(1);
                         this.time.delayedCall(2000, () => {
                             this.gameOver();
@@ -412,7 +368,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-         
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -424,19 +380,26 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
-    // backgroundColor: '#ffffff',
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
+    scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
-    scene: [GameScene],
-    dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
+    physics: {
+        default: "arcade",
+        arcade: {
+            gravity: { y: 0 },
+            debug: false,
+        },
     },
-    orientation: false
+    dataObject: {
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
+    },
+    orientation: _CONFIG.deviceOrientation === "portrait"
 };
