@@ -444,7 +444,7 @@ class GameScene extends Phaser.Scene {
 
             if (type === 0) {
                 // Vertical movement collectible
-                let collectible = this.verticalCollectibles.create(x, y, 'collectible').setScale(.2);
+                let collectible = this.verticalCollectibles.create(x, y, 'collectible').setScale(.3);
                 collectible.body.setSize(collectible.body.width / 1.2, collectible.body.height / 1.5);
 
                 this.tweens.add({
@@ -457,7 +457,7 @@ class GameScene extends Phaser.Scene {
                 });
 
             } else {
-                let collectible = this.waveCollectibles.create(x, y, 'collectible').setScale(.2);
+                let collectible = this.waveCollectibles.create(x, y, 'collectible').setScale(.3);
                 collectible.setVelocityX(speed);
                 collectible.body.setSize(collectible.body.width / 1.2, collectible.body.height / 1.5);
                 this.vfx.scaleGameObject(collectible);
@@ -642,7 +642,7 @@ const config = {
         default: "arcade",
         arcade: {
             gravity: { y: 300 },
-            debug: true,
+            debug: false,
         },
     },
     dataObject: {
