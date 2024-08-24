@@ -1,34 +1,34 @@
-let assetsLoader = {
-    "background": "background",
-    "enemy": "enemy",
-};
+// let assetsLoader = {
+//     "background": "background",
+//     "enemy": "enemy",
+// };
 
-let soundsLoader = {
-    "background": "background",
-    "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/whack.mp3",
-    "spawn": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/pop.mp3"
-};
+// let soundsLoader = {
+//     "background": "background",
+//     "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/whack.mp3",
+//     "spawn": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/pop.mp3"
+// };
 
-// Custom UI Elements
-const title = `Whack a Mole`;
-const description = `Reaction arcade game. Tap to kill. `;
-const instructions =
-    `   Instructions:
-        1. Click the enemies to kill them.
-        2. Set the highest score in the given time.`;
+// // Custom UI Elements
+// const title = `Whack a Mole`;
+// const description = `Reaction arcade game. Tap to kill. `;
+// const instructions =
+//     `   Instructions:
+//         1. Click the enemies to kill them.
+//         2. Set the highest score in the given time.`;
 
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-// Game Orientation
-const orientation = "landscape";
+// const orientationSizes = {
+//     "landscape": {
+//         "width": 1280,
+//         "height": 720,
+//     },
+//     "portrait": {
+//         "width": 720,
+//         "height": 1280,
+//     }
+// }
+// // Game Orientation
+// const orientation = "landscape";
 
 // Touuch Screen Controls
 const joystickEnabled = false;
@@ -39,6 +39,24 @@ const rexJoystickUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex
 
 // BUTTON DOCMENTATION: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/button/
 const rexButtonUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexbuttonplugin.min.js";
+
+function gameScenePreload(scene) {
+    if (joystickEnabled) scene.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
+    if (buttonEnabled) scene.load.plugin('rexbuttonplugin', rexButtonUrl, true);
+
+    for (const key in _CONFIG.imageLoader) {
+        scene.load.image(key, _CONFIG.imageLoader[key]);
+    }
+
+    for (const key in _CONFIG.soundsLoader) {
+        scene.load.audio(key, [_CONFIG.soundsLoader[key]]);
+    }
+
+    scene.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
+    const fontName = 'pix';
+    const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
+    scene.load.bitmapFont('pixelfont', fontBaseURL + fontName + '.png', fontBaseURL + fontName + '.xml');
+}
 
 // Game Scene
 class GameScene extends Phaser.Scene {
@@ -54,25 +72,9 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        addEventListenersPhaser.bind(this)();
-
-        if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
-        if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
-        }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
-        }
-
-        this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
-        const fontName = 'pix';
-        const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
-        this.load.bitmapFont('pixelfont', fontBaseURL + fontName + '.png', fontBaseURL + fontName + '.xml');
-
+        gameScenePreload(this);
         displayProgressLoader.call(this);
+        addEventListenersPhaser.bind(this)();
     }
 
     create() {
@@ -84,11 +86,11 @@ class GameScene extends Phaser.Scene {
         this.timeLimit = this.initTimeLimit;
         this.sounds = {};
 
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.sounds.background.setVolume(1).setLoop(false).play()
+        this.sounds.background.setVolume(0.8).setLoop(true).play()
 
         this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
         this.bg.setScrollFactor(0);
@@ -210,7 +212,7 @@ class GameScene extends Phaser.Scene {
 
     hitMole(mole) {
         if (mole.missed) return;
-        this.sounds.destroy.setVolume(1).setLoop(false).play()
+        this.sounds.destroy.setVolume(0.5).setLoop(false).play()
         this.vfx.createEmitter('red', mole.x, mole.y, 1, 0, 500).explode(10);
         this.vfx.createEmitter('yellow', mole.x, mole.y, 1, 0, 500).explode(10);
         this.vfx.createEmitter('orange', mole.x, mole.y, 1, 0, 500).explode(10);
@@ -341,18 +343,19 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     pixelArt: true,
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     scene: [GameScene],
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true,
+    deviceOrientation: _CONFIG.deviceOrientation
 };
