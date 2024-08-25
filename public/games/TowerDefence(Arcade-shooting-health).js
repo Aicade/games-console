@@ -1,41 +1,41 @@
-let assetsLoader = {
-    "background": "background",
-    "collectible": "collectible",
-    "player": "player",
-    "projectile": "projectile",
-    "enemy": "enemy",
-};
+// let assetsLoader = {
+//     "background": "background",
+//     "collectible": "collectible",
+//     "player": "player",
+//     "projectile": "projectile",
+//     "enemy": "enemy",
+// };
 
-let soundsLoader = {
-    "background": "background",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
-    "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav"
-};
+// let soundsLoader = {
+//     "background": "background",
+//     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
+//     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
+//     "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
+//     "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav"
+// };
 
-// Custom UI Elements
-const title = `Defend the yellow Tower`
-const description = `Shoot the enemies before they destroy
-  the tower`
-const instructions =
-    `Instructions:
-  1. Touch or click to shoot bullets.
-  2. Game gets over when tower's heath gets to 0`;
+// // Custom UI Elements
+// const title = `Defend the yellow Tower`
+// const description = `Shoot the enemies before they destroy
+//   the tower`
+// const instructions =
+//     `Instructions:
+//   1. Touch or click to shoot bullets.
+//   2. Game gets over when tower's heath gets to 0`;
 
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
+// const orientationSizes = {
+//     "landscape": {
+//         "width": 1280,
+//         "height": 720,
+//     },
+//     "portrait": {
+//         "width": 720,
+//         "height": 1280,
+//     }
+// }
 
-// Game Orientation
-const orientation = "landscape";
+// // Game Orientation
+// const orientation = "landscape";
 
 
 // Game Scene
@@ -48,12 +48,12 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
 
         // Load In-Game Assets from assetsLoader
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -73,7 +73,7 @@ class GameScene extends Phaser.Scene {
         this.bg.setScale(scale);
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -164,7 +164,7 @@ function gameSceneCreate(game) {
     const centerX = game.game.config.width / 2;
     const centerY = game.game.config.height / 2;
 
-    game.tower = game.physics.add.image(100, centerY, 'collectible').setScale(0.15);
+    game.tower = game.physics.add.image(100, centerY, 'collectible').setScale(0.30);
     game.tower.health = 100;
     game.tower.setImmovable(true).setCollideWorldBounds(true);
     game.tower.body.setSize(
@@ -174,7 +174,7 @@ function gameSceneCreate(game) {
     game.tower.postFX.addShine(0.3);
 
 
-    game.player = game.physics.add.image(250, centerY, 'player').setScale(0.13);
+    game.player = game.physics.add.image(250, centerY, 'player').setScale(0.22);
     game.player.setCollideWorldBounds(true);
 
     const fx = game.player.preFX.addBarrel(0.9);
@@ -284,7 +284,7 @@ function spawnEnemy() {
         spawnX = 600
     }
     let spawnY = Math.random() * this.game.config.height;
-    var enemy = this.enemies.create(spawnX, spawnY, 'enemy').setScale(.11);
+    var enemy = this.enemies.create(spawnX, spawnY, 'enemy').setScale(.22);
     enemy.body.setSize(
         enemy.body.width / 1.5,
         enemy.body.height / 1.5
@@ -296,7 +296,7 @@ function fireBullet(pointer) {
     let bullet = this.bullets.get(this.player.x, this.player.y);
     if (bullet) {
         this.sounds.shoot.setVolume(0.2).setLoop(false).play()
-        bullet.setScale(0.05);
+        bullet.setScale(0.1);
         bullet.body.setSize(
             bullet.body.width / 1.5,
             bullet.body.height / 1.5
@@ -317,12 +317,13 @@ function fireBullet(pointer) {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     pixelArt: true,
     physics: {
@@ -333,9 +334,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true
+    deviceOrientation: _CONFIG.deviceOrientation
 };
