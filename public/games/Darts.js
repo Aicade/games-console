@@ -1,35 +1,4 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "projectile": "projectile"
-};
 
-let soundsLoader = {
-    "background": "background",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-};
-
-const title = `Dart Throw`
-const description = `Tap to throw.`
-const instructions =
-    `Instructions:
-  1. Tap to throw darts.`;
-
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "portrait";
 
 // Game Scene
 class GameScene extends Phaser.Scene {
@@ -43,12 +12,12 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         addEventListenersPhaser.bind(this)();
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
 
@@ -79,8 +48,13 @@ class GameScene extends Phaser.Scene {
         return ret;
     }
     create() {
+
+        // let gameScore = 0;
+        // let gameLevel = 1;
+        // let gameScoreText;
+
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -119,7 +93,7 @@ class GameScene extends Phaser.Scene {
 
         // let bg = this.add.tileSprite(0, 0, this.cameras.main.width + 900, this.cameras.main.height + 1500, 'background');
 
-        let centerCir = this.add.sprite(this.cameras.main.centerX, 350, 'player').setDepth(1).setScale(.2);
+        let centerCir = this.add.sprite(this.cameras.main.centerX, 350, 'player').setDepth(1).setScale(.3);
         this.linesCanvasGraphic = this.add.graphics(0, 0);
 
         // let style = { font: "24px Arial", fill: "#000", align: "center" };
@@ -199,8 +173,12 @@ class GameScene extends Phaser.Scene {
 
 
     winAnimations() {
-        // alert('You win!');
-        this.scene.restart();
+        let winText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY, 'pixelfont', 'You Win!', 64)
+            .setOrigin(0.5);
+        
+        this.time.delayedCall(2000, () => {
+            this.scene.restart();
+        });
     }
 
     update() {
@@ -351,12 +329,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
@@ -368,13 +347,9 @@ const config = {
     },
     pixelArt: true,
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: false
+    deviceOrientation: _CONFIG.deviceOrientation
 };
-
-let gameScore = 0;
-let gameLevel = 1;
-let gameScoreText;
