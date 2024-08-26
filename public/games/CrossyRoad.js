@@ -1,38 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "collectible": "collectible",
-    "enemy": "enemy",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-};
-
-// Custom UI Elements
-const title = `Crossy Road`
-const description = `Hold to move your player forward, avoid obstacles and reach your destination.`
-const instructions =
-    `Instructions:
-    1. Hold to move forward
-    2. Release to stop moving`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
-
 // Touuch Screen Controls
 const joystickEnabled = false;
 const buttonEnabled = false;
@@ -61,12 +26,12 @@ class GameScene extends Phaser.Scene {
 
         this.score = 0;
         // Load In-Game Assets from assetsLoader
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
         this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
@@ -82,7 +47,7 @@ class GameScene extends Phaser.Scene {
 
     create() {
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -92,7 +57,9 @@ class GameScene extends Phaser.Scene {
         this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
         const scale = Math.max(this.width / this.bg.displayWidth, this.height / this.bg.displayHeight);
         this.bg.setScale(scale);
-        this.sounds.background.setVolume(2.5).setLoop(true).play();
+        //Background music
+        this.backgroundMusic = this.sounds.background.setVolume(2.5).setLoop(true);
+        this.backgroundMusic.play();
 
         this.vfx = new VFXLibrary(this);
 
@@ -143,11 +110,11 @@ class GameScene extends Phaser.Scene {
 
         //player
         this.player = this.add.sprite(40, this.game.config.height / 2, 'player');
-        this.player.setScale(0.1);
+        this.player.setScale(0.17);
 
         //add goal
         this.treasure = this.add.sprite(this.width - 80, this.height / 2, 'collectible');
-        this.treasure.setScale(0.2);
+        this.treasure.setScale(0.35);
 
         this.enemies = this.add.group({
             key: 'enemy',
@@ -159,8 +126,8 @@ class GameScene extends Phaser.Scene {
                 stepY: this.game.config.width * 0.05
             },
             setScale: {
-                x: 0.1,
-                y: 0.1,
+                x: 0.15,
+                y: 0.15,
             }
         });
 
@@ -214,11 +181,13 @@ class GameScene extends Phaser.Scene {
             //enemy collision
             if (Phaser.Geom.Intersects.RectangleToRectangle(this.player.getBounds(), enemies[i].getBounds())) {
                 this.playerDestroyEmitter.explode(400, this.player.x, this.player.y);
-                this.sounds.collect.setVolume(.75).setLoop(false).play();
+                this.sounds.lose.setVolume(.75).setLoop(false).play();
 
                 this.player.destroy();
                 enemies[i].destroy();
                 this.time.delayedCall(2000, () => {
+                    this.backgroundMusic.stop();
+
                     this.gameOver();
                 });
                 break;
@@ -238,7 +207,7 @@ class GameScene extends Phaser.Scene {
 
         this.level += 1;
         this.enemySpeed += 1;
-        this.sounds.lose.setVolume(.75).setLoop(false).play();
+        this.sounds.collect.setVolume(1.5).setLoop(false).play();
 
         Phaser.Actions.Call(this.enemies.getChildren(), function (enemy) {
             enemy.speed = this.enemySpeed;
@@ -305,12 +274,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     pixelArt: true,
     physics: {
@@ -321,10 +291,10 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true,
+    deviceOrientation: _CONFIG.deviceOrientation
 };
 
