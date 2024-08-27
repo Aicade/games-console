@@ -1,26 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "enemy": "enemy",
-    "collectible": "collectible",
-    "avoidable": "avoidable"
-};
-
-let soundsLoader = {
-    "background": "background",
-    'collect': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3',
-    'destroy': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3',
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3"
-};
-
-// Custom UI Elements
-const title = `Space Drive`
-const description = `A thrilling tap-to-destroy game where quick reflexes are \n key to defeating waves of unique enemies`
-const instructions =
-    `Instructions:
-1. Use arrow keys OR joystick to move.
-2. Use Spacebar/button to shoot.`;
-
 // Game Orientation
 const orientation = "portrait";
 var isMobile = false;
@@ -62,12 +39,11 @@ class GameScene extends Phaser.Scene {
 
         addEventListenersPhaser.bind(this)();
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
 
@@ -93,9 +69,10 @@ class GameScene extends Phaser.Scene {
         this.vfx = new VFXLibrary(this);
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
+
 
         this.sounds.background.setVolume(3).setLoop(true).play();
 
@@ -277,7 +254,6 @@ class GameScene extends Phaser.Scene {
         bar.update(); if (bar.value == 100) {
             this.gameWin = true;
         }
-
     }
 
     toggleControlsVisibility(visibility) {
@@ -318,7 +294,7 @@ class GameScene extends Phaser.Scene {
             const hen = Phaser.Utils.Array.GetRandom(this.hens.getChildren());
             if (hen) {
                 const egg = this.eggs.create(hen.x, hen.y, 'collectible');
-                egg.setScale(0.1).setDepth(11);
+                egg.setScale(0.25).setDepth(11);
             }
         }
     }
@@ -486,16 +462,19 @@ function displayProgressLoader() {
 
 
 // Configuration object
+
+
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "arcade",
         arcade: {
@@ -503,10 +482,10 @@ const config = {
             debug: false,
         },
     },
-    orientation: false,
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
+    orientation: _CONFIG.deviceOrientation === "portrait"
 };
