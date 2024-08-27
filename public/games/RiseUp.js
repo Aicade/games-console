@@ -1,40 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "platform": "platform",
-    "enemy": "enemy"
-};
-
-let soundsLoader = {
-    "background": "background",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-};
-
-const title = `Rise Above`
-const description = `Tap to throw bombs.`
-const instructions =
-    `Instructions:
-  1. Create a walls and destory enemies.`;
-
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
-
-
 // Touuch Screen Controls
 const joystickEnabled = false;
 const buttonEnabled = false;
@@ -62,13 +25,13 @@ class GameScene extends Phaser.Scene {
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
-        }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
-        }
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
+          }
+        
+          for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
+          }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
@@ -87,8 +50,8 @@ class GameScene extends Phaser.Scene {
         this.enemySpawnDelay = 2000;
 
         this.sounds = {};
-        for (const key in soundsLoader) {
-            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        for (const key in _CONFIG.soundsLoader) {
+        this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
         this.sounds.background.setVolume(0.75).setLoop(false).play()
@@ -103,7 +66,7 @@ class GameScene extends Phaser.Scene {
         this.bg.displayHeight = this.game.config.height;
         this.bg.displayWidth = this.game.config.width;
 
-        this.player = this.physics.add.sprite(50, this.sys.game.config.height - 50, 'player').setScale(.1).setDepth(5).setOrigin(0.5, 1);
+        this.player = this.physics.add.sprite(50, this.sys.game.config.height - 50, 'player').setScale(.2).setDepth(5).setOrigin(0.5, 1);
         this.player.body.setGravityY(100); // Adjust gravity strength as needed
         this.player.setCollideWorldBounds(true);
         var newBodyWidth = this.player.body.width * 0.5; // Decrease width by 20%
@@ -152,7 +115,7 @@ class GameScene extends Phaser.Scene {
 
         this.input.on('pointerdown', (pointer) => {
             this.sounds.damage.setVolume(0.5).setLoop(false).play()
-            const platform = this.platforms.create(this.player.x, this.player.y - 120, 'platform').setScale(.09).setOrigin(0.5, 0);
+            const platform = this.platforms.create(this.player.x, this.player.y - 120, 'platform').setScale(.18).setOrigin(0.5, 0);
             platform.body.setAllowGravity(true);
             this.player.setY(platform.y - 10);
         });
@@ -298,7 +261,7 @@ class GameScene extends Phaser.Scene {
 
             for (let y = 0; y < formation[1]; y++) {
                 for (let x = 0; x < formation[0]; x++) {
-                    let enemy = this.enemies.create(startX + x * 40, randomY + y * 40, 'enemy').setScale(.05);
+                    let enemy = this.enemies.create(startX + x * 40, randomY + y * 40, 'enemy').setScale(.1);
                     var newBodyWidth = enemy.body.width * 0.3; // Decrease width by 20%
                     var newBodyHeight = enemy.body.height * 0.5; // Decrease height by 20%
                     enemy.body.setSize(newBodyWidth, newBodyHeight);
@@ -380,27 +343,25 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
-    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
-        default: "arcade",
-        arcade: {
-            gravity: { y: 0 },
-            debug: false,
-        },
+      default: "arcade",
+      arcade: {
+        gravity: { y: 0 },
+        debug: false,
+      },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+      name: _CONFIG.title,
+      description: _CONFIG.description,
+      instructions: _CONFIG.instructions,
     },
-    orientation: true
-};
-
+    orientation: _CONFIG.deviceOrientation === "landscape" 
+  };
