@@ -60,7 +60,7 @@ class GameScene extends Phaser.Scene {
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
-        this.bg = this.add.tileSprite(0, 0, this.width, this.height, 'background').setOrigin(0, 0);
+        this.bg = this.add.tileSprite(0, 0, this.width/2, this.height/2, 'background').setOrigin(0, 0);
         this.bgSpeed = 1.5;
         this.bg.setScrollFactor(0);
         this.bg.displayHeight = this.game.config.height;
