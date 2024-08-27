@@ -1,42 +1,3 @@
-let assetsLoader = {
-  "background": "background",
-  "player": "player",
-  "avoidable": "avoidable",
-  "collectible": "collectible",
-};
-
-let soundsLoader = {
-  "background": "background",
-  "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
-  "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/footsteps_1.mp3",
-  "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav"
-};
-
-// Custom UI Elements
-const title = `SILVER SURFER`
-const description = `Player is hovering in space. Avoid not to collide
-with enemies. He has limited life, so keep collecting the
-materials to increase life.`
-const instructions =
-  `Instructions:
-  1. Touch and hold to hover.
-  2. Tilt device to landscape for best experience.`;
-
-const orientationSizes = {
-  "landscape": {
-    "width": 1280,
-    "height": 720,
-  },
-  "portrait": {
-    "width": 720,
-    "height": 1280,
-  }
-}
-
-// Game Orientation
-const orientation = "landscape";
-
-
 /*
 ------------------- GLOBAL CODE STARTS HERE -------------------
 */
@@ -57,7 +18,7 @@ class GameScene extends Phaser.Scene {
     this.score = 0;
 
     this.sounds = {};
-    for (const key in soundsLoader) {
+    for (const key in _CONFIG.soundsLoader) {
       this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
     }
 
@@ -146,12 +107,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
   type: Phaser.AUTO,
-  width: orientationSizes[orientation].width,
-  height: orientationSizes[orientation].height,
+  width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
   scene: [GameScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    orientation: Phaser.Scale.Orientation.LANDSCAPE
   },
   pixelArt: true,
   /* ADD CUSTOM CONFIG ELEMENTS HERE */
@@ -163,11 +125,11 @@ const config = {
     },
   },
   dataObject: {
-    name: title,
-    description: description,
-    instructions: instructions,
+    name: _CONFIG.title,
+    description: _CONFIG.description,
+    instructions: _CONFIG.instructions,
   },
-  orientation: true
+  deviceOrientation: _CONFIG.deviceOrientation === "landscape" 
 };
 
 let INIT_PLAYER_SPEED,
@@ -188,13 +150,13 @@ let INIT_PLAYER_SPEED,
 
 // GAME SCENE PHASER FUNCTIONS
 function gameScenePreload(game) {
-  // Load In-Game Assets from assetsLoader
-  for (const key in assetsLoader) {
-    game.load.image(key, assetsLoader[key]);
+  // Load In-Game Assets from _CONFIG.imageLoader
+  for (const key in _CONFIG.imageLoader) {
+    game.load.image(key, _CONFIG.imageLoader[key]);
   }
 
-  for (const key in soundsLoader) {
-    game.load.audio(key, [soundsLoader[key]]);
+  for (const key in _CONFIG.soundsLoader) {
+    game.load.audio(key, [_CONFIG.soundsLoader[key]]);
   }
 
 
@@ -225,7 +187,7 @@ function gameSceneCreate(game) {
   game.collectibles = game.physics.add.group();
 
   game.player = game.physics.add.image(50, 150, "player").setOrigin(0, 0);
-  game.player.setScale(0.14).setDepth(10);
+  game.player.setScale(0.2).setDepth(10);
   game.player.setImmovable(true);
   game.player.body.setSize(game.player.body.width / 1.5, game.player.body.height / 1.5);
 
@@ -397,7 +359,7 @@ function spawnCollectible() {
   collectble.body.allowGravity = false;
   collectble.body.setSize(collectble.body.width / 1.5, collectble.body.height / 1.5);
   collectble.setVelocity(ENEMY_SPEED, 0);
-  collectble.setScale(0.07).setOrigin(0, 0).refreshBody();
+  collectble.setScale(0.14).setOrigin(0, 0).refreshBody();
 }
 
 function spawnEnemy() {
@@ -407,7 +369,7 @@ function spawnEnemy() {
   enemy.body.allowGravity = false;
   enemy.body.setSize(enemy.body.width / 1.5, enemy.body.height / 1.5);
   enemy.setVelocity(ENEMY_SPEED, 0);
-  enemy.setScale(0.16).setOrigin(0, 0).refreshBody();
+  enemy.setScale(0.2).setOrigin(0, 0).refreshBody();
 }
 
 function collectPowerUp(player, collectible) {
