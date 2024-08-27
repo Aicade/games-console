@@ -1,23 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "collectible_1": "collectible_1",
-    "collectible_2": "collectible_2",
-    "collectible_3": "collectible_3"
-};
-
-let soundsLoader = {
-    "background": "background",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-};
-
-const title = `Slot Match`
-const description = `Slot Match is a Match3 game where the player needs to match similar elements like casino slot machine elements to progress through levels and earn points.`
-const instructions =
-    `Instructions:
-    Match 3 of the same type to score points
-    Swipe to swap objects`;
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -26,13 +6,13 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
-        }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
-        }
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
+          }
+        
+          for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
+          }
 
         addEventListenersPhaser.bind(this)();
 
@@ -47,8 +27,8 @@ class GameScene extends Phaser.Scene {
         this.vfx = new VFXLibrary(this);
 
         this.sounds = {};
-        for (const key in soundsLoader) {
-            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        for (const key in _CONFIG.soundsLoader) {
+        this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
         this.sounds.background.setVolume(1).setLoop(true).play()
@@ -185,7 +165,7 @@ class GameScene extends Phaser.Scene {
 
         // Creating the tile
         var tile = me.add.sprite((x * me.tileWidth) + me.tileWidth / 2, 0, tileToAdd);
-        tile.setScale(.15);
+        tile.setScale(.5);
         tile.setOrigin(0.5, 0.5); // Setting the anchor point to the center
 
         // Adding tween for the tile
@@ -552,28 +532,28 @@ const orientation = "landscape";
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
     physics: {
-        default: "arcade",
-        arcade: {
-            gravity: { y: 0 },
-            debug: false,
-        },
+      default: "arcade",
+      arcade: {
+        gravity: { y: 0 },
+        debug: false,
+      },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+      name: _CONFIG.title,
+      description: _CONFIG.description,
+      instructions: _CONFIG.instructions,
     },
-    orientation: true,
-};
+    orientation: _CONFIG.deviceOrientation === "landscape" 
+  };
 
 let gameScore = 0;
 let gameLevel = 1;
