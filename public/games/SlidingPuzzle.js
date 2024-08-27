@@ -1,53 +1,15 @@
-let assetsLoader = {
-    "player": "player",
-    "enemy": "enemy",
-    "collectible": "collectible",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "slice": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac",
-};
-
-// Custom UI Elements
-const title = `SLIDING PUZZLE`
-const description = `Move the puzzle pieces to correct positions
-and make a complete Image.`
-const instructions =
-    `Instructions:
-    1. Touch to move/slide the puzzle piece.
-    2. Touch to see new puzzle after completing.`;
-
-// Custom Font Colors
 const globalPrimaryFontColor = "#FFF";
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
 
 const SlidingPuzzle = {
     ALLOW_CLICK: 0,
     TWEENING: 1,
-    PIECE_SCALE: 0.7, // 1: 100% | 0: 0%
+    PIECE_SCALE: 1.4, // 1: 100% | 0: 0%
 };
 
 class GameScene extends Phaser.Scene {
     constructor() {
         super('GameScene');
 
-        //  These are all set in the startPuzzle function
         this.rows = 0;
         this.columns = 0;
 
@@ -71,8 +33,7 @@ class GameScene extends Phaser.Scene {
 
         this.lastMove = null;
 
-        //  The image in the Cache to be used for the puzzle.
-        //  Set in the startPuzzle function.
+
         this.photo = '';
 
         this.slices = [];
@@ -104,13 +65,13 @@ class GameScene extends Phaser.Scene {
 
     preload() {
         addEventListenersPhaser.bind(this)();
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
+        }
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
-        }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.bitmapFont('pixelfont',
@@ -123,7 +84,7 @@ class GameScene extends Phaser.Scene {
     create(data) {
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -133,7 +94,7 @@ class GameScene extends Phaser.Scene {
         //  The number of iterations the puzzle walker will go through when
         //  scrambling up the puzzle. 10 is a nice and easy puzzle, but
         //  push it higher for much harder ones.
-        this.iterations = Math.ceil(this.grid_size * 2.5);
+        this.iterations = Math.ceil(this.grid_size * 4.5);
 
         this.score = 0;
         this.width = this.game.config.width;
@@ -709,7 +670,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-         
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -721,18 +682,26 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
-    orientation: true,
-    dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
+    physics: {
+        default: "arcade",
+        arcade: {
+            gravity: { y: 0 },
+            debug: false,
+        },
     },
+    dataObject: {
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
+    },
+    orientation: _CONFIG.deviceOrientation === "landscape"
 };
