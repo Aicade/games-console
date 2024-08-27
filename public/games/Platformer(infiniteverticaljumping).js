@@ -415,7 +415,7 @@ function collectPowerUp(player, powerUp) {
 }
 
 function spawnPowerUp() {
-  let x = Phaser.Math.Between(100, game.config.width - 100);
+  let x = Phaser.Math.Between(100, this.width - 100);
   let y = this.player.y - 400;
   let powerUp = this.powerUps.create(x, y, 'collectible').setScale(.11);
 }
