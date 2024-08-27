@@ -1,37 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "enemy": "enemy",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3"
-};
-
-const title = `Down Hill Ski`
-const description = `Tap to change direction.`
-const instructions =
-    `Instructions:
-  1. Avoid enemies.`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "portrait";
-
-
 // Touuch Screen Controls
 const joystickEnabled = false;
 const buttonEnabled = false;
@@ -52,12 +18,12 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         this.isGameOver = false;
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         addEventListenersPhaser.bind(this)();
@@ -77,7 +43,7 @@ class GameScene extends Phaser.Scene {
 
     }
     gameSceneBackground() {
-        let bgSize = orientationSizes[orientation].width > orientationSizes[orientation].height ? orientationSizes[orientation].width : orientationSizes[orientation].height;
+        let bgSize = _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width > _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height ? _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width : _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height;
         this.bg = this.add
             .tileSprite(0, 0, bgSize, bgSize, "background")
             .setOrigin(0, 0)
@@ -87,13 +53,13 @@ class GameScene extends Phaser.Scene {
     create() {
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
         this.isGameOver = false;
 
-        this.sounds.background.setVolume(0.75).setLoop(true).play();
+        this.sounds.background.setVolume(1.0).setLoop(true).play();
         this.gameSceneBackground();
 
         this.vfx = new VFXLibrary(this);
@@ -104,7 +70,7 @@ class GameScene extends Phaser.Scene {
         this.gameLevel = 1;
         this.levelThreshold = 100;
 
-        this.player = this.physics.add.image(this.width / 2, this.height / 2 - 250, 'player').setScale(0.15, 0.15);
+        this.player = this.physics.add.image(this.width / 2, this.height / 2 - 250, 'player').setScale(0.25, 0.25);
         this.player.setCollideWorldBounds(true);
         this.player.body.setSize(this.player.width * 0.7, this.player.height * 0.7);
 
@@ -223,7 +189,7 @@ class GameScene extends Phaser.Scene {
             let spawnX = Phaser.Math.Between(0, this.game.config.width);
             let velocityY = -(200 + this.gameLevel * 10);
 
-            var enemy = this.enemies.create(spawnX, this.game.config.height + 50, 'enemy').setScale(.1);
+            var enemy = this.enemies.create(spawnX, this.game.config.height + 50, 'enemy').setScale(.25);
             enemy.body.setSize(enemy.width * 0.7, enemy.height * 0.7);
             enemy.setVelocityY(velocityY);
         }
@@ -232,7 +198,6 @@ class GameScene extends Phaser.Scene {
         this.isGameOver = true;
         this.physics.pause();
         this.player.destroy();
-        this.score = 0;
         this.vfx.shakeCamera();
         this.trail.destroy();
 
@@ -318,12 +283,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     pixelArt: true,
     /* ADD CUSTOM CONFIG ELEMENTS HERE */
@@ -335,9 +301,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: false
+    deviceOrientation: _CONFIG.deviceOrientation
 };
