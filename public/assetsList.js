@@ -10,13 +10,13 @@ const assets_list = {
     "enemy": "/assets/enemy.png",
     "enemy_1": "/assets/enemy_1.png",
     "projectile": "/assets/projectile.png",
-    "projectile_1": "/assets/projectile_1.png",
+    "projectile_1": "/assets/collectible_1.png",
     "projectile_2": "/assets/projectile_2.png",
-    "avoidable": "/assets/avoidable.png",
+    "avoidable": "/assets/collectible_1.png",
     "platform": "/assets/platform.png",
     "platform_1": "/assets/platform_1.png",
 }
 
-for (const key in assetsLoader) {
-    assetsLoader[key] = assets_list[assetsLoader[key]]
+for (const key in _CONFIG.imageLoader) {
+    _CONFIG.imageLoader[key] = assets_list[_CONFIG.imageLoader[key]]
 }

@@ -51,8 +51,6 @@ class GameScene extends Phaser.Scene {
         for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
-
-
         this.sounds.background.setVolume(1).setLoop(false).play()
 
         this.vfx = new VFXLibrary(this);
