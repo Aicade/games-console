@@ -261,7 +261,7 @@ class GameScene extends Phaser.Scene {
 
             for (let y = 0; y < formation[1]; y++) {
                 for (let x = 0; x < formation[0]; x++) {
-                    let enemy = this.enemies.create(startX + x * 40, randomY + y * 40, 'enemy').setScale(.1);
+                    let enemy = this.enemies.create(startX + x * 40, randomY + y * 40, 'enemy').setScale(.15);
                     var newBodyWidth = enemy.body.width * 0.3; // Decrease width by 20%
                     var newBodyHeight = enemy.body.height * 0.5; // Decrease height by 20%
                     enemy.body.setSize(newBodyWidth, newBodyHeight);
