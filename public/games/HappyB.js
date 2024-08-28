@@ -20,6 +20,8 @@ class GameScene extends Phaser.Scene {
         this.gameOverText = null;
         this.loseSoundPlayed = false;
         this.enemyCount = 5;
+        this.isGameOver = false;
+        this.hitCounter = 5;
 
         this.playerBulletBounces = 8;
         this.playerBullets = 5;
@@ -202,7 +204,7 @@ class GameScene extends Phaser.Scene {
 
         this.sounds.background.setVolume(1).setLoop(true).play();
         var me = this;
-  this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);      // Use the larger scale factor to ensure the image covers the whole canvas
+        this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);      // Use the larger scale factor to ensure the image covers the whole canvas
         const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
         this.bg.setScale(scale).setDepth(-5);
 

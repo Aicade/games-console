@@ -1,49 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "enemy": "enemy",
-    "collectible_1": "collectible_1",
-    "collectible_2": "collectible_2",
-    "projectile": "projectile",
-    "platform": "platform",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
-    "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
-    "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
-    "upgrade_1": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
-    "upgrade_2": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
-    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
-    "stretch": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3",
-    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
-};
-
-// Custom UI Elements
-const title = `MARIO LITE`
-const description = `A Platformer game where you collect powerups and kill enemies by \n stomping them. Game ends after you reach 500m`
-const instructions =
-    `Instructions:
-    1. Use LEFT / RIGHT arrow key to move.
-    2. Use UP arrow / Square button to jump
-    3. Use SPACE/ round button to shoot and destroy enemies`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-// Game Orientation
-const orientation = "landscape";
-
 // Touuch Screen Controls
 const joystickEnabled = true;
 const buttonEnabled = true;
@@ -89,12 +43,12 @@ class GameScene extends Phaser.Scene {
 
     preload() {
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
@@ -110,7 +64,7 @@ class GameScene extends Phaser.Scene {
 
     create() {
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
         isMobile = !this.sys.game.device.os.desktop;
@@ -135,7 +89,7 @@ class GameScene extends Phaser.Scene {
         this.meterText = this.add.bitmapText(10, 7, 'pixelfont', 'Meter: 0m', 28);
         this.meterText.setScrollFactor(0).setDepth(11);
 
-        this.scoreImg = this.add.image(30, 80, 'collectible_1').setScale(0.05, 0.05).setScrollFactor(0).setDepth(11)
+        this.scoreImg = this.add.image(30, 80, 'collectible_1').setScale(0.1, 0.1).setScrollFactor(0).setDepth(11)
         this.scoreText = this.add.bitmapText(60, 50, 'pixelfont', 'x 0', 28);
         this.scoreText.setScrollFactor(0).setDepth(11);
         this.powerUpText = this.add.bitmapText(this.width / 2, 200, 'pixelfont', 'POWER UP', 60).setOrigin(0.5, 0.5);
@@ -153,7 +107,7 @@ class GameScene extends Phaser.Scene {
         this.physics.world.setBoundsCollision(true);
 
 
-        this.player = this.physics.add.sprite(0, 0, 'player').setScale(0.13).setBounce(0.1).setCollideWorldBounds(true);
+        this.player = this.physics.add.sprite(0, 0, 'player').setScale(0.2).setBounce(0.1).setCollideWorldBounds(true);
         this.player.body.setSize(this.player.body.width / 1.5, this.player.body.height);
         this.player.setGravityY(500);
         this.player.power_state = PLAYER_STATE.SMALL;
@@ -365,11 +319,11 @@ class GameScene extends Phaser.Scene {
             if (brick.mushroom) {
                 delete brick.mushroom;
                 brick.setTint(0xffffff);
-                let powerUp = this.powerUps.create(brick.x, brick.y - 70, 'collectible_2').setScale(0);
+                let powerUp = this.powerUps.create(brick.x, brick.y - 70, 'collectible_2').setScale(0.3);
                 this.tweens.add({
                     targets: powerUp,
-                    scaleY: 0.07,
-                    scaleX: 0.07,
+                    scaleY: 0.14,
+                    scaleX: 0.14,
                     duration: 300,
                     ease: 'Power1',
                     onComplete: () => {
@@ -386,7 +340,7 @@ class GameScene extends Phaser.Scene {
                     delete brick.mushroom;
                     brick.setTint(0xffffff);
                 }
-                let powerUp = this.powerUps.create(brick.x, brick.y - brick.displayHeight, 'collectible_1').setScale(0);
+                let powerUp = this.powerUps.create(brick.x, brick.y - brick.displayHeight, 'collectible_1').setScale(0.2);
                 this.tweens.add({
                     targets: powerUp,
                     scaleY: 0.07,
@@ -408,7 +362,7 @@ class GameScene extends Phaser.Scene {
         let x = this.player.x + this.game.config.width / 2;
         let y = Phaser.Math.Between(70, this.game.config.height / 1.5);
 
-        let enemy = this.enemies.create(x, y, 'enemy').setScale(.1);
+        let enemy = this.enemies.create(x, y, 'enemy').setScale(.18);
         let speed = -150;
         if (this.player.power_state === PLAYER_STATE.BIG) {
             speed = -200
@@ -419,6 +373,9 @@ class GameScene extends Phaser.Scene {
         enemy.setGravityY(100);
         // enemy.setCollideWorldBounds(true);
         enemy.setBounceX(1);
+        //for touching the enemy to the ground
+        enemy.body.setSize(enemy.width * 0.8, enemy.height * 0.7);
+        enemy.body.setOffset(enemy.width * 0.2, enemy.height * 0.1);
     }
 
     blinkEffect(object = this.powerUpText, duration = 300, blinks = 3) {
@@ -452,8 +409,8 @@ class GameScene extends Phaser.Scene {
             this.tweens.add({
                 targets: this.player,
                 y: player.y - 30,
-                scaleY: player.scaleX + 0.03,
-                scaleX: player.scaleY + 0.03,
+                scaleY: player.scaleX + 0.035,
+                scaleX: player.scaleY + 0.035,
                 duration: 100,
                 ease: 'Power1',
             })
@@ -501,7 +458,7 @@ class GameScene extends Phaser.Scene {
             this.sounds.shoot.setVolume(1).setLoop(false).play();
             let bullet = this.bullets.get(this.player.x, this.player.y);
             if (bullet) {
-                bullet.setActive(true).setVisible(true).setScale(0.04).setVelocityX(this.player.leftShoot ? -300 : 300)
+                bullet.setActive(true).setVisible(true).setScale(0.08).setVelocityX(this.player.leftShoot ? -300 : 300)
                 this.time.delayedCall(3000, () => {
                     bullet.destroy();
                     if (bullet.active) {
@@ -685,7 +642,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-         
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -697,12 +654,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     pixelArt: true,
     /* ADD CUSTOM CONFIG ELEMENTS HERE */
@@ -714,9 +672,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true
+    deviceOrientation: _CONFIG.deviceOrientation
 };

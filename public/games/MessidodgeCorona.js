@@ -1,42 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "avoidable": "avoidable",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
-    "loose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3"
-};
-
-// Custom UI Elements
-const title = `CORONA DODGE`
-const description = `Control game. 
-Let's see how good are your controls! Move and dodge the enemeis 
-coming from all direction.`
-const instructions =
-    `Instructions:
-    1. Use arrow keys or touch to avoid the enemies.`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
-
-/*
-------------------- GLOBAL CODE STARTS HERE -------------------
-*/
 
 // Game Scene
 class GameScene extends Phaser.Scene {
@@ -46,13 +7,13 @@ class GameScene extends Phaser.Scene {
 
     preload() {
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
+        }
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
-        }
 
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -60,7 +21,7 @@ class GameScene extends Phaser.Scene {
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png',
             'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
         addEventListenersPhaser.bind(this)();
-        
+
         displayProgressLoader.call(this)
     }
 
@@ -89,15 +50,16 @@ class GameScene extends Phaser.Scene {
         this.levelScoreThreshold = 100;
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
+
 
         this.bg = this.add.sprite(0, 0, 'background').setOrigin(0);
         const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
         this.bg.setScale(scale)
 
-        this.sounds.background.setVolume(4).setLoop(false).play()
+        this.sounds.background.setVolume(3).setLoop(true).play();
 
         // Add UI elements
         this.scoreText = this.add.bitmapText(this.width / 2, 10, 'pixelfont', 'Score: 0', 35).setDepth(11).setTint(0xffa500).setOrigin(0.5, 0);
@@ -239,7 +201,7 @@ class GameScene extends Phaser.Scene {
         toy = Phaser.Math.Between(0, this.game.config.height);
 
         enemy = this.enemies1.create(x, y, 'avoidable');
-        enemy.setScale(0.07);
+        enemy.setScale(0.14);
         enemy.body.setSize(enemy.body.width / 1.5, enemy.body.height / 1.5);
         this.physics.moveTo(enemy, tox, toy, this.enemySpeed);
         (Math.random() < 0.5) ? -50 : 50
@@ -255,10 +217,10 @@ class GameScene extends Phaser.Scene {
 
     }
 
-     playerHit(player, enemy) {
+    playerHit(player, enemy) {
         this.lives--;
         if (this.lives > 0) {
-            this.damageMusic.play();
+            this.sounds.damage.setVolume(0.7).setLoop(false).play()
             this.particleEmitter.explode(100, enemy.x, enemy.y)
             enemy.destroy();
             this.hearts[this.lives].destroy();
@@ -274,7 +236,7 @@ class GameScene extends Phaser.Scene {
             this.time.delayedCall(1000, () => {
 
                 this.playerParticleEmitter.explode(400, player.x, player.y);
-                this.looseMusic.play();
+                this.sounds.loose.setVolume(0.7).setLoop(false).play()
                 this.vfx.shakeCamera(300, 0.04);
                 this.player.destroy();
                 this.time.delayedCall(2000, () => {
@@ -335,7 +297,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-         
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -351,14 +313,15 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "arcade",
         arcade: {
@@ -367,9 +330,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true
+    orientation: _CONFIG.deviceOrientation === "landscape"
 };

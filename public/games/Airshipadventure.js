@@ -1,42 +1,3 @@
-let assetsLoader = {
-  "background": "background",
-  "player": "player",
-  "avoidable": "avoidable",
-  "collectible": "collectible",
-};
-
-let soundsLoader = {
-  "background": "background",
-  "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
-  "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/footsteps_1.mp3",
-  "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav"
-};
-
-// Custom UI Elements
-const title = `SILVER SURFER`
-const description = `Player is hovering in space. Avoid not to collide
-with enemies. He has limited life, so keep collecting the
-materials to increase life.`
-const instructions =
-  `Instructions:
-  1. Touch and hold to hover.
-  2. Tilt device to landscape for best experience.`;
-
-const orientationSizes = {
-  "landscape": {
-    "width": 1280,
-    "height": 720,
-  },
-  "portrait": {
-    "width": 720,
-    "height": 1280,
-  }
-}
-
-// Game Orientation
-const orientation = "landscape";
-
-
 /*
 ------------------- GLOBAL CODE STARTS HERE -------------------
 */
@@ -57,7 +18,7 @@ class GameScene extends Phaser.Scene {
     this.score = 0;
 
     this.sounds = {};
-    for (const key in soundsLoader) {
+    for (const key in _CONFIG.soundsLoader) {
       this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
     }
 
@@ -130,7 +91,7 @@ function displayProgressLoader() {
     progressBar.fillRect(x, y, width * value, height);
   });
   this.load.on('fileprogress', function (file) {
-     
+
   });
   this.load.on('complete', function () {
     progressBar.destroy();
@@ -146,8 +107,8 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
   type: Phaser.AUTO,
-  width: orientationSizes[orientation].width,
-  height: orientationSizes[orientation].height,
+  width: _CONFIG.orientationSizes[_CONFIG.orientation].width,
+  height: _CONFIG.orientationSizes[_CONFIG.orientation].height,
   scene: [GameScene],
   scale: {
     mode: Phaser.Scale.FIT,
@@ -163,11 +124,11 @@ const config = {
     },
   },
   dataObject: {
-    name: title,
-    description: description,
-    instructions: instructions,
+    name: _CONFIG.title,
+    description: _CONFIG.description,
+    instructions: _CONFIG.instructions,
   },
-  orientation: true
+  orientation: _CONFIG.orientation === "landscape"
 };
 
 let INIT_PLAYER_SPEED,
@@ -188,13 +149,13 @@ let INIT_PLAYER_SPEED,
 
 // GAME SCENE PHASER FUNCTIONS
 function gameScenePreload(game) {
-  // Load In-Game Assets from assetsLoader
-  for (const key in assetsLoader) {
-    game.load.image(key, assetsLoader[key]);
+  // Load In-Game Assets from _CONFIG.imageLoader
+  for (const key in _CONFIG.imageLoader) {
+    game.load.image(key, _CONFIG.imageLoader[key]);
   }
 
-  for (const key in soundsLoader) {
-    game.load.audio(key, [soundsLoader[key]]);
+  for (const key in _CONFIG.soundsLoader) {
+    game.load.audio(key, [_CONFIG.soundsLoader[key]]);
   }
 
 

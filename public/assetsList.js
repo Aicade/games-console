@@ -1,6 +1,6 @@
 const assets_list = {
   player: "./assets/player.png",
-  background: "./assets/background.png",
+  background: "./assets/background_1.png",
   background_1: "./assets/background_1.png",
   background_2: "./assets/background_2.png",
   collectible: "./assets/collectible.png",
@@ -12,8 +12,8 @@ const assets_list = {
   projectile: "./assets/projectile.png",
   projectile_1: "./assets/projectile_1.png",
   projectile_2: "./assets/projectile_2.png",
-  avoidable: "./assets/shield.png",
-  platform: "./assets/platform.jpg",
+  avoidable: "./assets/avoidable.png",
+  platform: "./assets/platform.png",
   platform_1: "./assets/platform_1.png",
 };
 

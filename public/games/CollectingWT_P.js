@@ -358,6 +358,8 @@ class GameScene extends Phaser.Scene {
                 .setTint(0xffff00);
             this.time.delayedCall(500, () => {
                 this.sounds.lose.setVolume(0.5).setLoop(false).play()
+                this.sounds.background.stop();
+
                 gameOverText.setVisible(true);
                 this.tweens.add({
                     targets: gameOverText,

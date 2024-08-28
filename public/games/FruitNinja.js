@@ -1,23 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "collectible": "collectible",
-    "avoidable": "avoidable"
-};
-
-let soundsLoader = {
-    "background": "background",
-    'destroy': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3',
-    'slice': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac',
-};
-
-const title = `Fruit and Meat Slasher`
-const description = `A game where the player slices through various fruits and meats to earn points and progress through levels.`
-const instructions = `Instructions:
-  1. Slice collectibles
-  2. Avoid enemies`;
-
-// Game Orientation
-const orientation = "landscape";
 
 var difficulty = 1;
 var difficultyDelay = 5000;
@@ -83,13 +63,13 @@ class GameScene extends Phaser.Scene {
     preload() {
         addEventListenersPhaser.bind(this)();
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
+        }
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
-        }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
 
@@ -104,9 +84,11 @@ class GameScene extends Phaser.Scene {
         this.cam = this.cameras.main;
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
+
 
         this.sounds.background.setVolume(3).setLoop(true).play();
 
@@ -129,7 +111,7 @@ class GameScene extends Phaser.Scene {
         // Add UI elements
         // this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '20px', fill: globalPrimaryFontColor });
 
-        let fruitLabel = this.add.sprite(this.width / 2 - 70, 55, 'collectible').setScale(0.05);
+        let fruitLabel = this.add.sprite(this.width / 2 - 70, 55, 'collectible').setScale(0.25);
         this.scoreText = this.add.bitmapText(this.width / 2 - 40, 15, 'pixelfont', 'x 0', 40);
 
         this.scoreText.setTint(0xff9900); // For red tint
@@ -317,7 +299,7 @@ class GameScene extends Phaser.Scene {
     spawnFruit() {
         for (var i = 0; i < Phaser.Math.Between(2, 5); i++) {
             const fruit = this.fruits.create(Phaser.Math.Between(150, this.width - 150), this.height, 'collectible');
-            fruit.setScale(0.1);
+            fruit.setScale(0.25);
             fruit.setVelocity(Phaser.Math.Between(-100, 100), Phaser.Math.Between(-350, -500));
             fruit.setAngularVelocity(Phaser.Math.Between(-200, 200));
 
@@ -330,7 +312,7 @@ class GameScene extends Phaser.Scene {
 
     spawnBomb() {
         const bomb = this.bombs.create(Phaser.Math.Between(150, this.width - 150), this.height, 'avoidable');
-        bomb.setScale(0.1);
+        bomb.setScale(0.25);
         bomb.setVelocity(Phaser.Math.Between(-100, 100), Phaser.Math.Between(-350, -500));
         bomb.setAngularVelocity(Phaser.Math.Between(-200, 200));
 
@@ -370,7 +352,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-         
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -381,27 +363,29 @@ function displayProgressLoader() {
 
 
 // Configuration object
+
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
-        default: 'arcade',
+        default: "arcade",
         arcade: {
             gravity: { y: 200 },
-            debug: false
-        }
+            debug: false,
+        },
     },
-    orientation: true,
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-}
+    orientation: _CONFIG.deviceOrientation === "landscape"
+};
