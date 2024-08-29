@@ -1,42 +1,7 @@
-// let assetsLoader = {
-//   "background": "background",
-//   "player": "player",
-//   "platform": "platform",
-//   "enemy": "enemy",
-// };
-
-// let soundsLoader = {
-//   "background": "background",
-//   "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-//   "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3"
-// };
-
-// // Custom UI Elements
-// const title = `Cannon Ball`
-// const description = `In Berlin Wall Breaker, players take control of a cannon to aim and shoot at the right time to break down the Berlin Wall. The gameplay is focused on precision and timing to progress through the levels.`
-// const instructions =
-//   `Instructions:
-// 1. Tap to shoot.
-// 2. Destroy all obstacles.`;
-
-
 // // Custom Font Colors
  const globalPrimaryFontColor = "#FFF";
  const globalSecondaryFontColor = "#0F0"
 
-// const orientationSizes = {
-//   "landscape": {
-//     "width": 1280,
-//     "height": 720,
-//   },
-//   "portrait": {
-//     "width": 720,
-//     "height": 1280,
-//   }
-// }
-
-// // Game Orientation
-// const orientation = "portrait";
 
 // Touuch Screen Controls
 const joystickEnabled = false;
@@ -175,6 +140,7 @@ class GameScene extends Phaser.Scene {
   }
 
   gameOver() {
+    this.sounds.background.stop();
     initiateGameOver.bind(this)({ score: this.score });
   }
 
@@ -235,7 +201,7 @@ const config = {
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    orientation: Phaser.Scale.Orientation.LANDSCAPE
+    orientation: Phaser.Scale.Orientation.PORTRAIT
   },
   pixelArt: true,
   physics: {
@@ -247,7 +213,7 @@ const config = {
     description: _CONFIG.description,
     instructions: _CONFIG.instructions,
   },
-  deviceOrientation: _CONFIG.deviceOrientation
+  deviceOrientation: _CONFIG.deviceOrientation==="portrait"
 };
 
 
