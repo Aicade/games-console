@@ -1,35 +1,3 @@
-// let assetsLoader = {
-//     "background": "background",
-//     "enemy": "enemy",
-// };
-
-// let soundsLoader = {
-//     "background": "background",
-//     "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/whack.mp3",
-//     "spawn": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/pop.mp3"
-// };
-
-// // Custom UI Elements
-// const title = `Whack a Mole`;
-// const description = `Reaction arcade game. Tap to kill. `;
-// const instructions =
-//     `   Instructions:
-//         1. Click the enemies to kill them.
-//         2. Set the highest score in the given time.`;
-
-// const orientationSizes = {
-//     "landscape": {
-//         "width": 1280,
-//         "height": 720,
-//     },
-//     "portrait": {
-//         "width": 720,
-//         "height": 1280,
-//     }
-// }
-// // Game Orientation
-// const orientation = "landscape";
-
 // Touuch Screen Controls
 const joystickEnabled = false;
 const buttonEnabled = false;
@@ -90,7 +58,7 @@ class GameScene extends Phaser.Scene {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.sounds.background.setVolume(0.8).setLoop(true).play()
+        this.sounds.background.setVolume(1.5).setLoop(true).play()
 
         this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0);
         this.bg.setScrollFactor(0);
@@ -349,7 +317,7 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        orientation: Phaser.Scale.Orientation.LANDSCAPE
+        orientation: Phaser.Scale.Orientation.PORTRAIT
     },
     scene: [GameScene],
     dataObject: {
@@ -357,5 +325,5 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    deviceOrientation: _CONFIG.deviceOrientation
+    deviceOrientation: _CONFIG.deviceOrientation==="portrait"
 };
