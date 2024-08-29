@@ -1,39 +1,3 @@
-// let assetsLoader = {
-//     "background": "background",
-//     "player": "player",
-//     "collectible": "collectible"
-// };
-
-// let soundsLoader = {
-//     "background": "background",
-//     "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-//     "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-// };
-
-// // Custom UI Elements
-// const title = `Swing Mania`
-// const description = `Swing and collect items before time runs out`
-// const instructions =
-//     `Instructions:
-//   1. Tap near a hinge to swing from it.
-//   2. Collect items to reset the timer.`;
-
-
-// const orientationSizes = {
-//     "landscape": {
-//         "width": 1280,
-//         "height": 720,
-//     },
-//     "portrait": {
-//         "width": 720,
-//         "height": 1280,
-//     }
-// }
-
-// // Game Orientation
-// const orientation = "portrait";
-
-// Touuch Screen Controls
 const joystickEnabled = false;
 const buttonEnabled = false;
 
@@ -368,7 +332,7 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        orientation: Phaser.Scale.Orientation.LANDSCAPE
+        orientation: Phaser.Scale.Orientation.PORTRAIT
     },
     pixelArt: true,
     physics: {
@@ -383,5 +347,5 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    deviceOrientation: _CONFIG.deviceOrientation
+    deviceOrientation: _CONFIG.deviceOrientation==="portrait"
 };
