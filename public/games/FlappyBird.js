@@ -106,7 +106,7 @@ class GameScene extends Phaser.Scene {
 
         if (this.textures.exists('player')) {
             this.player = this.physics.add.sprite(80, this.height / 2, "player");
-            this.player.setCollideWorldBounds(true).setScale(0.2);
+            this.player.setCollideWorldBounds(true).setScale(0.15);
             this.player.body.setSize(this.player.body.width / 1.5, this.player.body.height / 1.5);
             this.player.body.allowGravity = false;
         } else {
@@ -213,6 +213,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop();
         initiateGameOver.bind(this)({
             score: this.score,
         });
@@ -265,7 +266,7 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        orientation: Phaser.Scale.Orientation.LANDSCAPE
+        orientation: Phaser.Scale.Orientation.PORTRAIT
     },
     pixelArt: true,
     physics: {
@@ -280,5 +281,5 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    deviceOrientation: _CONFIG.deviceOrientation
+    deviceOrientation: _CONFIG.deviceOrientation==="portrait"
 };

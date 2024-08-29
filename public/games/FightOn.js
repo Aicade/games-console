@@ -450,7 +450,7 @@ class GameScene extends Phaser.Scene {
         });
 
         // emitter.setPosition(x, y);
-        emitter.explode(25);
+        emitter.explode(5);
 
         let pointText = this.add.text(projectile.x, projectile.y, '-20', {
             fontSize: '48px',
@@ -543,7 +543,7 @@ class GameScene extends Phaser.Scene {
         });
 
         // emitter.setPosition(x, y);
-        emitter.explode(25);
+        emitter.explode(5);
 
         // Tween to fade out the player's bloom effect after 1 second
         this.tweens.add({
@@ -573,6 +573,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop();
         initiateGameOver.bind(this)({
             score: this.score
         });
@@ -644,5 +645,5 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    deviceOrientation: _CONFIG.deviceOrientation
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };
