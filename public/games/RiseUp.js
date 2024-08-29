@@ -295,6 +295,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sound.stopAll();
         initiateGameOver.bind(this)({ score: this.score });
     }
 
