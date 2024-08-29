@@ -151,7 +151,7 @@ class GameScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(256, this.ground.y - this.ground.displayHeight - 100, 'player');
         this.player.body.setDragX(200);
         this.player.setOrigin(0.5);
-        this.player.setScale(0.12);
+        this.player.setScale(0.22);
         this.player.setMass(2);
     }
 
@@ -239,7 +239,7 @@ class GameScene extends Phaser.Scene {
         }
 
         box.body.setBounce(0.5);
-        box.setScale(0.12);
+        box.setScale(0.24);
         box.checkWorldBounds = true;
         box.outOfBoundsKill = true;
     }
@@ -276,6 +276,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop();
         initiateGameOver.bind(this)({
             "score": this.score
         });
@@ -346,5 +347,5 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    orientation: _CONFIG.deviceOrientation
+    orientation: _CONFIG.deviceOrientation==="landscape"
 };
