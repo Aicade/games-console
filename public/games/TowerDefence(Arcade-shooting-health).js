@@ -1,43 +1,3 @@
-// let assetsLoader = {
-//     "background": "background",
-//     "collectible": "collectible",
-//     "player": "player",
-//     "projectile": "projectile",
-//     "enemy": "enemy",
-// };
-
-// let soundsLoader = {
-//     "background": "background",
-//     "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
-//     "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-//     "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
-//     "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav"
-// };
-
-// // Custom UI Elements
-// const title = `Defend the yellow Tower`
-// const description = `Shoot the enemies before they destroy
-//   the tower`
-// const instructions =
-//     `Instructions:
-//   1. Touch or click to shoot bullets.
-//   2. Game gets over when tower's heath gets to 0`;
-
-// const orientationSizes = {
-//     "landscape": {
-//         "width": 1280,
-//         "height": 720,
-//     },
-//     "portrait": {
-//         "width": 720,
-//         "height": 1280,
-//     }
-// }
-
-// // Game Orientation
-// const orientation = "landscape";
-
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -338,5 +298,5 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    deviceOrientation: _CONFIG.deviceOrientation
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };
