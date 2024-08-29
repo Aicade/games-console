@@ -317,7 +317,7 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        orientation: Phaser.Scale.Orientation.PORTRAIT
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     scene: [GameScene],
     dataObject: {
@@ -325,5 +325,5 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    deviceOrientation: _CONFIG.deviceOrientation==="portrait"
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };
