@@ -1,39 +1,3 @@
-// let assetsLoader = {
-//     "background": "background",
-//     "player": "player",
-//     "projectile": "projectile",
-//     "enemy": "enemy",
-// };
-
-// let soundsLoader = {
-//     "background": "background",
-//     "blast": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3",
-//     "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
-//     "upgrade": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3",
-// };
-
-// // Custom UI Elements
-// const title = `Ball Blast`
-// const description = `Shoot the enemies falling from the sky`
-// const instructions =
-//     `Instructions:
-//   1. Use arrow keys OR joystick to move.
-//   2. Use Spacebar/button to shoot.`;
-
-// // Game Orientation
-// const orientation = "portrait";
-
-// const orientationSizes = {
-//     "landscape": {
-//         "width": 1280,
-//         "height": 720,
-//     },
-//     "portrait": {
-//         "width": 720,
-//         "height": 1280,
-//     }
-// }
-
 // Touuch Screen Controls
 const joystickEnabled = true;
 const buttonEnabled = true;
@@ -288,6 +252,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop();
         initiateGameOver.bind(this)({
             "score": gameScore
         });
@@ -350,7 +315,7 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        orientation: Phaser.Scale.Orientation.LANDSCAPE
+        orientation: Phaser.Scale.Orientation.PORTRAIT
     },
     pixelArt: true,
     physics: {
@@ -366,7 +331,7 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    deviceOrientation: _CONFIG.deviceOrientation
+    deviceOrientation: _CONFIG.deviceOrientation==="portrait"
 };
 
 let gameScore = 0;
