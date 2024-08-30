@@ -1,0 +1,30 @@
+{
+    "title": "Toss the Can",
+    "description": "Tap on projectile to toss and land it correctly on desired object.",
+    "deviceOrientation": "landscape",
+    "imageLoader": {
+        "background": "background",
+        "projectile": "projectile",
+        "platform": "platform"
+    },
+    "instructions": "Instructions: 1. Tap on object to toss it.",
+    "deviceOrientationSizes": {
+        "landscape": {
+            "height": 720,
+            "width": 1280
+        },
+        "portrait": {
+            "height": 1280,
+            "width": 720
+        }
+    },
+    "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
+    "phaserVersion": "3.80.1",
+    "soundsLoader": {
+        "background": "background",
+        "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
+        "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
+        "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
+        "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3"
+    }
+}

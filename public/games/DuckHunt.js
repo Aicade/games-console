@@ -1,47 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "enemy": "enemy",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-};
-
-const title = `Duck HUnt`
-const description = `Tap to hunt ducks.`
-const instructions =
-    `Instructions:
-  1. Shoot and kill ducks.`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
-
-
-// Touuch Screen Controls
-const joystickEnabled = false;
-const buttonEnabled = false;
-
-// JOYSTICK DOCUMENTATION: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/virtualjoystick/
-const rexJoystickUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js";
-
-// BUTTON DOCMENTATION: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/button/
-const rexButtonUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexbuttonplugin.min.js";
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -54,14 +10,12 @@ class GameScene extends Phaser.Scene {
 
         addEventListenersPhaser.bind(this)();
 
-        if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
-        if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
@@ -79,7 +33,7 @@ class GameScene extends Phaser.Scene {
     create() {
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -96,10 +50,9 @@ class GameScene extends Phaser.Scene {
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
-        this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0).setDepth(-10);
-        this.bg.setScrollFactor(0);
-        this.bg.displayHeight = this.game.config.height;
-        this.bg.displayWidth = this.game.config.width;
+          this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);      // Use the larger scale factor to ensure the image covers the whole canvas
+        const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
+        this.bg.setScale(scale).setDepth(-5);
 
 
         // Add UI elements
@@ -113,34 +66,6 @@ class GameScene extends Phaser.Scene {
         this.pauseButton.setInteractive({ cursor: 'pointer' });
         this.pauseButton.setScale(3);
         this.pauseButton.on('pointerdown', () => this.pauseGame());
-
-        const joyStickRadius = 50;
-
-        if (joystickEnabled) {
-            this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
-                x: joyStickRadius * 2,
-                y: this.height - (joyStickRadius * 2),
-                radius: 50,
-                base: this.add.circle(0, 0, 80, 0x888888, 0.5),
-                thumb: this.add.circle(0, 0, 40, 0xcccccc, 0.5),
-                dir: '8dir',   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
-                // forceMin: 16,
-            });
-            this.joystickKeys = this.joyStick.createCursorKeys();
-        }
-
-        if (buttonEnabled) {
-            this.buttonA = this.add.rectangle(this.width - 80, this.height - 100, 80, 80, 0xcccccc, 0.5)
-            this.buttonA.button = this.plugins.get('rexbuttonplugin').add(this.buttonA, {
-                mode: 1,
-                clickInterval: 100,
-            });
-
-            this.buttonA.button.on('down', (button, gameObject) => {
-                console.log("buttonA clicked");
-            });
-        }
-
         this.startx = 0;
         this.starty = 0;
 
@@ -270,7 +195,7 @@ class GameScene extends Phaser.Scene {
             let spawnY = this.game.config.height;
             let velocityX = spawnFromLeft ? 200 : -200;
 
-            var enemy = this.enemies.create(spawnX, spawnY, 'enemy').setScale(.1);
+            var enemy = this.enemies.create(spawnX, spawnY, 'enemy').setScale(.3);
             enemy.flipX = spawnFromLeft ? false : true;
             enemy.setInteractive();
 
@@ -384,7 +309,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -393,17 +318,18 @@ function displayProgressLoader() {
     });
 }
 
-// Configuration object
+
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "arcade",
         arcade: {
@@ -412,9 +338,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true
+    orientation: _CONFIG.deviceOrientation === "landscape"
 };

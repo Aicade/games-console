@@ -91,7 +91,7 @@ function displayProgressLoader() {
     progressBar.fillRect(x, y, width * value, height);
   });
   this.load.on('fileprogress', function (file) {
-     
+
   });
   this.load.on('complete', function () {
     progressBar.destroy();
@@ -128,7 +128,7 @@ const config = {
     description: _CONFIG.description,
     instructions: _CONFIG.instructions,
   },
-  orientation: _CONFIG.orientation === "landscape" 
+  orientation: _CONFIG.orientation === "landscape"
 };
 
 let INIT_PLAYER_SPEED,

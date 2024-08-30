@@ -1,43 +1,8 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "collectible": "collectible"
-};
-
-let soundsLoader = {
-    "background": "background",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/car.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-};
-
-// Custom UI Elements
-const title = `Hill Climb Racing`
-const description = `Drive as far as you can!`
-const instructions =
-    `Instructions:
-    1. Press & hold anywhere to accelerate.
-    2. Let go to brake.
-    3. Use joystick to tilt back and forward.`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
 
 // Touuch Screen Controls
 const joystickEnabled = true;
-const buttonEnabled = true;
-
+const buttonEnabled = false;
+var isMobile = false;
 const gameOptions = {
 
     // start vertical point of the terrain, 0 = very top; 1 = very bottom
@@ -85,18 +50,18 @@ class GameScene extends Phaser.Scene {
         addEventListenersPhaser.bind(this)();
         this.score = 0;
 
-        this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
-        this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
+        if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
+        if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
+
 
         // Load In-Game Assets from assetsLoader
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
-
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
 
         const fontName = 'pix';
@@ -107,9 +72,10 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+        isMobile = !this.sys.game.device.os.desktop;
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -137,30 +103,30 @@ class GameScene extends Phaser.Scene {
         this.pauseButton.setScale(3);
         this.pauseButton.on('pointerdown', () => this.pauseGame());
 
-        const joyStickRadius = 50;
+        // const joyStickRadius = 50;
 
-        if (joystickEnabled) {
-            this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
-                x: joyStickRadius * 2,
-                y: this.height - (joyStickRadius * 2),
-                radius: 50,
-                base: this.add.circle(0, 0, 80, 0x888888, 0.5).setDepth(1),
-                thumb: this.add.circle(0, 0, 40, 0xcccccc, 0.5).setDepth(1),
-                // dir: '8dir',   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
-                // forceMin: 16,
-            });
-        }
+        // if (joystickEnabled) {
+        //     this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
+        //         x: joyStickRadius * 2,
+        //         y: this.height - (joyStickRadius * 2),
+        //         radius: 50,
+        //         base: this.add.circle(0, 0, 80, 0x888888, 0.5).setDepth(1),
+        //         thumb: this.add.circle(0, 0, 40, 0xcccccc, 0.5).setDepth(1),
+        //         // dir: '8dir',   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
+        //         // forceMin: 16,
+        //     });
+        // }
 
-        if (buttonEnabled) {
-            this.buttonA = this.add.rectangle(this.width - 80, this.height - 100, 80, 80, 0xcccccc, 0.5).setDepth(1);
-            this.buttonA.button = this.plugins.get('rexbuttonplugin').add(this.buttonA, {
-                mode: 1,
-                clickInterval: 100,
-            });
+        // if (buttonEnabled) {
+        //     this.buttonA = this.add.rectangle(this.width - 80, this.height - 100, 80, 80, 0xcccccc, 0.5).setDepth(1);
+        //     this.buttonA.button = this.plugins.get('rexbuttonplugin').add(this.buttonA, {
+        //         mode: 1,
+        //         clickInterval: 100,
+        //     });
 
-            this.buttonA.button.on('down', function (button, gameObject) {
-            });
-        }
+        //     this.buttonA.button.on('down', function (button, gameObject) {
+        //     });
+        // }
 
         this.bodyPool = [];
         this.bodyPoolId = [];
@@ -226,10 +192,10 @@ class GameScene extends Phaser.Scene {
         });
 
         // Create a text object for displaying the time
-        this.collectibleImage = this.add.image(50, 100, 'collectible').setOrigin(0).setScale(0.08);
+        this.collectibleImage = this.add.image(50, 100, 'collectible').setOrigin(0).setScale(0.32);
         this.timerText = this.add.bitmapText(this.collectibleImage.x + 75, 70, 'pixelfont', '10', 64).setOrigin(0).setDepth(100);
         this.lowFuel = this.add.bitmapText(this.width / 2, this.height / 2, 'pixelfont', "LOW FUEL", 64).setOrigin(0.5, 0.5).setDepth(100).setVisible(false);
-        this.flipText = this.add.bitmapText(this.width / 2, this.height - 200, 'pixelfont', "NICE FLIP! +100", 32).setOrigin(0.5, 0.5).setDepth(100).setVisible(false);
+        this.flipText = this.add.bitmapText(this.width / 2, this.height - 200, 'pixelfont', "NICE FLIP!", 32).setOrigin(0.5, 0.5).setDepth(100).setVisible(false);
         this.cameraUI = this.cameras.add(0, 0, this.width, this.height);
         const ignoredElements = [
             this.pauseButton,
@@ -241,9 +207,45 @@ class GameScene extends Phaser.Scene {
         ]
         this.cameras.main.ignore(ignoredElements);
         this.cameraUI.ignore(this.children.list.filter(item => !ignoredElements.includes(item)));
+        this.createMobileButtons();
+
         this.input.keyboard.disableGlobalCapture();
     }
+    createMobileButtons() {
+        const joyStickRadius = 50;
 
+        if (joystickEnabled) {
+            this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
+                x: joyStickRadius * 2,
+                y: this.height - (joyStickRadius * 2),
+                radius: 50,
+                base: this.add.circle(0, 0, 80, 0x888888, 0.5).setDepth(1),
+                thumb: this.add.circle(0, 0, 40, 0xcccccc, 0.5).setDepth(1),
+                // dir: '8dir',   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
+                // forceMin: 16,
+            });
+        }
+
+        if (buttonEnabled) {
+            this.buttonA = this.add.rectangle(this.width - 80, this.height - 100, 80, 80, 0xcccccc, 0.5).setDepth(1);
+            this.buttonA.button = this.plugins.get('rexbuttonplugin').add(this.buttonA, {
+                mode: 1,
+                clickInterval: 100,
+            });
+
+            this.buttonA.button.on('down', function (button, gameObject) {
+            });
+        }
+
+        this.toggleControlsVisibility(!isMobile)
+    }
+
+    toggleControlsVisibility(visibility) {
+        this.joyStick.base.visible = visibility;
+        this.joyStick.thumb.visible = visibility;
+        // this.buttonA.visible = visibility;
+        // this.buttonB.visible = visibility;
+    }
     update() {
 
         // How to use joystick with keyboard
@@ -445,7 +447,7 @@ class GameScene extends Phaser.Scene {
         // this.player = this.matter.add.sprite(100, 0, 'player', 0);
         // this.player.setScale(0.1);
 
-        this.player = this.add.sprite(this.width / 8, 0, 'player').setScale(0.1);
+        this.player = this.add.sprite(this.width / 8, 0, 'player').setScale(0.17);
         this.player.y -= this.player.displayHeight + 400;
 
         this.playerBody = this.matter.add.rectangle(this.width / 8, 0, 70, 10, {
@@ -501,7 +503,7 @@ class GameScene extends Phaser.Scene {
     }
 
     spawnCollectible() {
-        var collectible = this.matter.add.sprite(this.player.x + this.width, 400, 'collectible').setScale(0.1);
+        var collectible = this.matter.add.sprite(this.player.x + this.width, 400, 'collectible').setScale(0.2);
         this.collectibles.add(collectible);
     }
 
@@ -576,7 +578,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-         
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -590,28 +592,30 @@ function displayProgressLoader() {
 */
 
 // Configuration object
+
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "matter",
         matter: {
-            debug: false,
-        }
+            debug: true,
+        },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true,
+    orientation: _CONFIG.deviceOrientation === "landscape"
 };
 
 function getSqDist(p1, p2) {

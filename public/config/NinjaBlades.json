@@ -1,0 +1,31 @@
+{
+    "description": "Throw Blades.",
+    "deviceOrientation": "portrait",
+    "imageLoader": {
+        "background": "background",
+        "enemy": "enemy",
+        "player": "player",
+        "projectile": "projectile"
+    },
+    "instructions": "Instructions: 1.Tap to destory.",
+    "deviceOrientationSizes": {
+        "landscape": {
+            "height": 720,
+            "width": 1280
+        },
+        "portrait": {
+            "height": 1280,
+            "width": 720
+        }
+    },
+    "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
+    "phaserVersion": "3.80.1",
+    "soundsLoader": {
+        "background": "background",
+        "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+        "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
+        "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac",
+        "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3"
+    },
+    "title": "Ninja Blades"
+}

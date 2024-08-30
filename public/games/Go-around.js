@@ -1,43 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "enemy": "enemy",
-    "player": "player",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
-    "spawn": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-};
-
-// this.load.audio('flap', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3']);
-// this.load.audio('collect', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3']);
-// this.load.audio('lose', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3']);
-// this.load.audio('damage', ['https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3']);
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "portrait";
-
-
-// Custom UI Elements
-const title = `GO-Around`
-const description = `GO around the circle and dodge the enemies`
-const instructions =
-    `Instructions:
-  1. Tap to jump and dodge`;
-
 
 // Touuch Screen Controls
 const joystickEnabled = false;
@@ -62,12 +22,12 @@ class GameScene extends Phaser.Scene {
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -83,7 +43,7 @@ class GameScene extends Phaser.Scene {
 
     create() {
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
         this.score = 0;
@@ -94,10 +54,9 @@ class GameScene extends Phaser.Scene {
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
-        this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0).setDepth(-10);
-        this.bg.setScrollFactor(0);
-        this.bg.displayHeight = this.game.config.height;
-        this.bg.displayWidth = this.game.config.width;
+          this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);      // Use the larger scale factor to ensure the image covers the whole canvas
+        const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
+        this.bg.setScale(scale).setDepth(-5);
 
 
         // Add UI elements
@@ -152,7 +111,7 @@ class GameScene extends Phaser.Scene {
 
         this.playerAngle = 0;
         this.playerDistance = 255;
-        this.player = this.physics.add.sprite(this.circle.x, this.circle.y - this.playerDistance, 'player').setScale(.1);
+        this.player = this.physics.add.sprite(this.circle.x, this.circle.y - this.playerDistance, 'player').setScale(.25);
         let currentWidth = this.player.body.width;
         let currentHeight = this.player.body.height;
         let newWidth = currentWidth * 0.5; // 30% decrease
@@ -208,7 +167,7 @@ class GameScene extends Phaser.Scene {
             .setAngle(-15).setTint(0xFF0000);
 
         this.time.delayedCall(500, () => {
-            this.sounds.lose.setVolume(1).setLoop(false).play();
+            this.sounds.lose.setVolume(.2).setLoop(false).play();
             gameOverText.setVisible(true);
             this.tweens.add({
                 targets: gameOverText,
@@ -238,7 +197,7 @@ class GameScene extends Phaser.Scene {
         const jumpDistance = 200;
 
         if (this.playerDistance == 255) {
-            this.sounds.jump.setVolume(1).setLoop(false).play();
+            this.sounds.jump.setVolume(.6).setLoop(false).play();
             this.tweens.add({
                 targets: this,
                 playerDistance: this.circle.radius - jumpDistance,
@@ -263,7 +222,7 @@ class GameScene extends Phaser.Scene {
             const spawnAngle = this.playerAngle + randomAngle;
             const x = this.circle.x + Math.cos(spawnAngle) * this.circle.radius;
             const y = this.circle.y + Math.sin(spawnAngle) * this.circle.radius;
-            const enemy = this.enemies.create(x, y, 'enemy').setScale(.05);
+            const enemy = this.enemies.create(x, y, 'enemy').setScale(.2);
             const newWidth = enemy.body.width * 0.6; // Reduce width by 20%
             const newHeight = enemy.body.height * 0.8; // Reduce height by 20%
 
@@ -271,7 +230,7 @@ class GameScene extends Phaser.Scene {
 
             this.vfx.addShine(enemy, 4000, .3);
             this.vfx.rotateGameObject(enemy);
-            this.sounds.spawn.setVolume(.75).setLoop(false).play();
+            this.sounds.spawn.setVolume(.35).setLoop(false).play();
 
             this.time.delayedCall(5000, () => enemy.destroy(), [], this);
         }
@@ -279,6 +238,7 @@ class GameScene extends Phaser.Scene {
     scorePoints() {
         if (!this.isGameOver) {
             this.score++;
+            this.gameScore = this.score;
             this.updateScore(1);
             if (this.score % 100 === 0) {
                 this.levelUp();
@@ -301,7 +261,7 @@ class GameScene extends Phaser.Scene {
 
     gameOver() {
         initiateGameOver.bind(this)({
-            score: this.score
+            score: this.gameScore + 1
         });
     }
 
@@ -337,7 +297,7 @@ function displayProgressLoader() {
         progressBar.fillStyle(0x364afe, 1);
         progressBar.fillRect(x, y, width * value, height);
     });
-    this.load.on('fileprogress', function (file) {  
+    this.load.on('fileprogress', function (file) {
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -347,16 +307,18 @@ function displayProgressLoader() {
 }
 
 // Configuration object
+
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "arcade",
         arcade: {
@@ -365,9 +327,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: false,
+    orientation: _CONFIG.deviceOrientation === "portrait"
 };

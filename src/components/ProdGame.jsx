@@ -40,7 +40,7 @@ const ProdGame = () => {
             const vfxUrl =
                 "/lib/vfxLibrary.js";
             const gameJson =
-                `/games/${name}.json`
+                `/config/${name}.json`
             const gameUrl =
                 `/games/${name}.js`
             const assetsUrl =
@@ -55,7 +55,7 @@ const ProdGame = () => {
                 const assetsScript = await fetch(assetsUrl);
                 const soundsScript = await fetch(soundsUrl);
                 const gameScriptJson = await fetch(gameJson);
-                
+
                 const gameScript = await fetch(gameUrl);
 
                 const compiledScript =

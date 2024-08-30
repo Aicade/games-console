@@ -1,49 +1,15 @@
-let assetsLoader = {
-  "background": "background",
-  "enemy": "enemy",
-  "projectile": "projectile",
-  "platform": "platform",
-};
-
-let soundsLoader = {
-  "background": "background",
-  'jump': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3',
-  'destroy': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav',
-  'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3',
-  "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
-};
-
-const orientationSizes = {
-  "landscape": {
-    "width": 1280,
-    "height": 720,
-  },
-  "portrait": {
-    "width": 720,
-    "height": 1280,
-  }
-}
-
-const title = `Puzzle Shooter`
-const description = `A puzzle shooter where you break objects by controlling a projectile`
-const instructions =
-  `Instructions:
-1. Move the paddle to bounce the projectile
-2. Break the objects using the projectile`;
-
-const orientation = "landscape";
 class GameScene extends Phaser.Scene {
   constructor() {
     super({ key: 'GameScene' });
   }
 
   preload() {
-    for (const key in assetsLoader) {
-      this.load.image(key, assetsLoader[key]);
-    }
 
-    for (const key in soundsLoader) {
-      this.load.audio(key, [soundsLoader[key]]);
+    for (const key in _CONFIG.imageLoader) {
+      this.load.image(key, _CONFIG.imageLoader[key]);
+    }
+    for (const key in _CONFIG.soundsLoader) {
+      this.load.audio(key, [_CONFIG.soundsLoader[key]]);
     }
 
     this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
@@ -75,12 +41,12 @@ class GameScene extends Phaser.Scene {
     this.pauseButton.setInteractive({ cursor: 'pointer' });
     this.pauseButton.setScale(2).setScrollFactor(0).setDepth(11);
     this.pauseButton.on('pointerdown', () => this.pauseGame());
-
-    gameSceneCreate(this);
     this.vfx = new VFXLibrary(this);
+    gameSceneCreate(this);
+
 
     this.sounds = {};
-    for (const key in soundsLoader) {
+    for (const key in _CONFIG.soundsLoader) {
       this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
     }
 
@@ -141,7 +107,7 @@ function displayProgressLoader() {
     progressBar.fillRect(x, y, width * value, height);
   });
   this.load.on('fileprogress', function (file) {
-     
+
   });
   this.load.on('complete', function () {
     progressBar.destroy();
@@ -152,26 +118,28 @@ function displayProgressLoader() {
 
 const config = {
   type: Phaser.AUTO,
-  width: orientationSizes[orientation].width,
-  height: orientationSizes[orientation].height,
+  width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+  height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
   scene: [GameScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  pixelart: true,
+  pixelArt: true,
+  /* ADD CUSTOM CONFIG ELEMENTS HERE */
   physics: {
-    default: 'arcade',
+    default: "arcade",
     arcade: {
-      gravity: { y: 0 }
+      gravity: { y: 0 },
+      debug: false,
     },
   },
   dataObject: {
-    name: title,
-    description: description,
-    instructions: instructions,
+    name: _CONFIG.title,
+    description: _CONFIG.description,
+    instructions: _CONFIG.instructions,
   },
-  orientation: true,
+  orientation: _CONFIG.deviceOrientation === "landscape"
 };
 
 
@@ -188,17 +156,18 @@ function gameSceneCreate(game) {
 
   for (let y = 0; y < 4; y++) {
     for (let x = 0; x < 15; x++) {
-      brick = bricks.create(265 + x * 50, 100 + y * 52, 'enemy').setDisplaySize(32, 32);
+      brick = bricks.create(265 + x * 50, 100 + y * 52, 'enemy').setDisplaySize(64, 64);
       brick.body.setBounce(1);
+      game.vfx.scaleGameObject(brick);
+
     }
   }
 
-  paddle = game.physics.add.sprite(game.width * 0.5, 600, 'platform').setDisplaySize(100, 25).setImmovable();
+  paddle = game.physics.add.sprite(game.width * 0.5, 600, 'platform').setDisplaySize(200, 35).setImmovable();
   paddle.refreshBody();
 
-  ball = game.physics.add.sprite(game.width * 0.5, paddle.y - 16, 'projectile').setDisplaySize(32, 32).setOrigin(0.5).setCollideWorldBounds(true).setBounce(1);
+  ball = game.physics.add.sprite(game.width * 0.5, paddle.y - 16, 'projectile').setDisplaySize(48, 48).setOrigin(0.5).setCollideWorldBounds(true).setBounce(1);
   ball.refreshBody();
-
   ball.setData('onPaddle', true);
 
   game.physics.add.collider(ball, paddle, ballHitPaddle, null, game);

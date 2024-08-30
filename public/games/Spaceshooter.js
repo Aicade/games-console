@@ -1,70 +1,27 @@
-let assetsLoader = {
-    "player": "player",
-    "enemy": "enemy",
-    "collectible": "collectible",
-    "projectile": "projectile",
-    "avoidable": "avoidable",
-}
-
-let soundsLoader = {
-    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-1.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
-    "stretch": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
-    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
-}
-
-const title = `Space Shooter`
-const description = `Boss Battle`
-const instructions =
-    `Instructions:
-  1. Tap to jump and dodge`;
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
-        this.score = 0;
-        this.isGameOver = false;
-
-        this.graphics = null;
-
-        this.playerBullets = null;
-        this.players = null;
-        this.enemyBullets = null;
-        this.enemies = null;
-        this.coins = [];
-        this.asteroids = [];
-        this.shields = null;
-        this.powerups = null;
-        this.gameCoinScoreTxt = null;
-
-
-        this.gameScale = 0.3;
-        this.gameSpeed = 1;
-
-        this.playerSelected = 3;
-        this.playerHitpoints = 3;
-        this.gameCoinScore = 0;
-        this.gameStage = 0;
-        this.gameStarted = true;
-        this.gameAllOver = false;
-
-        this.spawnCoinTimerEvent = null;
-
-        this.playerSelectBtns = [];
-
-
+        this.score = 0; this.gameWin = false; this.isGameOver = false;
+        this.graphics = null; this.playerBullets = null;
+        this.players = null; this.enemyBullets = null;
+        this.enemies = null; this.coins = [];
+        this.asteroids = []; this.shields = null;
+        this.powerups = null; this.gameCoinScoreTxt = null;
+        this.gameScale = 0.3; this.gameSpeed = 1;
+        this.playerSelected = 3; this.playerHitpoints = 3;
+        this.gameCoinScore = 0; this.gameStage = 0;
+        this.gameStarted = true; this.gameAllOver = false;
+        this.spawnCoinTimerEvent = null; this.playerSelectBtns = [];
     }
 
     preload() {
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         addEventListenersPhaser.bind(this)();
@@ -89,22 +46,23 @@ class GameScene extends Phaser.Scene {
         this.cursor = this.input.keyboard.createCursorKeys();
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.sounds.background.setVolume(1).setLoop(true).play();
-        var me = this;
+        this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
 
+        // Use the larger scale factor to ensure the image covers the whole canvas
+        const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
+        this.bg.setScale(scale).setDepth(-100);
+
+        this.sounds.background.setVolume(1).setLoop(true).play();
         this.width = this.game.config.width;
         this.height = this.game.config.height;
 
         // Add UI elements
         this.scoreText = this.add.bitmapText(this.width / 2, 50, 'pixelfont', '0', 64).setOrigin(0.5, 0.5);
-        this.scoreText.setDepth(100)
-
-        this.levelUpText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY - 50, 'pixelfont', 'LEVEL UP', 80).setOrigin(0.5, 0.5)
-            .setAlpha(0).setDepth(11).setTint(0xffff00);
+        this.scoreText.setDepth(100);
 
         // here u can remove the keyword to have less tile sheet
         this.pauseButton = this.add.sprite(this.width - 50, 60, "pauseButton").setOrigin(0.5, 0.5);
@@ -116,8 +74,6 @@ class GameScene extends Phaser.Scene {
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
 
-        //==================================================================
-
         this.screenWidth = this.sys.game.config.width;
         this.screenHeight = this.sys.game.config.height;
 
@@ -126,64 +82,21 @@ class GameScene extends Phaser.Scene {
         this.players = this.physics.add.group();
         this.create_playerObj();
 
-        this.shields = this.physics.add.group();
-        this.coins = this.physics.add.group();
-        this.asteroids = this.physics.add.group();
-        this.powerups = this.physics.add.group();
+        this.shields = this.physics.add.group(); this.coins = this.physics.add.group();
+        this.asteroids = this.physics.add.group(); this.powerups = this.physics.add.group();
+        this.enemies = this.physics.add.group(); this.enemyBullets = this.physics.add.group();
 
-        this.enemies = this.physics.add.group();
-        this.enemyBullets = this.physics.add.group();
-
-        this.enemyTypes = [
-            {
-                spriteKey: '0',
-                speedX: 10,
-                sideMovementDistance: 200,
-                speedY: 50,
-                hitPoints: 20,
-                hitPointsCurrent: 20,
-                hitPointsBars: 2,
-                hitPointsBarsCurrent: 2,
-                hasGun: true,
-                gunOption: 0,
-                gunTarget: null
-            },
-            {
-                spriteKey: '1',
-                speedX: 10,
-                sideMovementDistance: 200,
-                speedY: 50,
-                hitPoints: 30,
-                hitPointsCurrent: 30,
-                hitPointsBars: 3,
-                hitPointsBarsCurrent: 3,
-                hasGun: true,
-                gunOption: 1,
-                gunTarget: null
-            },
-            {
-                spriteKey: '2',
-                speedX: 10,
-                sideMovementDistance: 200,
-                speedY: 50,
-                hitPoints: 30,
-                hitPointsCurrent: 30,
-                hitPointsBars: 3,
-                hitPointsBarsCurrent: 3,
-                hasGun: true,
-                gunOption: 2,
-                gunTarget: this.playerShip
-            },
-        ];
+        this.enemyTypes = [{
+            spriteKey: '1', speedX: 10, sideMovementDistance: 200, speedY: 50,
+            hitPoints: 30, hitPointsCurrent: 30, hitPointsBars: 3, hitPointsBarsCurrent: 3,
+            hasGun: true, gunOption: 0, gunTarget: null
+        }];
         this.gameStageController(this.gameStage);
 
         // Collision detection
-        this.physics.add.overlap(this.playerBullets, this.enemies, this.bulletHitsEnemy, null, this);
-        this.physics.add.overlap(this.playerBullets, this.asteroids, this.bulletHitsAsteroid, null, this);
-        this.physics.add.overlap(this.enemyBullets, this.players, this.bulletHitsPlayer, null, this);
-        this.physics.add.overlap(this.asteroids, this.players, this.bulletHitsPlayer, null, this);
-        this.physics.add.overlap(this.enemyBullets, this.shields, this.bulletHitsPlayerShield, null, this);
-        this.physics.add.overlap(this.players, this.powerups, this.collectPowerup, null, this);
+        this.physics.add.overlap(this.playerBullets, this.enemies, this.bulletHitsEnemy, null, this); this.physics.add.overlap(this.playerBullets, this.asteroids, this.bulletHitsAsteroid, null, this);
+        this.physics.add.overlap(this.enemyBullets, this.players, this.bulletHitsPlayer, null, this); this.physics.add.overlap(this.asteroids, this.players, this.bulletHitsPlayer, null, this);
+        this.physics.add.overlap(this.enemyBullets, this.shields, this.bulletHitsPlayerShield, null, this); this.physics.add.overlap(this.players, this.powerups, this.collectPowerup, null, this);
         this.physics.add.overlap(this.players, this.coins, this.collectPowerup, null, this);
         this.setCoinTimer();
         this.setAsteroidTimer();
@@ -192,20 +105,17 @@ class GameScene extends Phaser.Scene {
 
     setCoinTimer() {
         if (!this.isGameOver) {
-            // Cancel the prior timer if it's set
             if (this.spawnCoinTimerEvent) {
                 this.spawnCoinTimerEvent.remove(false);
             }
-            // Set a new timer
             this.spawnCoinTimerEvent = this.time.addEvent({
                 delay: Phaser.Math.Between(3000, 8000), // between 3-5 seconds,
                 callback: () => {
-                    let x = Phaser.Math.Between(0, this.screenWidth);
-                    let y = Phaser.Math.Between(0, this.screenHeight);
+                    let x = Phaser.Math.Between(0, this.screenWidth); let y = Phaser.Math.Between(0, this.screenHeight);
                     if (!this.gameAllOver) {
                         if (this.coins.getLength() < 12) {
                             let coin = this.create_powerupObj('collectible', x, y);
-                            coin.setScale(.05);
+                            coin.setScale(.2);
                             this.moveObjectRandomly(coin, 100);
                         }
                         this.setCoinTimer(); // Reset the timer again
@@ -218,11 +128,9 @@ class GameScene extends Phaser.Scene {
 
     setAsteroidTimer() {
         if (!this.isGameOver) {
-            // Cancel the prior timer if it's set
             if (this.spawnAsteroidTimerEvent) {
                 this.spawnAsteroidTimerEvent.remove(false);
             }
-            // Set a new timer
             this.spawnAsteroidTimerEvent = this.time.addEvent({
                 delay: Phaser.Math.Between(3000, 8000), // between 3-5 seconds,
                 callback: () => {
@@ -255,29 +163,21 @@ class GameScene extends Phaser.Scene {
     create_playerObj() {
         this.playerShip = this.add.sprite(this.screenWidth / 2, this.screenHeight * 1.2, 'player');
         this.players.add(this.playerShip);
-        this.playerShip.setScale(.1);
-        // this.playerShip.setFrame(.2);
+        this.playerShip.setScale(.3);
         let originalWidth = this.playerShip.width;
         let originalHeight = this.playerShip.height;
         let newWidth = originalWidth * 0.8; // 80% of the original width
         let newHeight = originalHeight * 0.7; // 80% of the original height
-
-        // Update the physics body size
         this.playerShip.body.setSize(newWidth, newHeight);
-
-
         this.playerShip.targetX = this.playerShip.x;
         this.playerShip.targetY = this.playerShip.y;
-
         this.playerBullets = this.physics.add.group();
-
         this.playerShip.hitPoints = 10;
         this.playerShip.hitPointsCurrent = 10;
-
         let gunOptionsPlayer = {
             gunSpeed: 400,
             numberOfBullets: 1,
-            shootingArc: 35,
+            shootingArc: 0,
             startingAngle: -90,
             shootingCooldown: 500,
             delay: 0
@@ -338,12 +238,32 @@ class GameScene extends Phaser.Scene {
         this.physics.velocityFromAngle(direction, speed, bullet.body.velocity);
         bullet.setCollideWorldBounds(false);
         bullet.setDepth(-1);
-        bullet.setScale(.02);
-
+        bullet.setScale(.1);
+        console.log(spr);
+        if (spr == 'projectile') {
+            let bubble = this.add.graphics({ x: -100, y: 0, add: false });
+            const bubbleRadius = 10;
+            const bubbleColor = 0xffffff; // A nice bubble color
+            bubble.fillStyle(bubbleColor, .1); // Semi-transparent
+            bubble.fillCircle(bubbleRadius, bubbleRadius, bubbleRadius);
+            bubble.generateTexture('bubbles', 100, 100);
+            let trail = this.add.particles(15, 15, 'bubbles', {
+                speed: { min: 50, max: 100 },
+                scale: { start: 0.3, end: 0 },
+                blendMode: 'ADD',
+                lifespan: 600,
+                angle: -90,
+                frequency: 10, // Emit particles more frequently
+                quantity: 5,
+            });
+            trail.startFollow(bullet);
+            bullet.emitter = trail;
+        }
         bullet.body.onWorldBounds = true;
         this.physics.world.on('worldbounds', (body) => {
             if (body.gameObject === bullet) {
                 bullet.destroy();
+                // trail.destroy();
             }
         });
     }
@@ -357,7 +277,6 @@ class GameScene extends Phaser.Scene {
             let angleStep = arcAngle / (numBullets - 1);
             angleStep = clockwise ? angleStep * 1 : angleStep * -1;
             this.lastBulletTime = 0;
-
             for (let i = 0; i < numBullets; i++) {
                 this.time.delayedCall(i * delay, () => {
                     let angle = startAngle - halfArc + angleStep * i;
@@ -369,29 +288,15 @@ class GameScene extends Phaser.Scene {
 
     createGun(ship, bulletSpr, bulletArray, gunOptions) {
 
-        // this.enemyBullett = this.physics.add.group();
         let gun = {
-            myShip: ship,
-            bulletSprite: bulletSpr,
-            myBulletArray: bulletArray,
-            x: ship.x,
-            y: ship.y,
-            speed: gunOptions.gunSpeed,
-            numBullets: gunOptions.numberOfBullets,
-            arcAngle: gunOptions.shootingArc,
-            startAngle: gunOptions.startingAngle,
-            shootingCooldown: gunOptions.shootingCooldown,
-            delay: gunOptions.delay,
-            clockwise: gunOptions.clockwise,
-            bulletsLastFireTime: 0,
-
+            myShip: ship, bulletSprite: bulletSpr, myBulletArray: bulletArray, x: ship.x,
+            y: ship.y, speed: gunOptions.gunSpeed, numBullets: gunOptions.numberOfBullets, arcAngle: gunOptions.shootingArc,
+            startAngle: gunOptions.startingAngle, shootingCooldown: gunOptions.shootingCooldown,
+            delay: gunOptions.delay, clockwise: gunOptions.clockwise, bulletsLastFireTime: 0,
             fire: function () {
-
-
                 if (this.destroyed) {
                     return;
                 }
-
                 this.x = this.myShip.x;
                 this.y = this.myShip.y;
                 let time = this.scene.time.now;
@@ -417,15 +322,11 @@ class GameScene extends Phaser.Scene {
                 this.myBulletArray = null;
                 this.destroyed = true;
             },
-
             destroyed: false
         };
-
         ship.on('destroy', function () {
             gun.destroy();
         });
-
-
         return gun;
     }
 
@@ -550,46 +451,19 @@ class GameScene extends Phaser.Scene {
 
     spawnEnemy(enemyType, x, y) {
         let enemy = this.enemies.create(x, y, 'enemy')
-        enemy.setFrame(enemyType.spriteKey);
-        enemy.setScale(.2);
-        enemy.hitPoints = enemyType.hitPoints;
-        enemy.hitPointsCurrent = enemyType.hitPointsCurrent;
-        enemy.hitPointsBars = enemyType.hitPointsBars,
-            enemy.hitPointsBarsCurrent = enemyType.hitPointsBarsCurrent,
-            enemy.speedX = enemyType.speedX;
-        enemy.speedY = enemyType.speedY;
-        enemy.sideMovementDistance = enemyType.sideMovementDistance;
-        enemy.hasGun = enemyType.hasGun;
-        enemy.gunOption = enemyType.gunOption;
-        enemy.gunTarget = enemyType.gunTarget;
+        enemy.setFrame(enemyType.spriteKey); enemy.setScale(.4);
+        enemy.hitPoints = enemyType.hitPoints; enemy.hitPointsCurrent = enemyType.hitPointsCurrent;
+        enemy.hitPointsBars = enemyType.hitPointsBars, enemy.hitPointsBarsCurrent = enemyType.hitPointsBarsCurrent,
+            enemy.speedX = enemyType.speedX; enemy.speedY = enemyType.speedY;
+        enemy.sideMovementDistance = enemyType.sideMovementDistance; enemy.hasGun = enemyType.hasGun;
+        enemy.gunOption = enemyType.gunOption; enemy.gunTarget = enemyType.gunTarget;
 
         let gunOptionsEnemy = [{
-            gunSpeed: 70,
-            numberOfBullets: 4,
-            shootingArc: 65,
-            startingAngle: 90,
-            shootingCooldown: 500,
-            delay: 0
-        },
-        {
-            gunSpeed: 60,
-            numberOfBullets: 4,
-            shootingArc: 35,
-            startingAngle: 90,
-            shootingCooldown: 1500,
-            delay: 50
-        },
-        {
-            gunSpeed: 90,
-            numberOfBullets: 3,
-            shootingArc: 45,
-            startingAngle: 90,
-            shootingCooldown: 1000,
-            delay: 10
-        },
-        ];
-        enemy.gun = this.createGun(enemy, 'projectile', this.enemyBullets, gunOptionsEnemy[enemy.gunOption])
-
+            gunSpeed: 60, numberOfBullets: 4,
+            shootingArc: 35, startingAngle: 90,
+            shootingCooldown: 1500, delay: 50
+        }];
+        enemy.gun = this.createGun(enemy, 'projectile_1', this.enemyBullets, gunOptionsEnemy[enemy.gunOption])
         return enemy;
     }
 
@@ -602,7 +476,7 @@ class GameScene extends Phaser.Scene {
                 enemy.gun.startAngle = Phaser.Math.RadToDeg(enemy.rotation) + 90;
             }
             enemy.gun.myBulletArray.getChildren().forEach(function (bullete) {
-                bullete.setScale(0.02);
+                bullete.setScale(0.1);
             });
             enemy.gun.fire();
         }
@@ -627,9 +501,13 @@ class GameScene extends Phaser.Scene {
     }
 
     bulletHitsEnemy(bullet, enemy) {
+        if (bullet.emitter) {
+            bullet.emitter.stop();  // Stop emitting new particles
+            bullet.emitter = null;  // Clear the reference to help with garbage collection
+        }
         bullet.destroy();
         enemy.hitPointsCurrent -= 1;
-        this.sounds.damage.setVolume(.5).setLoop(false).play()
+        this.sounds.damage.setVolume(.1).setLoop(false).play()
 
         if (enemy.hitPointsCurrent <= ((enemy.hitPoints / enemy.hitPointsBars) * (enemy.hitPointsBarsCurrent - 1))) {
             enemy.hitPointsBarsCurrent -= 1;
@@ -653,20 +531,28 @@ class GameScene extends Phaser.Scene {
     }
 
     bulletHitsPlayer(bullet, player) {
+        if (bullet.emitter) {
+            bullet.emitter.stop();  // Stop emitting new particles
+            bullet.emitter = null;  // Clear the reference to help with garbage collection
+        }
         bullet.destroy();
-        this.shakeCamera();
-        this.sounds.damage.setVolume(.5).setLoop(false).play()
+        this.vfx.shakeCamera();
+        this.sounds.damage.setVolume(.1).setLoop(false).play()
         player.hitPointsCurrent -= 1;
         if (player.hitPointsCurrent <= 0) {
             player.destroy();
             //this.physics.pause();
             this.gameAllOver = true;
-            this.gameOverFunc();
             this.resetGame();
         }
     }
 
     bulletHitsPlayerShield(bullet, shield) {
+        if (bullet.emitter) {
+            bullet.emitter.stop();  // Stop emitting new particles
+            bullet.emitter = null;  // Clear the reference to help with garbage collection
+        }
+
         bullet.destroy();
         shield.hitPointsCurrent -= 1;
         shield.alpha = shield.hitPointsCurrent / shield.hitPoints; // Update alpha as a percentage of remaining hitpoints
@@ -686,15 +572,12 @@ class GameScene extends Phaser.Scene {
         powerup.name = spr;
         switch (powerup.name) {
             case "collectible":
-                this.coins.add(powerup);
-                break;
+                this.coins.add(powerup); break;
             // case "small_asteroid":
             case "avoidable":
-                this.asteroids.add(powerup);
-                break;
+                this.asteroids.add(powerup); break;
             default:
-                this.powerups.add(powerup);
-                break;
+                this.powerups.add(powerup); break;
         }
         powerup.setScale(this.gameScale);
 
@@ -704,31 +587,21 @@ class GameScene extends Phaser.Scene {
 
     collectPowerup(player, powerup) {
         let pupName = powerup.name;
-        console.log(pupName);
         switch (pupName) {
             case "collectible":
                 this.gameCoinScore += 100;
                 this.updateScore(100);
                 this.displayFadeAwayText("+100", powerup.x, powerup.y);
-                this.sounds.collect.setVolume(.75).setLoop(false).play()
-                break;
+                this.sounds.collect.setVolume(.2).setLoop(false).play(); break;
             case "blue_shield":
-                this.createPlayerShield(player.x, player.y + 150);
-                this.sounds.collect.setVolume(.75).setLoop(false).play()
-                break;
+                this.createPlayerShield(player.x, player.y + 350);
+                this.sounds.collect.setVolume(.2).setLoop(false).play(); break;
             case "pink_heart":
                 player.hitPointsCurrent = Math.min(player.hitPoints, player.hitPointsCurrent + 3);
-                this.sounds.collect.setVolume(.75).setLoop(false).play()
-                break;
+                this.sounds.collect.setVolume(.2).setLoop(false).play(); break;
             default:
-                console.error(`Powerup ${pupName} not recognized`);
-                break;
-        }
-        powerup.destroy();
-    }
-
-    shakeCamera(duration = 100, intensity = 0.01) {
-        this.cameras.main.shake(duration, intensity);
+                console.error(`Powerup ${pupName} not recognized`); break;
+        }        powerup.destroy();
     }
 
     displayFadeAwayText(text, x, y) {
@@ -736,8 +609,7 @@ class GameScene extends Phaser.Scene {
             font: '14px Courier',
             fill: '#ffffff',
             align: 'center'
-        });
-        displayText.setOrigin(0.5, 0.5);
+        }); displayText.setOrigin(0.5, 0.5);
         this.tweens.add({
             targets: displayText,
             y: y - 20,
@@ -752,7 +624,7 @@ class GameScene extends Phaser.Scene {
     gameStageController(gameStage) {
         switch (gameStage) {
             case 0:
-                let boss2 = this.spawnEnemy(this.enemyTypes[1], this.screenWidth / 8, -this.screenHeight / 6 + 100);
+                let boss2 = this.spawnEnemy(this.enemyTypes[0], this.screenWidth / 8, -this.screenHeight / 6 + 100);
                 this.tweens.add({
                     targets: boss2,
                     y: this.screenHeight / 6 + 50, // change this to the y position you want
@@ -762,39 +634,9 @@ class GameScene extends Phaser.Scene {
                 });
                 break;
             default:
-                this.sounds.background.stop();
-                this.sounds.success.setVolume(1).setLoop(false).play()
-                this.gameAllOver = true;
-                // this.success.damage.setVolume(1).setLoop(false).play()
-
-                let gameWINText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY - 500, 'pixelfont', 'Congratulations!!!', 24)
-                    .setOrigin(0.5)
-                    .setVisible(false)
-                    .setAngle(-15).setTint(0xFF0000);
-
-                this.time.delayedCall(500, () => {
-                    gameWINText.setVisible(true);
-                    this.tweens.add({
-                        targets: gameWINText,
-                        y: '+=200',
-                        angle: 0,
-                        scale: { from: 0.5, to: 2 },
-                        alpha: { from: 0, to: 1 },
-                        ease: 'Elastic.easeOut',
-                        duration: 1500,
-                        onComplete: () => {
-                            this.time.delayedCall(1000, this.gameOver, [], this);
-                        }
-                    });
-                });
-                break;
+                this.sounds.background.stop(); this.sounds.success.setVolume(1).setLoop(false).play()
+                this.gameAllOver = true; this.gameWin = true; this.resetGame(); break;
         }
-
-    }
-
-    gameOverFunc() {
-        this.coins.getChildren().forEach(coin => coin.destroy());
-        this.coins = [];
     }
 
     update() {
@@ -807,7 +649,6 @@ class GameScene extends Phaser.Scene {
                 this.drawEnemyHealthBars(enemy);
             });
         }
-
 
         // Powerups update section
         this.asteroids.getChildren().forEach((asteroid) => {
@@ -850,34 +691,44 @@ class GameScene extends Phaser.Scene {
         this.isGameOver = true;
         this.score = 0;
         this.vfx.shakeCamera();
-        // this.car.destroy();
-        // this.physics.pause();
-
-        let gameOverText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY - 200, 'pixelfont', 'Game Over', 64)
-            .setOrigin(0.5)
-            .setVisible(false)
-            .setAngle(-15).setTint(0xFF0000);
-
-        this.time.delayedCall(500, () => {
-            this.sounds.lose.setVolume(1).setLoop(false).play()
-            gameOverText.setVisible(true);
-            this.tweens.add({
-                targets: gameOverText,
-                y: '+=200',
-                angle: 0,
-                scale: { from: 0.5, to: 2 },
-                alpha: { from: 0, to: 1 },
-                ease: 'Elastic.easeOut',
-                duration: 1500,
-                onComplete: () => {
-                    this.time.delayedCall(1000, this.gameOver, [], this);
-                }
+        if (this.gameWin) {
+            let gameWINText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY - 500, 'pixelfont', 'Congratulations!!!', 24).setOrigin(0.5).setVisible(false).setAngle(-15).setDepth(10).setTint(0xffff00);
+            this.time.delayedCall(500, () => {
+                this.sounds.lose.setVolume(0.5).setLoop(false).play()
+                gameWINText.setVisible(true);
+                this.tweens.add({
+                    targets: gameWINText, y: '+=200', angle: 0,
+                    scale: { from: 0.5, to: 2 }, alpha: { from: 0, to: 1 }, ease: 'Elastic.easeOut',
+                    duration: 1500,
+                    onComplete: () => {
+                        this.time.delayedCall(1000, this.gameOver, [], this);
+                    }
+                });
             });
-        });
+        } else {
+            let gameOverText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY - 200, 'pixelfont', 'Game Over', 64).setOrigin(0.5).setVisible(false).setAngle(-15).setTint(0xFF0000);
+
+            this.time.delayedCall(500, () => {
+                this.sounds.lose.setVolume(1).setLoop(false).play()
+                gameOverText.setVisible(true);
+                this.tweens.add({
+                    targets: gameOverText,
+                    y: '+=200',
+                    angle: 0,
+                    scale: { from: 0.5, to: 2 },
+                    alpha: { from: 0, to: 1 },
+                    ease: 'Elastic.easeOut',
+                    duration: 1500,
+                    onComplete: () => {
+                        this.time.delayedCall(1000, this.gameOver, [], this);
+                    }
+                });
+            });
+        }
     }
 
     gameOver() {
-        initiateGameOver.bind(this)({ score: this.score });
+        initiateGameOver.bind(this)({ score: this.gameCoinScore });
 
     }
 
@@ -898,7 +749,7 @@ const orientationSizes = {
 }
 
 // Game Orientation
-const orientation = "portrait";
+const orientation = "landscape";
 
 function displayProgressLoader() {
     let width = 320;
@@ -923,31 +774,27 @@ function displayProgressLoader() {
 
     const progressBar = this.add.graphics();
     this.load.on('progress', (value) => {
-        progressBar.clear();
-        progressBar.fillStyle(0x364afe, 1);
-        progressBar.fillRect(x, y, width * value, height);
+        progressBar.clear(); progressBar.fillStyle(0x364afe, 1); progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
         // console.log(file.src);
     });
     this.load.on('complete', function () {
-        progressBar.destroy();
-        progressBox.destroy();
-        loadingText.destroy();
+        progressBar.destroy(); progressBox.destroy(); loadingText.destroy();
     });
 }
-
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "arcade",
         arcade: {
@@ -956,10 +803,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: false,
+    orientation: _CONFIG.deviceOrientation === "landscape"
 };
-

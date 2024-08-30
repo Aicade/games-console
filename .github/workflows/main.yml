@@ -17,6 +17,9 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
 
+      - name: Set up environment variables
+        run: echo "VITE_BASE_URL=/games-console/" >> $GITHUB_ENV
+
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
 

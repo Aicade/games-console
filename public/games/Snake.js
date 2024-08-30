@@ -1,40 +1,5 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "collectible_1": "collectible_1",
-    "collectible_2": "collectible",
-    "avoidable": "avoidable",
-};
 
-let soundsLoader = {
-    "background": "background",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3"
-};
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
 var isMobile = false;
-
-
-const title = `Snake Game`
-const description = `Eat and Grow.`
-const instructions =
-    `Instructions:
-  1. Use ARROW keys to move.`;
 
 // Touuch Screen Controls
 const joystickEnabled = true;
@@ -53,12 +18,12 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
-        }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
+        }
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.score = 0;
@@ -67,7 +32,7 @@ class GameScene extends Phaser.Scene {
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-     
+
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
 
@@ -83,25 +48,24 @@ class GameScene extends Phaser.Scene {
         isMobile = !this.sys.game.device.os.desktop;
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
-
         this.sounds.background.setVolume(1).setLoop(false).play()
 
         this.vfx = new VFXLibrary(this);
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
-        this.bg = this.add.sprite(0, 0, 'background').setOrigin(0, 0).setDepth(-10);
-        this.bg.setScrollFactor(0);
-        this.bg.displayHeight = this.game.config.height;
-        this.bg.displayWidth = this.game.config.width;
+        this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);      // Use the larger scale factor to ensure the image covers the whole canvas
+        const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
+        this.bg.setScale(scale).setDepth(-5);
 
 
         // Add UI elements
         this.scoreText = this.add.bitmapText(this.width / 2, 100, 'pixelfont', '0', 128).setOrigin(0.5, 0.5);
-        this.scoreText.setDepth(11)
+        this.scoreText.setDepth(11);
 
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
@@ -148,7 +112,7 @@ class GameScene extends Phaser.Scene {
         this.enemy = null;
 
         this.snakeBody.push(
-            this.add.sprite(50, 50, 'player').setDisplaySize(this.tileSize, this.tileSize).setOrigin(0)
+            this.add.sprite(50, 50, 'player').setDisplaySize(this.tileSize, this.tileSize).setOrigin(0).setDepth(12)
         );
 
         // this.vfx.addShine(this.snakeBody);
@@ -410,7 +374,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-        
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -422,8 +386,8 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
@@ -434,14 +398,14 @@ const config = {
     physics: {
         default: "arcade",
         arcade: {
-            gravity: { y: 0 },
+            gravity: { y: 400 },
             debug: false,
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true
+    orientation: _CONFIG.deviceOrientation === "landscape"
 };

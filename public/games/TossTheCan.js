@@ -1,39 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "projectile": "projectile",
-    "platform": "platform",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
-};
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Custom UI Elements. Fill the code below based on the game idea.
-const title = `Toss the Can`
-const description = `Tap on projectile to toss and land it correctly
-on desired object.`
-const instructions =
-    `Instructions:
-    1. Tap on object to toss it.`
-
-// Game Orientation
-const orientation = "landscape";
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -43,13 +7,13 @@ class GameScene extends Phaser.Scene {
 
     preload() {
         addEventListenersPhaser.bind(this)();
-        // Load In-Game Assets from assetsLoader
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -70,7 +34,7 @@ class GameScene extends Phaser.Scene {
 
         // Make an empty object for all #sounds
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
         this.width = this.game.config.width;
@@ -96,7 +60,7 @@ class GameScene extends Phaser.Scene {
         this.missed = 0;
 
         this.landingTarget = this.physics.add.staticSprite(this.width - 200, this.height, 'platform')
-            .setScale(0.3).setOrigin(0.5, 1).refreshBody();
+            .setScale(0.6).setOrigin(0.5, 1).refreshBody();
         this.landingTarget.preFX.addShine(0.7);
         this.landingTarget.body.setSize(this.landingTarget.body.width / 1.5, this.landingTarget.body.height / 1.5);
 
@@ -116,7 +80,7 @@ class GameScene extends Phaser.Scene {
     spawnProjectile() {
         for (var i = 0; i < 1; i++) {
             const projectile = this.projectiles.create(0, Phaser.Math.Between(this.height - 150, this.height / 2 - 150), 'projectile');
-            projectile.setScale(0.1);
+            projectile.setScale(0.35);
             projectile.body.setSize(projectile.body.width, projectile.body.height);
             projectile.setVelocity(Phaser.Math.Between(100, 150), Phaser.Math.Between(-250, -300));
             projectile.setAngularVelocity(900).setBounce(0.5);
@@ -289,7 +253,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-         
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -304,27 +268,29 @@ function displayProgressLoader() {
 */
 
 // Configuration object
+
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
+    pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
-        default: 'arcade',
+        default: "arcade",
         arcade: {
             gravity: { y: 200 },
-            debug: false
-        }
+            debug: false,
+        },
     },
-    pixelArt: true,
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true,
+    orientation: _CONFIG.deviceOrientation === "landscape"
 };
