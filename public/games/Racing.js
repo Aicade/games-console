@@ -408,6 +408,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop();
         initiateGameOver.bind(this)({
             score: this.score
         });
@@ -478,5 +479,5 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    deviceOrientation: _CONFIG.deviceOrientation
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };

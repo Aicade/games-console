@@ -18,6 +18,7 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
+        //this.gameOver();
         this.score = 0;
         addEventListenersPhaser.bind(this)();
 
@@ -44,6 +45,7 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+       // this.resetScene();
         this.sounds = {};
         for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
@@ -144,6 +146,28 @@ class GameScene extends Phaser.Scene {
         this.timerText = this.add.bitmapText(120, 20, 'pixelfont', 'Timer: ', 40).setOrigin(0.5, 0.5);
         this.input.keyboard.disableGlobalCapture();
     }
+    // resetScene() {
+    //     // Clear existing objects
+    //     this.enemiesLeft.clear(true, true);
+    //     this.enemiesRight.clear(true, true);
+    //     this.avoidable.clear(true, true);
+    //     this.physics.world.removeAll();
+    
+    //     // Reset game state variables
+    //     this.score = 0;
+    //     this.isHarpoonCast = false;
+    //     this.isHarpoonRetracting = false;
+    //     this.isGameOver = false;
+    
+    //     // Reinitialize objects
+    //     this.createBackground();
+    //     this.createUI();
+    //     this.createBoat();
+    //     this.createHarpoon();
+    //     this.createEnemies();
+    //     this.createTimers();
+    // }
+    
 
     spawnEnemies() {
         if (!this.isGameOver) {
@@ -380,6 +404,8 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop(); // Stop the background music
+        
         initiateGameOver.bind(this)(this.score, this.time.now * 0.001);
     }
 
@@ -387,6 +413,7 @@ class GameScene extends Phaser.Scene {
         handlePauseGame.bind(this)();
     }
 }
+
 
 function displayProgressLoader() {
     let width = 320;
@@ -425,6 +452,7 @@ function displayProgressLoader() {
     });
 }
 
+
 // Configuration object
 const config = {
     type: Phaser.AUTO,
@@ -449,5 +477,5 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    deviceOrientation: _CONFIG.deviceOrientation
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };
