@@ -21,7 +21,7 @@ const instructions =
 2. Use Spacebar/button to shoot.`;
 
 // Game Orientation
-const orientation = "portrait";
+const orientation = "landscape";
 var isMobile = false;
 const orientationSizes = {
     "landscape": {
@@ -94,6 +94,7 @@ class GameScene extends Phaser.Scene {
         this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
         const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
         this.bg.setScale(scale);
+        this.bg.postFX.addBlur(0.5, 2, 2, 0.8);
 
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
@@ -106,20 +107,28 @@ class GameScene extends Phaser.Scene {
         this.input.addPointer(3);
         const joyStickRadius = 50;
 
-        this.scoreText = this.add.bitmapText(this.width / 2 - 40, 45, 'pixelfont', this.score, 80).setOrigin(0.5, 0.5).setTint(0xff9900);
+        this.roundTime = 30;
+        this.timeElapsed = 0;
+
+        this.scoreText = this.add.bitmapText(this.width / 2 - 40, 45, 'pixelfont', this.score, 80).setOrigin(0.5, 0.5).setTint(0x00ff00);
         this.scoreText.setDepth(10);
         
-        this.startText = this.add.bitmapText(this.width / 2, this.height / 2, 'pixelfont', 'Collect all the Prime numbers \n & avoid other numbers. \n Start Game >>', 40).setOrigin(0.5).setDepth(11).setTint(0xFFB000).setCenterAlign();
-        this.startText.setInteractive({ cursor: 'pointer' });
-        this.startText.on('pointerdown', ()=> {
+        this.startText = this.add.bitmapText(this.width / 2, this.height / 2 - 90, 'pixelfont', 'Collect all the Prime numbers\n& avoid other numbers.', 40).setOrigin(0.5).setDepth(11).setCenterAlign();
+        
+        this.startText2 = this.add.bitmapText(this.width / 2, this.height / 2 + 30, 'pixelfont', 'Start Game >>', 40).setOrigin(0.5).setDepth(11).setTint(0x00ff00).setCenterAlign();
+        this.startText2.setInteractive({ cursor: 'pointer' });
+        this.startText2.on('pointerdown', ()=> {
+            this.startClockTimer();
             this.startEggDrop();
             this.startText.destroy();
+            this.startText2.destroy();
         }, this);
 
-        this.player = this.physics.add.image(this.width / 2, this.game.config.height, 'player').setScale(0.25);
+        this.player = this.physics.add.image(this.width / 2, this.game.config.height - 50, 'player').setScale(0.5);
         this.player.setCollideWorldBounds(true);
-        this.player.body.setSize(this.player.body.width / 1.1, this.player.body.height)
-        this.vfx.scaleGameObject(this.player, 1.1);
+        this.player.body.allowGravity = false;
+        // this.player.body.setSize(this.player.body.width / 1.1, this.player.body.height)
+        this.vfx.scaleGameObject(this.player, 1.05);
 
         if (joystickEnabled) {
             this.joyStick = this.plugins.get('rexvirtualjoystickplugin').add(this, {
@@ -136,15 +145,9 @@ class GameScene extends Phaser.Scene {
 
         this.toggleControlsVisibility(isMobile);
 
-        this.lives = 3;
-        this.hearts = [];
-        for (let i = 0; i < this.lives; i++) {
-            let x = 40 + (i * 35);
-            this.hearts[i] = this.add.image(x, 35, "heart").setScale(0.025).setDepth(11);
-        }
-
         this.eggs = [];
         this.avoidables = [];
+        this.makeTimerMeter();
 
         this.cursors = this.input.keyboard.createCursorKeys();
     }
@@ -156,11 +159,11 @@ class GameScene extends Phaser.Scene {
 
     update() {
         if (this.cursors.left.isDown || this.joystickKeys.left.isDown) {
-            this.player.setVelocityX(-400);
+            this.player.setVelocityX(-600);
             this.player.flipX = true;
         } else if (this.cursors.right.isDown || this.joystickKeys.right.isDown) {
             this.player.flipX = false;
-            this.player.setVelocityX(400);
+            this.player.setVelocityX(600);
         } else {
             this.player.setVelocityX(0);
         }
@@ -189,28 +192,26 @@ class GameScene extends Phaser.Scene {
         let randomX = Phaser.Math.Between(80, this.width - 80)
 
         if (!this.isGameOver) {
-            if (Math.random() < 0.6) {
+            if (Math.random() < 0.55) {
                 const randomPrime = this.generateRandomPrime();
-                const primeNumText = this.add.bitmapText(randomX, -10, 'pixelfont', randomPrime, 60);
+                const primeNumText = this.add.bitmapText(randomX, -10, 'pixelfont', randomPrime, 70);
                 this.physics.world.enable(primeNumText);
                 primeNumText.body.setVelocityY(200);
-                this.vfx.scaleGameObject(primeNumText);
                 this.eggs.push(primeNumText);
                 this.physics.add.collider(this.player, primeNumText, (player, enemy) => {
                     this.sounds.collect.play();
                     enemy.destroy();
                     this.collectEgg();
-                    this.scorePointAnim();
+                    this.scorePointAnim(false, "+10");
                     this.updateScore(10);
                 });
                 console.log("PRIME : ", randomPrime)
 
             } else {
                 const randomNonPrime = this.generateRandomNonPrime();
-                const randomNonPrimeText = this.add.bitmapText(randomX, -10, 'pixelfont', randomNonPrime, 60);
+                const randomNonPrimeText = this.add.bitmapText(randomX, -10, 'pixelfont', randomNonPrime, 70);
                 this.physics.world.enable(randomNonPrimeText);
                 randomNonPrimeText.body.setVelocityY(200);
-                this.vfx.scaleGameObject(randomNonPrimeText);
                 this.eggs.push(randomNonPrimeText);
                 this.physics.add.collider(this.player, randomNonPrimeText, (bullet, enemy) => {
                     this.hitAvoidable(enemy);
@@ -258,23 +259,22 @@ class GameScene extends Phaser.Scene {
 
     hitAvoidable(avoidable) {
         avoidable.destroy();
-        this.lives--;
-        this.hearts[this.lives].destroy();
+        
+        this.scorePointAnim(true, "-5");
+        this.updateScore(-5);
         this.vfx.shakeCamera(400, .009);
-        this.sounds.destroy.play()
-        if (this.lives <= 0) {
-            this.isGameOver = true;
-            this.resetGame();
-            this.eggs.forEach((egg) => {
-                egg.destroy();
-            })
-        }
+        this.sounds.destroy.play();
     }
 
-    scorePointAnim() {
+    scorePointAnim(damage = false, text = "+10") {
         let dx = this.player.x - 30;
         let dy = this.player.y - 80;
-        let scoreText = this.add.bitmapText(dx, dy, 'pixelfont', '+10', 45).setTint(0xff9900);
+        let scoreText = this.add.bitmapText(dx, dy, 'pixelfont', text, 45);
+        if(damage){
+            scoreText.setTint(0xff0000);
+        } else {
+            scoreText.setTint(0x00ff00);
+        }
 
         this.tweens.add({
             targets: scoreText,
@@ -285,6 +285,52 @@ class GameScene extends Phaser.Scene {
                 scoreText.destroy();
             }
         });
+    }
+
+    startClockTimer() {
+        this.timerEvent = this.time.addEvent({
+            delay: 1000,
+            callback: this.updateTimerMeter,
+            callbackScope: this,
+            loop: true
+        });
+    }
+
+    makeTimerMeter(startAngle = -90, endAngle = 270, isUpdated = false) {
+
+        if (isUpdated) {
+            this.clockText.setText(this.roundTime - this.timeElapsed);
+        } else {
+            this.clockText = this.add.bitmapText(65, 55, 'pixelfont', this.roundTime - this.timeElapsed, 30).setOrigin(0.5);
+            this.clockText.setDepth(11).setTint(0xffffff);
+        }
+        if (this.roundTime - this.timeElapsed <= 0) {
+            
+            this.timeElapsed = 0;
+            this.time.delayedCall(100, () => {
+                this.isGameOver = true;
+                this.resetGame();
+                this.eggs.forEach((egg) => {
+                    egg.destroy();
+                })
+            })
+        }
+
+        this.clockGraphics = this.add.graphics().setDepth(11);
+        this.clockGraphics.lineStyle(4, 0xffffff, 1);
+        this.clockGraphics.arc(70, 60, 45, Phaser.Math.DegToRad(startAngle), Phaser.Math.DegToRad(endAngle));
+        this.clockGraphics.strokePath();
+    }
+
+    updateTimerMeter() {
+        this.timeElapsed++;
+        let newStartAngle = ((360 / this.roundTime) * this.timeElapsed) - 90;
+        if (newStartAngle === 270) {
+            newStartAngle = 269;
+            this.timerEvent.destroy();
+        }
+        this.clockGraphics.clear();
+        this.makeTimerMeter(newStartAngle, 270, true);
     }
 
     resetGame() {
@@ -395,7 +441,7 @@ const config = {
             debug: false,
         },
     },
-    orientation: true,
+    orientation: false,
     dataObject: {
         name: title,
         description: description,
