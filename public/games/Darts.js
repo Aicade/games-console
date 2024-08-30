@@ -57,11 +57,13 @@ class GameScene extends Phaser.Scene {
         for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
+        this.backgroundMusic = this.sounds.background.setVolume(2.5).setLoop(true);
+        this.backgroundMusic.play();
 
         this.isgameover = false;
 
         this.score = 0;
-        this.sounds.background.setVolume(2.5).setLoop(true).play();
+        //this.sounds.background.setVolume(2.5).setLoop(true).play();
 
         this.vfx = new VFXLibrary(this);
 
@@ -177,8 +179,10 @@ class GameScene extends Phaser.Scene {
             .setOrigin(0.5);
         
         this.time.delayedCall(2000, () => {
+            this.backgroundMusic.stop();
             this.scene.restart();
         });
+        this.backgroundMusic.stop();
     }
 
     update() {
@@ -281,12 +285,16 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.backgroundMusic.stop();
         initiateGameOver.bind(this)({ score: this.score });
     }
 
     pauseGame() {
+        //this.backgroundMusic.stop();
         handlePauseGame.bind(this)();
+        //this.backgroundMusic.restart();
     }
+    
 }
 
 function displayProgressLoader() {
@@ -335,7 +343,7 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        orientation: Phaser.Scale.Orientation.LANDSCAPE
+        orientation: Phaser.Scale.Orientation.PORTRAIT
     },
     /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
@@ -351,5 +359,5 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    deviceOrientation: _CONFIG.deviceOrientation
+    deviceOrientation: _CONFIG.deviceOrientation==="portrait"
 };
