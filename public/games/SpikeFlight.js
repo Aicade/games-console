@@ -242,6 +242,9 @@ class GameScene extends Phaser.Scene {
     gameOver() {
         
         initiateGameOver.bind(this)({ score: this.score });
+        if (this.sounds && this.sounds.lose) {
+            this.sounds.lose.setVolume(0.5).setLoop(false).play();
+        }
         
     }
     //SpikeFlight
@@ -273,7 +276,7 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
-    deviceOrientation: _CONFIG.deviceOrientation
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };
 
 function createGame() {
@@ -312,4 +315,4 @@ function gameScenePreload(game) {
     game.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
   }
 
-window.onload = createGame;
+//window.onload = createGame;

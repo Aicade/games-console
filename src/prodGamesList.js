@@ -41,6 +41,7 @@ const prodGamesList = [
     "Snake",
     "SpaceInvader",
     "Spaceshooter",
+    "SpikeFlight",
     "SpinMaster",
     "SwingMania",
     "TaptoSave",
