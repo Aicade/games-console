@@ -88,7 +88,7 @@ class GameScene extends Phaser.Scene {
             this.load.audio(key, [soundsLoader[key]]);
         }
 
-        this.load.image("heart", "/assets/dollar.png");
+        this.load.image("heart", "/assets/moneybag.png");
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
 
         const fontName = 'pix';
@@ -472,33 +472,33 @@ class GameScene extends Phaser.Scene {
     hitEnemy(enemy, projectile) {
         this.sounds.damage.setVolume(1).setLoop(false).play()
 
-        // this.cameras.main.shake(250, 0.01, true);
+        this.cameras.main.shake(250, 0.01, true);
         this.updateScore(10);
         projectile.destroy();
 
-        const bloomSprite = this.add.sprite(enemy.x, enemy.y, 'enemy');
-        bloomSprite.setScale(0.2);
+        // const bloomSprite = this.add.sprite(enemy.x, enemy.y, 'enemy');
+        // bloomSprite.setScale(0.2);
 
-        const bloom = bloomSprite.postFX.addBloom(0xffffff, 1, 1, 5, 1.2);
-        this.tweens.add({
-            targets: bloom,
-            strength: 0, // Fade out the bloom effect
-            duration: 1000, // 1 second duration
-            onComplete: () => {
-                // Destroy the bloom effect and sprite after fading out
-                bloom.destroy();
-                bloomSprite.destroy();
-            }
-        });
+        // const bloom = bloomSprite.postFX.addBloom(0xffffff, 1, 1, 5, 1.2);
+        // this.tweens.add({
+        //     targets: bloom,
+        //     strength: 0, // Fade out the bloom effect
+        //     duration: 1000, // 1 second duration
+        //     onComplete: () => {
+        //         // Destroy the bloom effect and sprite after fading out
+        //         bloom.destroy();
+        //         bloomSprite.destroy();
+        //     }
+        // });
         const emitter = this.add.particles(projectile.x, projectile.y, 'heart', {
-            speed: { min: 100, max: 500 },
-            scale: { start: 0.05, end: 0 },
+            speed: { min: 50, max: 100 },
+            scale: { start: 0.4, end: 0 },
             blendMode: 'NORMAL',
-            lifespan: 300,
+            lifespan: 800,
         });
 
         // emitter.setPosition(x, y);
-        emitter.explode(5);
+        emitter.explode(15);
 
         let pointText = this.add.text(projectile.x, projectile.y, '-20', {
             fontSize: '48px',
@@ -545,9 +545,9 @@ class GameScene extends Phaser.Scene {
         this.cameras.main.shake(250, 0.01, true);
         projectile.destroy();
         // Create a sprite to hold the bloom effect for the player
-        const playerBloomSprite = this.add.sprite(this.player.x, this.player.y, 'player');
-        playerBloomSprite.setScale(0.2);
-        const playerBloom = playerBloomSprite.postFX.addBloom(0xffffff, 1, 1, 5, 1.2);
+        // const playerBloomSprite = this.add.sprite(this.player.x, this.player.y, 'player');
+        // playerBloomSprite.setScale(0.2);
+        // const playerBloom = playerBloomSprite.postFX.addBloom(0xffffff, 1, 1, 5, 1.2);
         let pointText = this.add.text(projectile.x, projectile.y, '-20', {
             fontSize: '48px',
             fontStyle: 'bold',
@@ -583,26 +583,26 @@ class GameScene extends Phaser.Scene {
 
         // collectible
         const emitter = this.add.particles(projectile.x - 75, projectile.y, 'heart', {
-            speed: { min: 100, max: 500 },
-            scale: { start: 0.05, end: 0 },
+            speed: { min: 50, max: 100 },
+            scale: { start: 0.4, end: 0 },
             blendMode: 'NORMAL',
-            lifespan: 300,
+            lifespan: 800,
         });
 
         // emitter.setPosition(x, y);
-        emitter.explode(5);
+        emitter.explode(15);
 
         // Tween to fade out the player's bloom effect after 1 second
-        this.tweens.add({
-            targets: playerBloom,
-            strength: 0, // Fade out the bloom effect
-            duration: 1000, // 1 second duration
-            onComplete: () => {
-                // Destroy the bloom effect and sprite after fading out
-                playerBloom.destroy();
-                playerBloomSprite.destroy();
-            }
-        });
+        // this.tweens.add({
+        //     targets: playerBloom,
+        //     strength: 0, // Fade out the bloom effect
+        //     duration: 1000, // 1 second duration
+        //     onComplete: () => {
+        //         // Destroy the bloom effect and sprite after fading out
+        //         playerBloom.destroy();
+        //         playerBloomSprite.destroy();
+        //     }
+        // });
 
         this.playerLives--;
         this.playerHealth = this.playerHealth - 20;
