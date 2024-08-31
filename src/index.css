@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Custom";
+    src: local("PlusJakartaSans"),
+    url('./assets/fonts/PlusJakartaSans.ttf')
+    format("truetype")
+  }
