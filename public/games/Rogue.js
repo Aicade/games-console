@@ -1,43 +1,4 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "enemy": "enemy",
-    "projectile": "projectile",
-    "collectible": "collectible",
-};
-
-let soundsLoader = {
-    'background': "background",
-    'shoot': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
-    'damage': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
-    'upgrade': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
-    'lose': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    'collect': "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-};
-
-// Custom UI Elements
-const title = `Rogue`
-const description = `A thrilling shooting survival game.`
-const instructions =
-    `Instructions:
-1. Use arrow keys OR joystick to move.
-2. Collect power ups to upgrade weapons and regenrated health.`;
-
-// Game Orientation
-const orientation = "landscape";
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Touuch Screen Controls
+// Touch Screen Controls
 const joystickEnabled = true;
 var isMobile = false;
 
@@ -49,20 +10,25 @@ const rexJoystickUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex
 class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
+        console.log('GameScene constructor called');
     }
 
     preload() {
+        console.log('Preload started');
+
+
+
         addEventListenersPhaser.bind(this)();
 
         this.load.image("heart", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png");
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image('plus', this.createPlusTexture());
@@ -76,6 +42,8 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+
+        console.log('Create method started');
         this.vfx = new VFXLibrary(this);
         this.isMobile = !this.sys.game.device.os.desktop;
         isMobile = !this.sys.game.device.os.desktop;
@@ -83,7 +51,7 @@ class GameScene extends Phaser.Scene {
         this.minCoverage = -this.maxCoverage / 2;
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -123,7 +91,11 @@ class GameScene extends Phaser.Scene {
         this.pauseButton.setScrollFactor(0);
         this.pauseButton.on('pointerdown', () => this.pauseGame());
 
-        this.sounds.background.setVolume(1).setLoop(true).play();
+        if (this.sounds.background.isPlaying) {
+            this.sounds.background.stop();
+        }      
+
+        this.sounds.background.setVolume(2).setLoop(true).play();
 
         this.player;
         this.enemies;
@@ -143,7 +115,7 @@ class GameScene extends Phaser.Scene {
         this.gameOverTrigerred = false;
 
         // Create player
-        this.player = this.physics.add.sprite(this.width / 2, this.height / 2, 'player').setScale(0.1);
+        this.player = this.physics.add.sprite(this.width / 2, this.height / 2, 'player').setScale(0.2);
         this.player.preFX.addShadow(0, 0, 0.1, 1, 0x000000, 6, 1);
         // this.player.postFX.addShadow();
         this.healthBar = this.add.graphics();
@@ -166,10 +138,10 @@ class GameScene extends Phaser.Scene {
         // Display score
 
         this.scoreText = this.add.bitmapText(this.width / 2 - 30, 0, 'pixelfont', this.score, 32).setScrollFactor(0).setDepth(100);
-        this.enemyIcon = this.add.image(this.width / 2 - 70, 30, "enemy").setScale(0.06).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
+        this.enemyIcon = this.add.image(this.width / 2 - 70, 30, "enemy").setScale(0.12).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
         this.healthIcon = this.add.image(20, 20, "plus").setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
         this.healthText = this.add.bitmapText(140, 20, 'pixelfont', this.healthRegenPoints + "/" + this.healthRegenPointsRequired, 32).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
-        this.bulletIcon = this.add.image(this.width / 2 + 150, 30, "projectile").setScale(0.04).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100).setAngle(-50);
+        this.bulletIcon = this.add.image(this.width / 2 + 150, 30, "projectile").setScale(0.08).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100).setAngle(-50);
         this.bulletText = this.add.bitmapText(this.width / 2 + 280, 30, 'pixelfont', this.bulletAddPoints + "/" + this.bulletAddPointsRequired, 32).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(100);
 
         // Spawn enemies
@@ -224,7 +196,7 @@ class GameScene extends Phaser.Scene {
     decreaseBar(bar, value) {
         bar.value = Phaser.Math.Clamp(bar.value - value, 0, 100);
         bar.update();
-    } s
+    } 
 
     toggleControlsVisibility(visibility) {
         this.joyStick.base.visible = visibility;
@@ -350,7 +322,7 @@ class GameScene extends Phaser.Scene {
 
         for (let i = 0; i < numEnemies; i++) {
             const enemy = this.enemies.create(((i + 1) * spacing) + x, y, 'enemy');
-            enemy.setScale(0.05);
+            enemy.setScale(0.1);
             this.tweens.add({
                 targets: enemy,
                 scale: '+=0.01',
@@ -368,7 +340,7 @@ class GameScene extends Phaser.Scene {
         const closestEnemy = this.findClosestEnemy(this.player.x, this.player.y);
 
         if (closestEnemy) {
-            const bullet = this.bullets.create(this.player.x, this.player.y, 'projectile').setScale(0.025);
+            const bullet = this.bullets.create(this.player.x, this.player.y, 'projectile').setScale(0.05);
             this.physics.moveToObject(bullet, closestEnemy, 500);
             this.sounds.shoot.setVolume(0.5).setLoop(false).play()
         }
@@ -442,9 +414,9 @@ class GameScene extends Phaser.Scene {
     }
 
     createCollectible(x, y) {
-        this.increaseBar(this.weaponBar, 10);
-        this.increaseBar(this.rehealthBar, 7);
-        const collectible = this.physics.add.image(x, y, 'collectible').setScale(0.05);
+        // this.increaseBar(this.weaponBar, 10);
+        // this.increaseBar(this.rehealthBar, 7);
+        const collectible = this.physics.add.image(x, y, 'collectible').setScale(0.1);
         this.vfx.addShine(collectible, 500);
         // this.vfx.addGlow(collectible);
         this.vfx.scaleGameObject(collectible);
@@ -452,6 +424,8 @@ class GameScene extends Phaser.Scene {
     }
 
     collectCollectible(player, collectible) {
+        this.increaseBar(this.weaponBar, 10);
+        this.increaseBar(this.rehealthBar, 7);
         collectible.destroy();
         this.sounds.collect.setVolume(1).setLoop(false).play()
         this.healthRegenPoints += 1
@@ -487,6 +461,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop();
         initiateGameOver.bind(this)({ score: this.score });
     }
 }
@@ -531,12 +506,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     pixelArt: true,
     physics: {
@@ -547,9 +523,9 @@ const config = {
         }
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true,
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };

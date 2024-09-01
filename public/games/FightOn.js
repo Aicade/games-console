@@ -1,44 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "platform": "platform",
-    "enemy": "enemy",
-    "projectile": "projectile",
-    "avoidable": "avoidable",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
-    "upgrade": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-};
-
-// Custom UI Elements
-const title = `Elon Musk vs Jeff Bezos: The Ultimate Battle`
-const description = `A 1v1 fighting game where Elon Musk and Jeff Bezos engage in an epic battle to prove their business acumen and technological prowess.`
-const instructions =
-    `Instructions:
-  1. Use UP arrow to jump & RIGHT arrow to throw
-  2. Use SPACE to call Shield`;
-
-
-  const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
 var isMobile = false;
 // Touuch Screen Controls
 const joystickEnabled = true;
@@ -79,12 +38,12 @@ class GameScene extends Phaser.Scene {
 
 
         // Load In-Game Assets from assetsLoader
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image("heart", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png");
@@ -102,7 +61,7 @@ class GameScene extends Phaser.Scene {
     create() {
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -162,13 +121,13 @@ class GameScene extends Phaser.Scene {
         platform.refreshBody();
 
         // Create the player and scale it to 0.2
-        this.player = this.physics.add.sprite(100, 300, 'player').setScale(0.15);
+        this.player = this.physics.add.sprite(100, 300, 'player').setScale(0.3);
         // this.player.setBounce(0.2); // Optional bounce
         this.player.setCollideWorldBounds(true);
         this.player.body.setGravityY(800);
         this.player.body.setSize(this.player.body.width * 0.2, this.player.body.height * 0.8);
 
-        this.enemy = this.physics.add.sprite(this.game.config.width - 200, 300, 'enemy').setScale(0.15);
+        this.enemy = this.physics.add.sprite(this.game.config.width - 200, 300, 'enemy').setScale(0.3);
         // this.enemy.setBounce(0.2); // Optional bounce
         this.enemy.setCollideWorldBounds(true);
         this.enemy.body.setGravityY(800);
@@ -286,6 +245,9 @@ class GameScene extends Phaser.Scene {
             // this.enemy.setTint(0xff0000);
             this.playerWon = false;
             this.gameOver();
+            if (this.sounds && this.sounds.lose) {
+                this.sounds.lose.setVolume(0.5).setLoop(false).play();
+            }
         } else if (this.enemyHealth <= 0) {
             // this.player.setTint(0xff0000);
             this.playerWon = true;
@@ -312,7 +274,7 @@ class GameScene extends Phaser.Scene {
 
         this.text = this.add.bitmapText(this.width / 2, this.height * 0.2, 'pixelfont', 'LEVEL UP!', 24);
         this.text.setOrigin(0.5);
-        this.text.setScale(2);
+        this.text.setScale(2.5);
 
         this.tweens.add({
             targets: this.text,
@@ -331,7 +293,7 @@ class GameScene extends Phaser.Scene {
         var startX = Phaser.Math.Between(this.game.config.width - 400, this.game.config.width - 200)
         var startY = Phaser.Math.Between(100, 500)
         this.enemy.setPosition(startX, startY);
-        this.enemy.setScale(0); // Start from a scale of 0
+        this.enemy.setScale(0.3); // Start from a scale of 0
         this.enemy.setAlpha(0); // Start fully transparent
 
         // Reset enemy properties
@@ -345,7 +307,7 @@ class GameScene extends Phaser.Scene {
         // Create a tween for the respawn effect
         this.tweens.add({
             targets: this.enemy,
-            scale: 0.15, // Assuming 0.15 is the normal scale
+            scale: 0.30, // Assuming 0.15 is the normal scale
             alpha: 1, // Fade in to full visibility
             ease: 'Power1',
             duration: 1000, // Adjust duration according to the desired effect
@@ -401,7 +363,7 @@ class GameScene extends Phaser.Scene {
         if (isPlayerCall) {
             if (!this.shield || !this.shield.active) {
                 this.shield = this.physics.add.sprite(this.player.x + this.offset, this.player.y, 'avoidable');
-                this.shield.setScale(0.12).setDepth(1).setAlpha(0.5);
+                this.shield.setScale(0.30).setDepth(1).setAlpha(0.5);
 
                 this.shield.body.setSize(this.shield.body.width * 0.32, this.shield.body.height * 1.2);
                 this.time.delayedCall(2000, () => {
@@ -416,7 +378,7 @@ class GameScene extends Phaser.Scene {
         else {
             if (!this.enemyShield || !this.enemyShield.active) {
                 this.enemyShield = this.physics.add.sprite(this.enemy.x - this.offset, this.enemy.x.y, 'avoidable');
-                this.enemyShield.setScale(0.12).setDepth(1).setAlpha(0.5);
+                this.enemyShield.setScale(0.24).setDepth(1).setAlpha(0.5);
 
                 this.enemyShield.body.setSize(this.enemyShield.body.width * 0.3, this.enemyShield.body.height * 0.8);
                 this.time.delayedCall(2000, () => {
@@ -448,7 +410,7 @@ class GameScene extends Phaser.Scene {
         if (projectile) {
             projectile.setActive(true).setVisible(true);
             projectile.body.gravity.y = 0;
-            projectile.setScale(0.06);
+            projectile.setScale(0.12);
             projectile.setVelocityX(velocityX);
 
             projectile.body.setSize(projectile.body.width * 0.8, projectile.body.height * 0.6);
@@ -467,7 +429,7 @@ class GameScene extends Phaser.Scene {
         projectile.destroy();
 
         const bloomSprite = this.add.sprite(enemy.x, enemy.y, 'enemy');
-        bloomSprite.setScale(0.2);
+        bloomSprite.setScale(0.3);
 
         const bloom = bloomSprite.postFX.addBloom(0xffffff, 1, 1, 5, 1.2);
         this.tweens.add({
@@ -488,7 +450,7 @@ class GameScene extends Phaser.Scene {
         });
 
         // emitter.setPosition(x, y);
-        emitter.explode(25);
+        emitter.explode(5);
 
         let pointText = this.add.text(projectile.x, projectile.y, '-20', {
             fontSize: '48px',
@@ -537,7 +499,7 @@ class GameScene extends Phaser.Scene {
         projectile.destroy();
         // Create a sprite to hold the bloom effect for the player
         const playerBloomSprite = this.add.sprite(this.player.x, this.player.y, 'player');
-        playerBloomSprite.setScale(0.2);
+        playerBloomSprite.setScale(0.3);
         const playerBloom = playerBloomSprite.postFX.addBloom(0xffffff, 1, 1, 5, 1.2);
         let pointText = this.add.text(projectile.x, projectile.y, '-20', {
             fontSize: '48px',
@@ -581,7 +543,7 @@ class GameScene extends Phaser.Scene {
         });
 
         // emitter.setPosition(x, y);
-        emitter.explode(25);
+        emitter.explode(5);
 
         // Tween to fade out the player's bloom effect after 1 second
         this.tweens.add({
@@ -611,6 +573,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop();
         initiateGameOver.bind(this)({
             score: this.score
         });
@@ -661,12 +624,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     pixelArt: true,
     physics: {
@@ -677,9 +641,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true,
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };

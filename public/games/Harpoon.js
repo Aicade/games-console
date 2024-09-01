@@ -1,41 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "avoidable": "avoidable",
-    "player": "player",
-    "projectile": "projectile",
-    "collectible": "collectible",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-};
-
-
-const title = `Harpoon throw`
-const description = `Tap to throw harpoon.`
-const instructions =
-    `Instructions:
-  1. Collect object as much as you can!.`;
-
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "portrait";
-
-
 // Touuch Screen Controls
 const joystickEnabled = false;
 const buttonEnabled = false;
@@ -56,17 +18,18 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
+        //this.gameOver();
         this.score = 0;
         addEventListenersPhaser.bind(this)();
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -82,8 +45,9 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+       // this.resetScene();
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
         this.sounds.background.setVolume(2.5).setLoop(true).play();
@@ -182,6 +146,28 @@ class GameScene extends Phaser.Scene {
         this.timerText = this.add.bitmapText(120, 20, 'pixelfont', 'Timer: ', 40).setOrigin(0.5, 0.5);
         this.input.keyboard.disableGlobalCapture();
     }
+    // resetScene() {
+    //     // Clear existing objects
+    //     this.enemiesLeft.clear(true, true);
+    //     this.enemiesRight.clear(true, true);
+    //     this.avoidable.clear(true, true);
+    //     this.physics.world.removeAll();
+    
+    //     // Reset game state variables
+    //     this.score = 0;
+    //     this.isHarpoonCast = false;
+    //     this.isHarpoonRetracting = false;
+    //     this.isGameOver = false;
+    
+    //     // Reinitialize objects
+    //     this.createBackground();
+    //     this.createUI();
+    //     this.createBoat();
+    //     this.createHarpoon();
+    //     this.createEnemies();
+    //     this.createTimers();
+    // }
+    
 
     spawnEnemies() {
         if (!this.isGameOver) {
@@ -196,7 +182,11 @@ class GameScene extends Phaser.Scene {
             }
 
             // Additional setup if needed, like setting scale
-            object.setScale(0.1);
+            if (objectType === 'avoidable') {
+                object.setScale(0.2);  // Larger scale for avoidable objects
+            } else {
+                object.setScale(0.2);  // Slightly smaller scale for collectible objects
+            }
         }
     }
 
@@ -414,6 +404,8 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop(); // Stop the background music
+        
         initiateGameOver.bind(this)(this.score, this.time.now * 0.001);
     }
 
@@ -421,6 +413,7 @@ class GameScene extends Phaser.Scene {
         handlePauseGame.bind(this)();
     }
 }
+
 
 function displayProgressLoader() {
     let width = 320;
@@ -459,15 +452,17 @@ function displayProgressLoader() {
     });
 }
 
+
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     pixelArt: true,
     physics: {
@@ -478,9 +473,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: false
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };

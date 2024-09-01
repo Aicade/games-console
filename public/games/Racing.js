@@ -1,35 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "enemy": "enemy",
-    "collectible": "collectible",
-    "avoidable": "avoidable",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-};
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
-const title = "Car Racing";
-const description = "Highway racing";
-const instructions = "Dodge against the cars";
 var isMobile = false;
 
 // Touuch Screen Controls
@@ -48,7 +16,7 @@ class GameScene extends Phaser.Scene {
         super({ key: 'GameScene' });
         this.trackWidth = 500;
         this.borderStripWidth = 10;
-        this.playerStep = 10;
+        this.playerStep = 5;
         this.enemies = [];
         this.enemySpeeds = {
             normal: 2,
@@ -73,12 +41,12 @@ class GameScene extends Phaser.Scene {
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -95,7 +63,7 @@ class GameScene extends Phaser.Scene {
         isMobile = !this.sys.game.device.os.desktop;
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -166,8 +134,8 @@ class GameScene extends Phaser.Scene {
 
         // Draw the alternating red and white border stripes
         this.drawBorder();
-        this.player = this.physics.add.sprite(this.scale.width / 2, this.scale.height - 190, 'player').setScale(0.09);
-        this.police = this.physics.add.sprite(this.scale.width / 2, this.scale.height - 40, 'avoidable').setScale(0.09).setDepth(1);
+        this.player = this.physics.add.sprite(this.scale.width / 2, this.scale.height - 190, 'player').setScale(0.18);
+        this.police = this.physics.add.sprite(this.scale.width / 2, this.scale.height - 40, 'avoidable').setScale(0.18).setDepth(1);
 
         // Input handling for left and right arrows
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -334,7 +302,7 @@ class GameScene extends Phaser.Scene {
         const speeds = Object.values(this.enemySpeeds);
         const speed = speeds[Phaser.Math.Between(0, speeds.length - 1)];
         const enemy = this.enemies.create(xPosition, -50, 'enemy');
-        enemy.setScale(0.09);
+        enemy.setScale(0.18);
         enemy.setData('speed', speed);
     }
 
@@ -343,7 +311,7 @@ class GameScene extends Phaser.Scene {
 
         const xPosition = Phaser.Math.Between((this.scale.width - this.trackWidth) / 2, this.scale.width - (this.scale.width - this.trackWidth) / 2);
         const powerUp = this.powerUps.create(xPosition, -50, 'collectible');
-        powerUp.setScale(.1); // Scale if necessary
+        powerUp.setScale(.2); // Scale if necessary
 
         this.tweens.add({
             targets: powerUp,
@@ -397,7 +365,7 @@ class GameScene extends Phaser.Scene {
         this.isGameOver = true;
         this.physics.pause();
         this.player.destroy();
-        this.score = 0;
+        //this.score = 0;
         this.vfx.shakeCamera();
 
         let gameOverText = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY - 200, 'pixelfont', 'Game Over', 64)
@@ -440,6 +408,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop();
         initiateGameOver.bind(this)({
             score: this.score
         });
@@ -489,12 +458,13 @@ function displayProgressLoader() {
 
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     pixelArt: true,
     physics: {
@@ -505,9 +475,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true,
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };

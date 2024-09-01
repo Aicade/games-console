@@ -1,39 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "enemy": "enemy",
-};
-
-let soundsLoader = {
-    "background": "background",
-    'upgrade': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3',
-    'stretch': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/stretch.mp3',
-    'shoot': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3',
-    'collect': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3',
-};
-
-const title = `Angry Birds`
-const description = `Aim and throw your character at targets with increasing difficulty to score the highest points possible.`
-const instructions =
-    `Instructions:
-  1. Click, hold, and drag to aim.
-  2. Release to shoot.
-  3. Destroy all obstacles.
-  4. You have 3 lives.`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-const orientation = "landscape";
-
 class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
@@ -46,12 +10,12 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         this.lives = 3;
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        //  her we have to make change
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image("platform", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Glass/s2+Glass+03.png")
@@ -72,7 +36,7 @@ class GameScene extends Phaser.Scene {
         this.physics.world.setFPS(120);
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -187,7 +151,7 @@ class GameScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(256, this.ground.y - this.ground.displayHeight - 100, 'player');
         this.player.body.setDragX(200);
         this.player.setOrigin(0.5);
-        this.player.setScale(0.08);
+        this.player.setScale(0.22);
         this.player.setMass(2);
     }
 
@@ -275,7 +239,7 @@ class GameScene extends Phaser.Scene {
         }
 
         box.body.setBounce(0.5);
-        box.setScale(0.08);
+        box.setScale(0.24);
         box.checkWorldBounds = true;
         box.outOfBoundsKill = true;
     }
@@ -290,6 +254,7 @@ class GameScene extends Phaser.Scene {
         // vely = vely * -1;
         let movevelocity = new Phaser.Math.Vector2(velx, vely);
         this.player.body.velocity = movevelocity.normalize().scale(1000);
+        
     }
 
     updateScore(points) {
@@ -311,6 +276,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop();
         initiateGameOver.bind(this)({
             "score": this.score
         });
@@ -360,12 +326,13 @@ function displayProgressLoader() {
 
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     pixelArt: true,
     physics: {
@@ -375,10 +342,10 @@ const config = {
             debug: false,
         },
     },
-    orientation: true,
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
+    orientation: _CONFIG.deviceOrientation==="landscape"
 };

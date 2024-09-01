@@ -1,46 +1,6 @@
-let assetsLoader = {
-  "background": "background",
-  "player": "player",
-  "enemy": "enemy",
-  "platform": "platform",
-  "collectible": "collectible",
-};
-
-let soundsLoader = {
-  "background": "background",
-  "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
-  "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
-  "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
-  "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
-  "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav"
-};
-
-// Custom UI Elements
-const title = `ENDLESS JUMPER`
-const description = `Jump and dodge the enemies. Set high score.`
-const instructions =
-  `Instructions:
-1. Use left right arrow keys to move player
-2. Use up arrow key to jump`;
-
-
 // Custom Font Colors
 const globalPrimaryFontColor = "#FFF";
 const globalSecondaryFontColor = "#0F0"
-
-const orientationSizes = {
-  "landscape": {
-    "width": 1280,
-    "height": 720,
-  },
-  "portrait": {
-    "width": 720,
-    "height": 1280,
-  }
-}
-
-// Game Orientation
-const orientation = "portrait";
 
 // Touuch Screen Controls
 const joystickEnabled = true;
@@ -66,12 +26,12 @@ class GameScene extends Phaser.Scene {
     this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
 
     // Load In-Game Assets from assetsLoader
-    for (const key in assetsLoader) {
-      this.load.image(key, assetsLoader[key]);
+    for (const key in _CONFIG.imageLoader) {
+      this.load.image(key, _CONFIG.imageLoader[key]);
     }
 
-    for (const key in soundsLoader) {
-      this.load.audio(key, [soundsLoader[key]]);
+    for (const key in _CONFIG.soundsLoader) {
+      this.load.audio(key, [_CONFIG.soundsLoader[key]]);
     }
 
     this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
@@ -86,7 +46,7 @@ class GameScene extends Phaser.Scene {
   create() {
 
     this.sounds = {};
-    for (const key in soundsLoader) {
+    for (const key in _CONFIG.soundsLoader) {
       this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
     }
 
@@ -221,12 +181,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
   type: Phaser.AUTO,
-  width: orientationSizes[orientation].width,
-  height: orientationSizes[orientation].height,
+  width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+  height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
   scene: [GameScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    orientation: Phaser.Scale.Orientation.PORTRAIT
   },
   pixelArt: true,
   physics: {
@@ -237,11 +198,11 @@ const config = {
     },
   },
   dataObject: {
-    name: title,
-    description: description,
-    instructions: instructions,
-  },
-  orientation: false
+    name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
+    },
+    deviceOrientation: _CONFIG.deviceOrientation==="portrait"
 };
 
 let PLAYER_SPEED = 600;
@@ -265,7 +226,7 @@ function gameSceneCreate(game) {
   game.physics.world.bounds.setTo(0, 0, game.game.config.width, game.game.height + 2000);
   game.physics.world.setBoundsCollision(true, true, false, true);
 
-  game.player = game.physics.add.sprite(400, game.game.config.height - 200, 'player').setScale(0.13);
+  game.player = game.physics.add.sprite(400, game.game.config.height - 200, 'player').setScale(0.25);
   game.player.setBounce(0.1).setDepth(11);
   game.player.body.setSize(game.player.body.width / 1.5, game.player.body.height);
 
@@ -283,13 +244,13 @@ function gameSceneCreate(game) {
   game.cursors = game.input.keyboard.createCursorKeys();
 
   game.platforms = game.physics.add.staticGroup();
-  let platform = game.platforms.create(400, game.game.config.height - 32, 'platform').setScale(0.3, 0.02).refreshBody();
+  let platform = game.platforms.create(400, game.game.config.height - 32, 'platform').setScale(0.45, 0.03).refreshBody();
 
   let totalPlatforms = 750;
   for (let i = 0; i < totalPlatforms; i++) {
     let x = Phaser.Math.Between(game.game.config.width * 0.2, game.game.config.width * 0.9);
     let y = game.game.config.height - 270 * (i + 1);
-    let nextPlats = game.platforms.create(x, y, 'platform').setScale(0.3, 0.03).refreshBody();
+    let nextPlats = game.platforms.create(x, y, 'platform').setScale(0.45, 0.03).refreshBody();
 
     nextPlats.body.checkCollision.down = false;
     nextPlats.body.checkCollision.left = false;
@@ -298,7 +259,7 @@ function gameSceneCreate(game) {
     if (i === totalPlatforms - 1) {
 
       game.finisjText = game.add.bitmapText(game.width / 1.8, y - 250, 'pixelfont', 'FINISH', 35).setTint(0x00ff00).setOrigin(0.5).setDepth(11);
-      let lastPlat = game.platforms.create(0, y - 150, 'platform').setScale(0.3, 0.07).setOrigin(0).setTint(0x00ff00);
+      let lastPlat = game.platforms.create(0, y - 150, 'platform').setScale(0.45, 0.03).setOrigin(0).setTint(0x00ff00);
       lastPlat.displayWidth = game.width + 250;
       lastPlat.refreshBody();
       game.physics.add.collider(game.player, lastPlat, () => {
@@ -392,7 +353,7 @@ function spawnEnemy(game) {
   let x = Phaser.Math.Between(0, game.game.config.width);
   let y = game.player.y - 500;
 
-  let enemy = game.enemies.create(x, y, 'enemy').setScale(.06);
+  let enemy = game.enemies.create(x, y, 'enemy').setScale(.12);
   enemy.body.setSize(enemy.body.width / 1.3, enemy.body.height / 1.3);
   enemy.setVelocityX(side === 0 ? 250 : -250);
   enemy.setGravityY(10);
@@ -417,7 +378,7 @@ function collectPowerUp(player, powerUp) {
 function spawnPowerUp() {
   let x = Phaser.Math.Between(100, this.width - 100);
   let y = this.player.y - 400;
-  let powerUp = this.powerUps.create(x, y, 'collectible').setScale(.11);
+  let powerUp = this.powerUps.create(x, y, 'collectible').setScale(.25);
 }
 
 function onPlayerEnemyCollision(player, enemy) {

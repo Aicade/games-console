@@ -1,39 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "collectible": "collectible"
-};
-
-let soundsLoader = {
-    "background": "background",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-    "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3",
-};
-
-// Custom UI Elements
-const title = `Swing Mania`
-const description = `Swing and collect items before time runs out`
-const instructions =
-    `Instructions:
-  1. Tap near a hinge to swing from it.
-  2. Collect items to reset the timer.`;
-
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "portrait";
-
-// Touuch Screen Controls
 const joystickEnabled = false;
 const buttonEnabled = false;
 
@@ -70,12 +34,12 @@ class GameScene extends Phaser.Scene {
         this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
 
         // Load In-Game Assets from assetsLoader
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         addEventListenersPhaser.bind(this)();
@@ -98,7 +62,7 @@ class GameScene extends Phaser.Scene {
         this.vfx = new VFXLibrary(this);
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -154,7 +118,7 @@ class GameScene extends Phaser.Scene {
 
         this.matter.world.setBounds(0, 0, config.width, config.height);
 
-        this.player = this.matter.add.image(400, 100, 'player', null, { shape: 'circle' }).setScale(0.1);
+        this.player = this.matter.add.image(400, 100, 'player', null, { shape: 'circle' }).setScale(0.2);
 
         this.currentRope = null;
 
@@ -246,7 +210,7 @@ class GameScene extends Phaser.Scene {
             shape: 'circle',
             isStatic: true,
             isSensor: true,
-        }).setScale(0.1);
+        }).setScale(0.2);
     }
 
     drawRope(x1, y1, x2, y2) {
@@ -362,12 +326,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.PORTRAIT
     },
     pixelArt: true,
     physics: {
@@ -378,9 +343,9 @@ const config = {
         }
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: false,
+    deviceOrientation: _CONFIG.deviceOrientation==="portrait"
 };

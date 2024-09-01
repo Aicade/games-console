@@ -1,39 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "projectile": "projectile",
-    "enemy": "enemy",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "blast": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3",
-    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3",
-    "upgrade": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3",
-};
-
-// Custom UI Elements
-const title = `Ball Blast`
-const description = `Shoot the enemies falling from the sky`
-const instructions =
-    `Instructions:
-  1. Use arrow keys OR joystick to move.
-  2. Use Spacebar/button to shoot.`;
-
-// Game Orientation
-const orientation = "portrait";
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
 // Touuch Screen Controls
 const joystickEnabled = true;
 const buttonEnabled = true;
@@ -59,12 +23,12 @@ class GameScene extends Phaser.Scene {
 
         addEventListenersPhaser.bind(this)();
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image("platform", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Glass/s2+Glass+03.png")
@@ -81,9 +45,14 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+        gameScore = 0;
+        gameLevel = 1;
+        levelThreshold = 50;
+        velocityX = 100;
+        velocityY = 250;
         this.sounds = {};
-        for (const key in soundsLoader) {
-            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
+        for (const key in _CONFIG.soundsLoader) {
+            this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.6 });
         }
 
         this.width = this.game.config.width;
@@ -94,7 +63,7 @@ class GameScene extends Phaser.Scene {
         this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
         const scale = Math.max(this.width / this.bg.displayWidth, this.height / this.bg.displayHeight);
         this.bg.setScale(scale);
-        this.sounds.background.setVolume(1.5).setLoop(true).play();
+        this.sounds.background.setVolume(1.7).setLoop(true).play();
 
         // Add input listeners
         this.input.keyboard.on('keydown-ESC', () => this.pauseGame());
@@ -151,7 +120,7 @@ class GameScene extends Phaser.Scene {
 
         let pivotDiffY = (this.platform.displayHeight - this.platform.height) * -0.5;
 
-        this.player = this.physics.add.image(centerX, this.height - this.platform.height + 80, 'player').setScale(0.15);
+        this.player = this.physics.add.image(centerX, this.height - this.platform.height + 80, 'player').setScale(0.24);
         this.player.setCollideWorldBounds(true);
 
         this.bullets = this.physics.add.group();
@@ -161,10 +130,14 @@ class GameScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.physics.add.collider(this.player, this.enemies, (player, enemy) => {
             this.gameOver();
+            //loose sound
+            if (this.sounds && this.sounds.lose) {
+                this.sounds.lose.setVolume(0.5).setLoop(false).play();
+            }
         });
         this.physics.add.collider(this.platform, this.enemies);
         this.physics.add.collider(this.bullets, this.enemies, (bullet, enemy) => {
-            this.sounds.blast.setVolume(0.1).setLoop(false).play();
+            this.sounds.blast.setVolume(0.12).setLoop(false).play();
 
             this.vfx.createEmitter('enemy', enemy.x, enemy.y, 0, 0.03, 400).explode(50);
             if (enemy.level != 1) {
@@ -233,7 +206,7 @@ class GameScene extends Phaser.Scene {
         let rand = Math.floor(Math.random() * 2);
         let spawnX = rand == 0 ? 50 : this.game.config.width - 50;
 
-        var enemy = this.enemies.create(spawnX, 200, 'enemy').setScale(0.1 * gameLevel);
+        var enemy = this.enemies.create(spawnX, 200, 'enemy').setScale(0.2 * gameLevel);
         enemy.setBounce(0.9);
         enemy.setCollideWorldBounds(true);
         enemy.setGravity(0, 200);
@@ -247,7 +220,7 @@ class GameScene extends Phaser.Scene {
     fireBullet() {
         this.sounds.shoot.setVolume(0.1).setLoop(false).play();
 
-        var bullet = this.bullets.create(this.player.x, this.player.y, 'projectile').setScale(.05);
+        var bullet = this.bullets.create(this.player.x, this.player.y, 'projectile').setScale(.1);
         bullet.setVelocityY(-1000);
         var bulletDestroyTimer = this.time.addEvent({
             delay: 10000,
@@ -279,9 +252,11 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop();
         initiateGameOver.bind(this)({
             "score": gameScore
         });
+         
     }
 
     pauseGame() {
@@ -334,12 +309,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.PORTRAIT
     },
     pixelArt: true,
     physics: {
@@ -349,12 +325,13 @@ const config = {
             debug: false,
         },
     },
-    orientation: false,
+    
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
+    deviceOrientation: _CONFIG.deviceOrientation==="portrait"
 };
 
 let gameScore = 0;

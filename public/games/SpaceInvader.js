@@ -1,39 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "enemy": "enemy",
-    "projectile": "projectile"
-};
-
-let soundsLoader = {
-    "background": "background",
-    'destroy': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3',
-    'shoot': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3',
-    'upgrade': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3',
-};
-
-// Custom UI Elements
-const title = `Space Drive`
-const description = `A thrilling tap-to-destroy game where quick reflexes are \n key to defeating waves of unique enemies`
-const instructions =
-    `Instructions:
-1. Use arrow keys OR joystick to move.
-2. Use Spacebar/button to shoot.`;
-
-// Game Orientation
-const orientation = "landscape";
-var isMobile = false;
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
 // Touuch Screen Controls
 const joystickEnabled = true;
 const buttonEnabled = true;
@@ -52,19 +16,20 @@ const rexButtonUrl = "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-n
 class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
-        this.score = 0;
+        //this.score = 0;
+        this.isMobile = false;
     }
 
     preload() {
 
         addEventListenersPhaser.bind(this)();
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -88,7 +53,7 @@ class GameScene extends Phaser.Scene {
         spawnDelayDecrease = 400;
         velocityX = 100;
 
-        isMobile = !this.sys.game.device.os.desktop;
+        let isMobile = !this.sys.game.device.os.desktop;
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
@@ -96,7 +61,7 @@ class GameScene extends Phaser.Scene {
         this.vfx = new VFXLibrary(this);
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -150,7 +115,7 @@ class GameScene extends Phaser.Scene {
         const centerX = this.game.config.width / 2;
         const centerY = this.game.config.height / 2;
 
-        this.player = this.physics.add.image(centerX, centerY + 250, 'player').setScale(0.1);
+        this.player = this.physics.add.image(centerX, centerY + 300, 'player').setScale(0.2);
         this.player.setCollideWorldBounds(true);
 
         // // Bullets
@@ -188,6 +153,7 @@ class GameScene extends Phaser.Scene {
         enemies = this.physics.add.group();
         this.toggleControlsVisibility(isMobile);
     }
+    
 
     toggleControlsVisibility(visibility) {
         this.joyStick.base.visible = visibility;
@@ -243,14 +209,14 @@ class GameScene extends Phaser.Scene {
         var numEnemies = Phaser.Math.Between(1, 5);
         for (var i = 0; i < numEnemies; i++) {
             var x = startX + i * (enemyWidth + spacing);
-            var enemy = this.enemies.create(x, -50, 'enemy').setScale(.1);
+            var enemy = this.enemies.create(x, -50, 'enemy').setScale(.2);
             enemy.setVelocityY(velocityX);
         }
     }
 
     fireBullet() {
         this.sounds.shoot.play();
-        var bullet = this.bullets.create(this.player.x, this.player.y, 'projectile').setScale(.04);
+        var bullet = this.bullets.create(this.player.x, this.player.y, 'projectile').setScale(.08);
         bullet.setVelocityY(-300);
         var bulletDestroyTimer = this.time.addEvent({
             delay: 10000, // 10 seconds in milliseconds
@@ -262,10 +228,10 @@ class GameScene extends Phaser.Scene {
         });
     }
 
-    updateScore(points) {
-        this.score += points;
-        this.updateScoreText();
-    }
+    // updateScore(points) {
+    //     this.score += points;
+    //     this.updateScoreText();
+    // }
 
     increaseScore(points) {
         gameScore += points;
@@ -273,9 +239,9 @@ class GameScene extends Phaser.Scene {
         this.updateGameLevel(); // This will potentially update the level
     }
 
-    updateScoreText() {
-        this.children.getChildren()[0].setText(`Score: ${this.score}`);
-    }
+    // updateScoreText() {
+    //     this.children.getChildren()[0].setText(`Score: ${this.score}`);
+    // }
 
     updateScoreText() {
 
@@ -287,8 +253,9 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sounds.background.stop()
         initiateGameOver.bind(this)({
-            "score": this.score
+            "score": gameScore
         });
     }
 
@@ -342,12 +309,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     pixelArt: true,
     physics: {
@@ -357,12 +325,13 @@ const config = {
             debug: false,
         },
     },
-    orientation: true,
+    
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };
 
 let gameScore = 0;

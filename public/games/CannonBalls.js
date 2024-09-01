@@ -1,42 +1,7 @@
-let assetsLoader = {
-  "background": "background",
-  "player": "player",
-  "platform": "platform",
-  "enemy": "enemy",
-};
+// // Custom Font Colors
+ const globalPrimaryFontColor = "#FFF";
+ const globalSecondaryFontColor = "#0F0"
 
-let soundsLoader = {
-  "background": "background",
-  "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-  "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3"
-};
-
-// Custom UI Elements
-const title = `Cannon Ball`
-const description = `In Berlin Wall Breaker, players take control of a cannon to aim and shoot at the right time to break down the Berlin Wall. The gameplay is focused on precision and timing to progress through the levels.`
-const instructions =
-  `Instructions:
-1. Tap to shoot.
-2. Destroy all obstacles.`;
-
-
-// Custom Font Colors
-const globalPrimaryFontColor = "#FFF";
-const globalSecondaryFontColor = "#0F0"
-
-const orientationSizes = {
-  "landscape": {
-    "width": 1280,
-    "height": 720,
-  },
-  "portrait": {
-    "width": 720,
-    "height": 1280,
-  }
-}
-
-// Game Orientation
-const orientation = "portrait";
 
 // Touuch Screen Controls
 const joystickEnabled = false;
@@ -71,12 +36,12 @@ class GameScene extends Phaser.Scene {
 
 
     // Load In-Game Assets from assetsLoader
-    for (const key in assetsLoader) {
-      this.load.image(key, assetsLoader[key]);
+    for (const key in _CONFIG.imageLoader) {
+      this.load.image(key, _CONFIG.imageLoader[key]);
     }
 
-    for (const key in soundsLoader) {
-      this.load.audio(key, [soundsLoader[key]]);
+    for (const key in _CONFIG.soundsLoader) {
+      this.load.audio(key, [_CONFIG.soundsLoader[key]]);
     }
 
 
@@ -92,7 +57,7 @@ class GameScene extends Phaser.Scene {
   create() {
 
     this.sounds = {};
-    for (const key in soundsLoader) {
+    for (const key in _CONFIG.soundsLoader) {
       this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
     }
 
@@ -175,6 +140,7 @@ class GameScene extends Phaser.Scene {
   }
 
   gameOver() {
+    this.sounds.background.stop();
     initiateGameOver.bind(this)({ score: this.score });
   }
 
@@ -229,12 +195,13 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
   type: Phaser.AUTO,
-  width: orientationSizes[orientation].width,
-  height: orientationSizes[orientation].height,
+  width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+  height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
   scene: [GameScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    orientation: Phaser.Scale.Orientation.PORTRAIT
   },
   pixelArt: true,
   physics: {
@@ -242,12 +209,13 @@ const config = {
 
   },
   dataObject: {
-    name: title,
-    description: description,
-    instructions: instructions,
+    name: _CONFIG.title,
+    description: _CONFIG.description,
+    instructions: _CONFIG.instructions,
   },
-  orientation: false,
+  deviceOrientation: _CONFIG.deviceOrientation==="portrait"
 };
+
 
 
 // GAME SCENE PHASER FUNCTIONS
@@ -259,9 +227,9 @@ function gameSceneCreate(game) {
   game.group1 = game.matter.world.nextGroup();
   game.group2 = game.matter.world.nextGroup(true);
 
-  let x = orientationSizes[orientation].width / 2;
-  let y = orientationSizes[orientation].height * 3 / 4;
-  game.ground = game.matter.add.sprite(x, y, 'platform', null, { ignoreGravity: true }).setDisplaySize(orientationSizes[orientation].width * 3 / 4, orientationSizes[orientation].width * 3 / 4);
+  let x = _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width / 2;
+  let y = _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height * 3 / 4;
+  game.ground = game.matter.add.sprite(x, y, 'platform', null, { ignoreGravity: true }).setDisplaySize(_CONFIG.orientationSizes[_CONFIG.deviceOrientation].width * 3 / 4, _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width * 3 / 4);
   game.ground.setStatic(true);
 
 
@@ -283,7 +251,7 @@ function gameSceneCreate(game) {
   });
 
   game.time.addEvent({
-    delay: 500,
+    delay: 100,
     callback: addObstacles,
     callbackScope: game,
     loop: false,
@@ -302,7 +270,6 @@ function gameSceneCreate(game) {
 
 //UPDATE FUNCTION FOR THE GAME SCENE
 function gameSceneUpdate(game) {
-
   let worldPoint = game.cameras.main.getWorldPoint(game.input.x, game.input.y);
   drawSniperScope(game, worldPoint.x, worldPoint.y);
 
@@ -316,37 +283,45 @@ function gameSceneUpdate(game) {
     }
   })
 
-  if (game.lives == 0) {
-    game.respawnTimer.remove();
-    this.sounds.lose.setVolume(0.5).setLoop(false).play();
-    game.time.delayedCall(2000, () => {
+  if (game.lives <= 0) {
+    game.lives = 0; // Ensure lives don't go below 0
+    game.updateLives(game.lives);
+    if (game.respawnTimer) {
+      game.respawnTimer.remove();
+    }
+    // Check if 'lose' sound exists before playing
+    if (game.sounds && game.sounds.lose) {
+      game.sounds.lose.setVolume(0.5).setLoop(false).play();
+    }
+    game.time.delayedCall(300, () => {
       game.gameOver();
-
-    })
+    });
   }
+
   if (game.boxesLeft == 0) {
     console.log("CLEARED");
-    game.respawnTimer.remove();
+    if (game.respawnTimer) {
+      game.respawnTimer.remove();
+    }
     game.lives = 3;
     game.updateLives(game.lives);
     game.boxesLeft = -1;
     game.time.addEvent({
-      delay: 500,
+      delay: 100,
       callback: addObstacles,
       callbackScope: game,
       loop: false,
       args: [game]
     });
     game.canShoot = true;
-    game.player.setPosition(orientationSizes[orientation].width / 2, 1000);
+    game.player.setPosition(_CONFIG.orientationSizes[_CONFIG.deviceOrientation].width / 2, 1000);
     game.player.setVelocity(0, 0);
     game.player.setStatic(true);
   }
 }
-
 function createPlayer(game) {
 
-  game.player = game.matter.add.sprite(orientationSizes[orientation].width / 2, 1000, 'player', { shape: 'circle', mass: 10, ignoreGravity: true }).setScale(0.1, 0.1);
+  game.player = game.matter.add.sprite(_CONFIG.orientationSizes[_CONFIG.deviceOrientation].width / 2, 1000, 'player', { shape: 'circle', mass: 10, ignoreGravity: true }).setScale(0.22, 0.22);
 
   game.player.label = 'player';
   game.player.setOrigin(0.5);
@@ -376,7 +351,8 @@ function release(pointer) {
       this.canShoot = true;
       this.lives--;
       this.updateLives(this.lives);
-      this.player.setPosition(orientationSizes[orientation].width / 2, 1000);
+      
+      this.player.setPosition(_CONFIG.orientationSizes[_CONFIG.deviceOrientation].width / 2, 1000);
       this.player.setVelocity(0, 0);
       this.player.setStatic(true);
 
@@ -413,7 +389,7 @@ function addObstacles(game) {
 
   for (var i = 0; i < x; i++) {
     for (var j = 0; j < y; j++) {
-      let xPosition = (orientationSizes[orientation].width / 2 - x / 2 * 45) + i * 70
+      let xPosition = (_CONFIG.orientationSizes[_CONFIG.deviceOrientation].width / 2 - x / 2 * 45) + i * 70
       let yPosition = 550 - (j + 1) * 70;
       addBox(game, xPosition, yPosition);
     }
@@ -427,7 +403,7 @@ function addBox(game, x, y) {
   game.boxes.push(box);
   box.label = 'box';
 
-  box.setDisplaySize(64, 64);
+  box.setDisplaySize(70, 70);
 
   box.setOnCollideWith(game.player, pair => {
     box.setCollisionGroup(game.group2);

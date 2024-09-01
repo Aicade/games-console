@@ -1,40 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "avoidable": "avoidable",
-    "platform": "platform"
-};
-
-let soundsLoader = {
-    "background": "background",
-    'jump': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3',
-    'damage': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav',
-    'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3',
-    'countdown': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/countdown_1.mp3',
-};
-
-// Custom UI Elements
-const title = `Dino Runner`
-const description = `A horizontal side-scroller running game`
-const instructions =
-    `Instructions:
-  1. Press Space/Tap to jump
-  2. Avoid obstacles`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
-
 /*
 ------------------- GLOBAL CODE STARTS HERE -------------------
 */
@@ -47,12 +10,12 @@ class GameScene extends Phaser.Scene {
 
     preload() {
         this.score = 0;
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
 
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
@@ -82,7 +45,7 @@ class GameScene extends Phaser.Scene {
         }
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
@@ -124,7 +87,7 @@ class GameScene extends Phaser.Scene {
 
 
         this.player = this.physics.add.sprite(this.width * 0.2, this.height * 0.6, 'player');
-        this.player.setOrigin(0.5).setScale(0.12);
+        this.player.setOrigin(0.5).setScale(0.2);
         const fx = this.player.preFX.addBarrel(0.95);
 
         this.tweens.add({
@@ -215,6 +178,7 @@ class GameScene extends Phaser.Scene {
             this.stompEffect = true;
             this.player.body.velocity.y = -650;
             this.player.setAngularVelocity(280);
+            
             this.instructionText.setAlpha(0);
         }
     }
@@ -241,7 +205,7 @@ class GameScene extends Phaser.Scene {
         }
         box.body.setSize(box.width * 0.8, box.height * 0.8);
 
-        box.setScale(0.09);
+        box.setScale(2*0.09);
         box.body.velocity.x = this.tileVelocity / 10;
         box.body.width *= 0.5;
         box.checkWorldBounds = true;
@@ -249,6 +213,10 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOverWithEffects(player, boxes) {
+        if (this.lives <= 0) {
+            // Player is already dead, don't process further collisions
+            return;
+        }
         this.lives--;
         this.hearts[this.lives].destroy();
 
@@ -323,17 +291,15 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
+        orientation: Phaser.Scale.Orientation.LANDSCAPE
     },
     pixelArt: true,
-    /*
-    ADD CUSTOM CONFIG ELEMENTS HERE
-    */
     physics: {
         default: 'arcade',
         arcade: {
@@ -342,9 +308,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true,
+    deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };
