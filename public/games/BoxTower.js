@@ -1,32 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player"
-};
-
-let soundsLoader = {
-    "background": "background",
-    'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3',
-    'collect': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_2.mp3',
-};
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-const title = "Stack Blocks";
-const description = "Stack as much as you can";
-const instructions = "Tap to release";
-
-// Game Orientation
-const orientation = "portrait";
-
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -39,12 +10,11 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
         addEventListenersPhaser.bind(this)();
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
@@ -86,11 +56,11 @@ class GameScene extends Phaser.Scene {
 
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
 
-        this.sounds.background.setVolume(3).setLoop(true).play();
+        this.sounds.background.setVolume(1).setLoop(true).play();
 
         this.groundObj = this.add.image(this.width / 2, this.height, 'pillar');
 
@@ -155,7 +125,7 @@ class GameScene extends Phaser.Scene {
     addMovingObject() {
         this.movingBlock = this.matter.add.image(100, 100, 'player', null, {
             isStatic: true
-        }).setScale(0.15).setDepth(12);
+        }).setScale(0.3).setDepth(12);
         this.vfx.scaleGameObject(this.movingBlock, .9, 500);
         const scaleFactorX = 0.8 * 0.15;
         const scaleFactorY = 0.8 * 0.15;
@@ -197,7 +167,7 @@ class GameScene extends Phaser.Scene {
             const y = this.movingBlock.y + this.movingBlock.displayHeight + 50;
             this.block = this.matter.add.image(x, y, 'player', null, {
                 isStatic: false
-            }).setScale(0.15);
+            }).setScale(0.3);
             // this.block.setBounce(0);
             const scaleFactorX = 0.5 * 0.3;
             const scaleFactorY = 0.8 * 0.15;
@@ -313,25 +283,26 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "matter",
-        arcade: {
-            gravity: { y: .1 },
+        matter: {
+            gravity: { y: .5 },
             debug: false,
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: false,
-}
+    orientation: _CONFIG.deviceOrientation === "portrait"
+};
