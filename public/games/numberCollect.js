@@ -1,38 +1,5 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "collectible": "collectible",
-    "avoidable": "avoidable"
-};
 
-let soundsLoader = {
-    "background": "background",
-    'collect': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_2.mp3',
-    'destroy': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/blast.mp3',
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3"
-};
-
-// Custom UI Elements
-const title = `Space Drive`
-const description = `A thrilling tap-to-destroy game where quick reflexes are \n key to defeating waves of unique enemies`
-const instructions =
-    `Instructions:
-1. Use arrow keys OR joystick to move.
-2. Use Spacebar/button to shoot.`;
-
-// Game Orientation
-const orientation = "landscape";
 var isMobile = false;
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
 
 // Touuch Screen Controls
 const joystickEnabled = true;
@@ -55,13 +22,11 @@ class GameScene extends Phaser.Scene {
     preload() {
 
         addEventListenersPhaser.bind(this)();
-
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
 
@@ -85,10 +50,9 @@ class GameScene extends Phaser.Scene {
         this.vfx = new VFXLibrary(this);
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
-
         this.sounds.background.setVolume(3).setLoop(true).play();
 
         this.bg = this.add.image(this.game.config.width / 2, this.game.config.height / 2, "background").setOrigin(0.5);
@@ -112,12 +76,12 @@ class GameScene extends Phaser.Scene {
 
         this.scoreText = this.add.bitmapText(this.width / 2 - 40, 45, 'pixelfont', this.score, 80).setOrigin(0.5, 0.5).setTint(0x00ff00);
         this.scoreText.setDepth(10);
-        
+
         this.startText = this.add.bitmapText(this.width / 2, this.height / 2 - 90, 'pixelfont', 'Collect all the Prime numbers\n& avoid other numbers.', 40).setOrigin(0.5).setDepth(11).setCenterAlign();
-        
+
         this.startText2 = this.add.bitmapText(this.width / 2, this.height / 2 + 30, 'pixelfont', 'Start Game >>', 40).setOrigin(0.5).setDepth(11).setTint(0x00ff00).setCenterAlign();
         this.startText2.setInteractive({ cursor: 'pointer' });
-        this.startText2.on('pointerdown', ()=> {
+        this.startText2.on('pointerdown', () => {
             this.startClockTimer();
             this.startEggDrop();
             this.startText.destroy();
@@ -259,7 +223,7 @@ class GameScene extends Phaser.Scene {
 
     hitAvoidable(avoidable) {
         avoidable.destroy();
-        
+
         this.scorePointAnim(true, "-5");
         this.updateScore(-5);
         this.vfx.shakeCamera(400, .009);
@@ -270,7 +234,7 @@ class GameScene extends Phaser.Scene {
         let dx = this.player.x - 30;
         let dy = this.player.y - 80;
         let scoreText = this.add.bitmapText(dx, dy, 'pixelfont', text, 45);
-        if(damage){
+        if (damage) {
             scoreText.setTint(0xff0000);
         } else {
             scoreText.setTint(0x00ff00);
@@ -305,7 +269,7 @@ class GameScene extends Phaser.Scene {
             this.clockText.setDepth(11).setTint(0xffffff);
         }
         if (this.roundTime - this.timeElapsed <= 0) {
-            
+
             this.timeElapsed = 0;
             this.time.delayedCall(100, () => {
                 this.isGameOver = true;
@@ -426,14 +390,15 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "arcade",
         arcade: {
@@ -441,10 +406,10 @@ const config = {
             debug: false,
         },
     },
-    orientation: false,
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
+    orientation: _CONFIG.deviceOrientation === "portrait"
 };
