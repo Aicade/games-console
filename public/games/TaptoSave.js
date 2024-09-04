@@ -1,38 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "collectible": "collectible"
-};
-
-let soundsLoader = {
-    "background": "background",
-    "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
-};
-
-// Custom UI Elements
-const title = `Tap to save`
-const description = `Reflex based game`
-const instructions =
-    `Instructions:
-  1. Destroy enemies before they reach the end of the screen.
-  2. Tap on them to destroy them.`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
-
 // Touuch Screen Controls
 const joystickEnabled = false;
 const buttonEnabled = false;
@@ -105,7 +70,7 @@ function gameSceneUpdate(game) {
 }
 function spawnEnemy(game) {
     const enemyX = Phaser.Math.Between(0, game.game.config.width);
-    const enemy = enemies.create(enemyX, 0, 'collectible').setScale(0.2, 0.2);
+    const enemy = enemies.create(enemyX, 0, 'collectible').setScale(0.4, 0.4);
     enemy.setVelocityY(enemySpeed);
 
     enemy.setInteractive().on('pointerdown', () => {
@@ -180,12 +145,11 @@ class GameScene extends Phaser.Scene {
         this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
 
         // Load In-Game Assets from assetsLoader
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         // gameScenePreload(this);
@@ -202,9 +166,10 @@ class GameScene extends Phaser.Scene {
     create() {
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
+
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;
@@ -307,7 +272,7 @@ function displayProgressLoader() {
         progressBar.fillRect(x, y, width * value, height);
     });
     this.load.on('fileprogress', function (file) {
-         
+
     });
     this.load.on('complete', function () {
         progressBar.destroy();
@@ -320,14 +285,15 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     physics: {
         default: "arcade",
         arcade: {
@@ -336,9 +302,9 @@ const config = {
         },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
     },
-    orientation: true
-}
+    orientation: _CONFIG.deviceOrientation === "landscape"
+};
