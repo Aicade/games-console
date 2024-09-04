@@ -1,67 +1,19 @@
-let assetsLoader = {
-    "background": "background",
-    "platform": "platform",
-    "collectible_1": "collectible_1",
-    "collectible_2": "collectible_2",
-    "collectible_3": "collectible_3",
-    "collectible_4": "enemy",
-    "collectible_5": "collectible",
-    "collectible_6": "projectile",
-};
-
-let soundsLoader = {
-    "background": "background",
-    'click': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3',
-    "spawn": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
-    'damage': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav',
-    'lose': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3',
-    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_2.mp3",
-    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
-};
-
-// Custom UI Elements
-const title = `CARD MEMORY`
-const description = `Memory game. 
-Memorize & match the symbols behind the cards.`
-const instructions =
-    `Instructions:
-    1. Click on the cards to open them.`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "landscape";
-
-/*
-------------------- GLOBAL CODE STARTS HERE -------------------
-*/
-
 // Game Scene
 class GameScene extends Phaser.Scene {
-    
+
     cardNames = ["collectible_1", "collectible_2", "collectible_3", "collectible_4", "collectible_5", "collectible_6"];
-    
+
     constructor() {
         super({ key: 'GameScene' });
     }
 
     preload() {
 
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
         }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
+        for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
         }
 
         this.load.image('heart', 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/heart.png');
@@ -82,16 +34,18 @@ class GameScene extends Phaser.Scene {
         this.score = 0;
 
         this.gridConfiguration = {
-            x: this.width*0.32,
-            y: this.height*0.28,
+            x: this.width * 0.32,
+            y: this.height * 0.28,
             paddingX: 60,
             paddingY: 60
         }
 
         this.sounds = {};
-        for (const key in soundsLoader) {
+
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
+
 
         this.bg = this.add.sprite(0, 0, 'background').setOrigin(0);
         const scale = Math.max(this.game.config.width / this.bg.displayWidth, this.game.config.height / this.bg.displayHeight);
@@ -182,10 +136,10 @@ class GameScene extends Phaser.Scene {
 
         // WinnerText and GameOverText
         const winnerText = this.add.bitmapText(this.width / 2, -1000, 'pixelfont', "YOU WON", 80).setOrigin(.5)
-            .setDepth(3).setTint(0x8c7ae6).setInteractive({cursor : "pointer"});
+            .setDepth(3).setTint(0x8c7ae6).setInteractive({ cursor: "pointer" });
 
-        const gameOverText = this.add.bitmapText(this.width / 2, -1000, 'pixelfont' ,"GAME OVER\nClick to restart", 50)
-            .setName("gameOverText").setDepth(3).setOrigin(.5).setTint(0xff0000).setInteractive({cursor : "pointer"});
+        const gameOverText = this.add.bitmapText(this.width / 2, -1000, 'pixelfont', "GAME OVER\nClick to restart", 50)
+            .setName("gameOverText").setDepth(3).setOrigin(.5).setTint(0xff0000).setInteractive({ cursor: "pointer" });
         gameOverText.align = 1;
 
         // Start lifes images
@@ -328,19 +282,19 @@ class GameScene extends Phaser.Scene {
         frontTexture,
         cardName
     }) => {
-    
+
         let isFlipping = false;
         const rotation = { y: 0 };
-    
+
         const backTexture = "platform";
-    
+
         const card = scene.add.plane(x, y, backTexture)
             .setName(cardName)
-            .setInteractive({ cursor: 'pointer' }).setScale(0.12);
+            .setInteractive({ cursor: 'pointer' }).setScale(0.3);
 
         // start with the card face down
         card.modelRotationY = 180;
-    
+
         const flipCard = (callbackComplete) => {
             if (isFlipping) {
                 return;
@@ -359,11 +313,11 @@ class GameScene extends Phaser.Scene {
                         tweens: [
                             {
                                 duration: 200,
-                                scale: 0.14,
+                                scale: 0.25,
                             },
                             {
                                 duration: 300,
-                                scale: 0.12
+                                scale: 0.3
                             },
                         ]
                     })
@@ -387,7 +341,7 @@ class GameScene extends Phaser.Scene {
                 }
             });
         }
-    
+
         const destroy = () => {
             scene.add.tween({
                 targets: [card],
@@ -399,7 +353,7 @@ class GameScene extends Phaser.Scene {
                 }
             })
         }
-    
+
         return {
             gameObject: card,
             flip: flipCard,
@@ -470,18 +424,26 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.deviceOrientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     pixelArt: true,
-    dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+    /* ADD CUSTOM CONFIG ELEMENTS HERE */
+    physics: {
+        default: "arcade",
+        arcade: {
+            gravity: { y: 0 },
+            debug: false,
+        },
     },
-    orientation: true
+    dataObject: {
+        name: _CONFIG.title,
+        description: _CONFIG.description,
+        instructions: _CONFIG.instructions,
+    },
+    orientation: _CONFIG.deviceOrientation === "landscape"
 };
