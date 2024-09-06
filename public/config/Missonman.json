@@ -1,0 +1,40 @@
+{
+    "description": "In Mission Men, navigate through 8 intense levels filled with challenging obstacles, testing your skills and strategy to reach the ultimate goal. Survive each mission to advance and conquer the game!",
+    "deviceOrientation": "landscape",
+    "imageLoader": {
+        "player": "player",
+        "key":"key",
+        "exit": "exit",
+        "circleSpike":"projectile",
+        "tiles":"tiles"
+    },
+    "instructions": "Use the arrow keys to move: left and right to dodge obstacles, up to jump, and spacebar for special actions. Master the controls to conquer each level!",
+    "orientationSizes": {
+        "landscape": {
+            "width": 1440,
+            "height": 960
+            
+        },
+        "portrait": {
+            "width": 960,
+            "height": 1440
+            
+        }
+    },
+    "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
+    "phaserVersion": "3.80.1",
+    "soundsLoader": {
+        "background": "background",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
+    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/damage_1.mp3",
+    "jump": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_1.mp3",
+    "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
+    "upgrade_1": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_1.mp3",
+    "upgrade_2": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3",
+    "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_3.mp3",
+    "shoot": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
+    "stretch": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3",
+    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav"
+    },
+    "title": "Missonman"
+  }
