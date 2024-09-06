@@ -1,5 +1,5 @@
 {
-    "description": "A thrilling shooting survival game.",
+    "description": "A thrilling shooting and survival game.",
     "deviceOrientation": "landscape",
     "imageLoader": {
         "background": "background",
