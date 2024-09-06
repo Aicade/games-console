@@ -1,0 +1,37 @@
+{
+    "description": "Memory game. Memorize & match the symbols behind the cards.",
+    "deviceOrientation": "landscape",
+    "imageLoader": {
+        "background": "background",
+        "platform": "platform",
+        "collectible_1": "collectible_1",
+        "collectible_2": "collectible_2",
+        "collectible_3": "collectible_3",
+        "collectible_4": "enemy",
+        "collectible_5": "collectible",
+        "collectible_6": "projectile"
+    },
+    "instructions": "Instructions: 1. Click on the cards to open them.",
+    "deviceOrientationSizes": {
+        "landscape": {
+            "height": 720,
+            "width": 1280
+        },
+        "portrait": {
+            "height": 1280,
+            "width": 720
+        }
+    },
+    "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
+    "phaserVersion": "3.80.1",
+    "soundsLoader": {
+        "background": "background",
+        "click": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3",
+        "spawn": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3",
+        "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/flap_1.wav",
+        "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3",
+        "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_2.mp3",
+        "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav"
+    },
+    "title": "CARD MEMORY"
+}

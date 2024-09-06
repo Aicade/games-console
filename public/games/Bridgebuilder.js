@@ -1,36 +1,3 @@
-let assetsLoader = {
-    "background": "background",
-    "player": "player",
-    "projectile": "projectile",
-};
-
-let soundsLoader = {
-    "background": "background",
-    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_2.mp3",
-    "damage": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_2.mp3",
-};
-
-const title = `Bridge Builder`
-const description = `Tap to create the bridges.`
-const instructions =
-    `Instructions:
-  1. Tap to strech.`;
-
-const orientationSizes = {
-    "landscape": {
-        "width": 1280,
-        "height": 720,
-    },
-    "portrait": {
-        "width": 720,
-        "height": 1280,
-    }
-}
-
-// Game Orientation
-const orientation = "portrait";
-
-
 // Touuch Screen Controls
 const joystickEnabled = false;
 const buttonEnabled = false;
@@ -53,13 +20,13 @@ class GameScene extends Phaser.Scene {
 
         if (joystickEnabled) this.load.plugin('rexvirtualjoystickplugin', rexJoystickUrl, true);
         if (buttonEnabled) this.load.plugin('rexbuttonplugin', rexButtonUrl, true);
-        for (const key in assetsLoader) {
-            this.load.image(key, assetsLoader[key]);
-        }
-
-        for (const key in soundsLoader) {
-            this.load.audio(key, [soundsLoader[key]]);
-        }
+        for (const key in _CONFIG.imageLoader) {
+            this.load.image(key, _CONFIG.imageLoader[key]);
+          }
+        
+          for (const key in _CONFIG.soundsLoader) {
+            this.load.audio(key, [_CONFIG.soundsLoader[key]]);
+          }
         this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
         this.load.image("pillar", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png");
 
@@ -73,7 +40,7 @@ class GameScene extends Phaser.Scene {
 
     create() {
         this.sounds = {};
-        for (const key in soundsLoader) {
+        for (const key in _CONFIG.soundsLoader) {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5 });
         }
         this.sounds.background.setVolume(8).setLoop(true).play();
@@ -176,7 +143,7 @@ class GameScene extends Phaser.Scene {
         // Original position and scale
         var originalX = this.platforms[this.mainPlatform].displayWidth - gameOptions.poleWidth;
         var originalY = this.game.config.height - gameOptions.platformHeight + 20;
-        var originalScale = 0.13;
+        var originalScale = 0.20;
 
         var decreaseAmount = 0.2 * originalX;
         var newX = originalX - decreaseAmount;
@@ -378,6 +345,7 @@ class GameScene extends Phaser.Scene {
     }
 
     gameOver() {
+        this.sound.stopAll();
         initiateGameOver.bind(this)({ score: this.score });
     }
 
@@ -428,29 +396,28 @@ function displayProgressLoader() {
 // Configuration object
 const config = {
     type: Phaser.AUTO,
-    width: orientationSizes[orientation].width,
-    height: orientationSizes[orientation].height,
+    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
     scene: [GameScene],
     scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH,
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    /* ADD CUSTOM CONFIG ELEMENTS HERE */
     pixelArt: true,
     physics: {
-        default: "arcade",
-        arcade: {
-            gravity: { y: 0 },
-            debug: false,
-        },
+      default: "arcade",
+      arcade: {
+        gravity: { y: 0 },
+        debug: false,
+      },
     },
     dataObject: {
-        name: title,
-        description: description,
-        instructions: instructions,
+      name: _CONFIG.title,
+      description: _CONFIG.description,
+      instructions: _CONFIG.instructions,
     },
-    orientation: false
-};
+    orientation: _CONFIG.deviceOrientation === "portrait" 
+  };
 
 let gameOptions = {
     platformGapRange: [200, 400],

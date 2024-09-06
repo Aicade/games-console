@@ -3,15 +3,11 @@
     "deviceOrientation": "landscape",
     "imageLoader": {
         "background": "background",
-        "collectible_3": "collectible_3",
         "collectible_1": "collectible_1",
-        "collectible_2": "collectible_2"
+        "collectible_2": "collectible_2",
+        "collectible_3": "collectible_3"
     },
-    "soundsLoader": {
-        "background": "background",
-        "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
-        "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3"
-    },
+    
     "instructions": "1. Match 3 of the same type to score points 2. Swipe to swap objects",
     "orientationSizes": {
         "landscape": {
@@ -25,5 +21,11 @@
     },
     "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
     "phaserVersion": "3.80.1",
+    "soundsLoader": {
+        "background": "background",
+        "collect": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3",
+        "move": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/jump_3.mp3"
+    },
     "title": "Slot Match"
 }
+
