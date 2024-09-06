@@ -47,6 +47,7 @@ const prodGamesList = [
     "TaptoSave",
     "TossTheCan",
     "TowerDefence(Arcade-shooting-health)",
+    "VillageGaurd",
     "Whack-a-Mole"
 ];
 
