@@ -48,13 +48,15 @@ const ProdGame = () => {
             const soundsUrl =
                 `/soundsList.js`
 
-      try {
-        const phaserScript = await fetch(phaserUrl);
-        const sdkScript = await fetch(sdkUrl);
-        const vfxScript = await fetch(vfxUrl);
-        const assetsScript = await fetch(assetsUrl);
-        const soundsScript = await fetch(soundsUrl);
-        const gameScript = await fetch(gameUrl);
+            try {
+                const phaserScript = await fetch(phaserUrl);
+                const sdkScript = await fetch(sdkUrl);
+                const vfxScript = await fetch(vfxUrl);
+                const assetsScript = await fetch(assetsUrl);
+                const soundsScript = await fetch(soundsUrl);
+                const gameScriptJson = await fetch(gameJson);
+                
+                const gameScript = await fetch(gameUrl);
 
                 const compiledScript =
                     (await phaserScript.text()) +
