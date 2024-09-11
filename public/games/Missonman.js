@@ -1,3 +1,43 @@
+<<<<<<< HEAD
+=======
+// let assetsLoader = {
+
+//     "player": "player",
+//     "key":"key",
+//     "exit": "exit",
+//     "circleSpike":"circleSpike",
+//     "tiles":"tiles"
+// };
+// let soundsLoader = {
+//     "background": "background",
+//     'upgrade': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/upgrade_2.mp3',
+//     'stretch': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/stretch.mp3',
+//     'shoot': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_3.mp3',
+//     'collect': 'https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/collect_1.mp3',
+// };
+
+// const title = `Missonman`
+// const description = `cross all level.`
+// const instructions =
+//     `Instructions:
+//   1. Click, hold, and drag to aim.
+//   2. Release to shoot.
+//   3. Destroy all obstacles.
+//   4. You have 3 lives.`;
+
+// const orientationSizes = {
+//     "landscape": {
+//         "width": 1440,
+//         "height": 960,
+//     },
+//     "portrait": {
+//         "width": 960,
+//         "height": 1440,
+//     }
+// }
+// const orientation = "landscape";
+
+>>>>>>> 2dc3652 (New Games and updates)
 function displayProgressLoader() {
     let width = 320;
     let height = 50;
@@ -92,13 +132,23 @@ class GameScene extends Phaser.Scene {
           for (const key in _CONFIG.soundsLoader) {
             this.load.audio(key, [_CONFIG.soundsLoader[key]]);
           }
+
           this.load.bitmapFont('pixelfont','https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png','https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
           this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
+
+            
+          this.load.bitmapFont('pixelfont','https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.png','https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/pix.xml');
+          this.load.image("pauseButton", "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/pause.png");
+
+
         
         displayProgressLoader.call(this);
         addEventListenersPhaser.bind(this)();
     }
     dummypreload() {
+
+    
+
         this.load.image('tiles', 'assets/marble.jpg');
         const levelUrls = [
             'https://play.rosebud.ai/assets/level1.json?qvJh',
@@ -117,19 +167,15 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-
-        //for keyboard
-        this.input.keyboard.disableGlobalCapture();
-
-
-
-
-         
-        this.add.image(0, 0, 'background').setOrigin(0, 0).setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
-
-
-
         this.dummypreload();
+
+        this.loadAssets();
+        // this.cameras.main.setZoom(0.8); // Adjust this value to fit your needs
+        // this.cameras.main.setBounds(0, 0, this.currentMap.widthInPixels, this.currentMap.heightInPixels);
+        // this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
+
+
+        
 
         //vfx calling
         this.vfx = new VFXLibrary(this);
@@ -139,7 +185,10 @@ class GameScene extends Phaser.Scene {
             this.sounds[key] = this.sound.add(key, { loop: false, volume: 0.5});
         }
         this.bgMusic = this.sound.add('background', { loop: true }).setVolume(3);
-        this.bgMusic.play();
+
+
+       this.bgMusic.play();
+
         //score  
         this.scoreText = this.add.bitmapText(this.width / 2, 20, 'pixelfont', 'Score: 0', 28).setDepth(11).setTint(0xffa500);
 
@@ -357,7 +406,6 @@ class GameScene extends Phaser.Scene {
             return;
         }
         this.createCircleSpikes();
-        
         if (this.player) {
             this.collider = this.physics.add.collider(this.player, this.groundLayer);
             if (this.wallsLayer) {
@@ -376,7 +424,6 @@ class GameScene extends Phaser.Scene {
             });
         }
     }
-    
 
     checkCircleSpikeCollision() {
         if (this.player && this.circleSpikes.length > 0) {
@@ -413,7 +460,11 @@ class GameScene extends Phaser.Scene {
 
     createCircleSpike(x, y, scale = 1) {
         const circleSpike = this.physics.add.image(x, y, 'circleSpike');
+
         circleSpike.setScale(0.5);
+
+        circleSpike.setScale(scale);
+ 
         circleSpike.setImmovable(true);
         circleSpike.radius = circleSpike.displayWidth / 2;
         return circleSpike;
@@ -570,7 +621,7 @@ class GameScene extends Phaser.Scene {
         this.currentLevelIndex = 0;
         this.startTime = new Date();
         this.createLevel();
-       
+
     }
 
     checkPlayerDeath() {
@@ -649,8 +700,9 @@ class GameScene extends Phaser.Scene {
 
 const config = {
     type: Phaser.AUTO,
-    width: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].width,
-    height: _CONFIG.orientationSizes[_CONFIG.deviceOrientation].height,
+    width: _CONFIG.OrientationSizes[_CONFIG.deviceOrientation].width,
+    height: _CONFIG.OrientationSizes[_CONFIG.deviceOrientation].height,
+
     scene: [GameScene],  
     scale: {
       mode: Phaser.Scale.FIT,
@@ -662,6 +714,8 @@ const config = {
       default: "arcade",
       arcade: {
         gravity: { y: 0 },  
+
+        gravity: { y: 1500 },  // Note: This is different from the original gravity setting
         debug: false,
       },
     },
@@ -670,5 +724,10 @@ const config = {
         description: _CONFIG.description,
         instructions: _CONFIG.instructions,
     },
+
     deviceOrientation: _CONFIG.deviceOrientation==="landscape"
 };
+
+ 
+
+  
