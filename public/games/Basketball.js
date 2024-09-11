@@ -42,6 +42,9 @@ class GameScene extends Phaser.Scene {
 
     create() {
 
+        //for keyboard control
+        this.input.keyboard.disableGlobalCapture();
+
         this.width = this.game.config.width; this.height = this.game.config.height;
         this.vfx = new VFXLibrary(this);
         //======================================================

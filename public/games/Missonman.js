@@ -117,6 +117,18 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+
+        //for keyboard
+        this.input.keyboard.disableGlobalCapture();
+
+
+
+
+         
+        this.add.image(0, 0, 'background').setOrigin(0, 0).setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
+
+
+
         this.dummypreload();
 
         //vfx calling

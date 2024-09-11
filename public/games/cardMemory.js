@@ -27,6 +27,9 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+
+        //for keyboard control
+        this.input.keyboard.disableGlobalCapture();
         this.lives = 6;
         this.vfx = new VFXLibrary(this);
         this.width = this.game.config.width;

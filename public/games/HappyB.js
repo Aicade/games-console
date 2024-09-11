@@ -1,3 +1,40 @@
+function displayProgressLoader() {
+    let width = 320;
+    let height = 50;
+    let x = (this.game.config.width / 2) - 160;
+    let y = (this.game.config.height / 2) - 50;
+
+    const progressBox = this.add.graphics();
+    progressBox.fillStyle(0x222222, 0.8);
+    progressBox.fillRect(x, y, width, height);
+
+    const loadingText = this.make.text({
+        x: this.game.config.width / 2,
+        y: this.game.config.height / 2 + 20,
+        text: 'Loading...',
+        style: {
+            font: '20px monospace',
+            fill: '#ffffff'
+        }
+    }).setOrigin(0.5, 0.5);
+    loadingText.setOrigin(0.5, 0.5);
+
+    const progressBar = this.add.graphics();
+    this.load.on('progress', (value) => {
+        progressBar.clear();
+        progressBar.fillStyle(0x364afe, 1);
+        progressBar.fillRect(x, y, width * value, height);
+    });
+    this.load.on('fileprogress', function (file) {
+
+    });
+    this.load.on('complete', function () {
+        progressBar.destroy();
+        progressBox.destroy();
+        loadingText.destroy();
+    });
+}
+
 // Game Scene
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -58,6 +95,7 @@ class GameScene extends Phaser.Scene {
         const fontName = 'pix';
         const fontBaseURL = "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/fonts/"
         this.load.bitmapFont('pixelfont', fontBaseURL + fontName + '.png', fontBaseURL + fontName + '.xml');
+        displayProgressLoader.call(this);
     }
 
     shootPlayerBullet(pointer, bulletBounces, offset = 0, myGravity = false) {
@@ -192,6 +230,11 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+
+
+        //for Keyboard control
+        this.input.keyboard.disableGlobalCapture();
+
         this.hitCounter = 5;
         this.vfx = new VFXLibrary(this);
 

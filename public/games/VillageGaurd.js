@@ -96,6 +96,9 @@ class GameScene extends Phaser.Scene {
 
     create() {
 
+        //for keyboard
+        this.input.keyboard.disableGlobalCapture();
+
         this.showInstructions();
 
          

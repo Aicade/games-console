@@ -46,6 +46,11 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+
+
+        //for keyboard
+        this.input.keyboard.disableGlobalCapture();
+        
         this.matter.world.setBounds(0, 0, this.game.config.width, this.game.config.height);
         this.graphics = this.add.graphics();
         this.lives = 6;

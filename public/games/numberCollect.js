@@ -42,6 +42,9 @@ class GameScene extends Phaser.Scene {
 
     create() {
 
+        //for keyboard
+        this.input.keyboard.disableGlobalCapture();
+
         isMobile = !this.sys.game.device.os.desktop;
 
         this.width = this.game.config.width;

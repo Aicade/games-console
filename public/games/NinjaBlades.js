@@ -180,6 +180,11 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+
+
+        //for keyboard 
+        this.input.keyboard.disableGlobalCapture();
+        
         this.vfx = new VFXLibrary(this);
 
         this.cursor = this.input.keyboard.createCursorKeys();

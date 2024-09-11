@@ -23,6 +23,7 @@ const prodGamesList = [
     "FlappyBird",
     "FruitNinja",
     "Go-around",
+    "HappyB",
     "Harpoon",
     "HillClimbRacing",
     "Mariobros",
@@ -49,7 +50,9 @@ const prodGamesList = [
     "TossTheCan",
     "TowerDefence(Arcade-shooting-health)",
     "VillageGaurd",
-    "Whack-a-Mole"
+    "Volleyball",
+    "Whack-a-Mole",
+    "WordDice"
 ];
 
 export default prodGamesList;

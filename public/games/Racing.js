@@ -80,6 +80,8 @@ class GameScene extends Phaser.Scene {
 
         this.gamePoint = 0;
         this.spawnDelay = 1500;
+         
+        this.add.image(0, 0, 'background').setOrigin(0, 0).setDisplaySize(this.sys.game.config.width, this.sys.game.config.height);
 
         this.width = this.game.config.width;
         this.height = this.game.config.height;

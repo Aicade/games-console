@@ -45,6 +45,10 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+
+        //for keyboard
+        this.input.keyboard.disableGlobalCapture();
+        
         gameScore = 0;
         gameLevel = 1;
         levelThreshold = 100;

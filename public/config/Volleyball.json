@@ -1,25 +1,23 @@
 {
-    "description": "In Mission Men, navigate through 8 intense levels filled with challenging obstacles, testing your skills and strategy to reach the ultimate goal. Survive each mission to advance and conquer the game!",
+    "description": "This is a Volleyball Game",
     "deviceOrientation": "landscape",
     "imageLoader": {
-        "background":"background",
-        "player": "player",
-        "key":"key",
-        "exit": "exit",
-        "circleSpike":"projectile",
-        "tiles":"tiles"
+        "background": "background",
+    "player": "player",
+    "player_1": "player_1",
+    "collectible": "collectible", 
+    "platform_1":"platform_1",
+    "platform": "platform"
     },
-    "instructions": "Use the arrow keys to move: left and right to dodge obstacles, up to jump, and spacebar for special actions. Master the controls to conquer each level!",
+    "instructions": "Instructions:1. Use LEFT / RIGHT arrow key to move.2. Use UP arrow / Square button to jump",
     "orientationSizes": {
         "landscape": {
-            "width": 1440,
-            "height": 960
-            
+            "height": 720,
+            "width": 1280
         },
         "portrait": {
-            "width": 960,
-            "height": 1440
-            
+            "height": 1280,
+            "width": 720
         }
     },
     "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
@@ -37,5 +35,5 @@
     "stretch": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/shoot_1.mp3",
     "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav"
     },
-    "title": "Missonman"
+    "title": "Volleyball"
   }
