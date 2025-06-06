@@ -1,0 +1,53 @@
+{
+  "title": "Ninja Blades",
+  "description": "Throw Blades.",
+  "instructions": "Instructions: 1.Tap to destory.",
+  "deviceOrientation": "portrait",
+  "imageLoader": {
+    "background": "https://aicade-user-store.s3.amazonaws.com/0306251268/games/KgUw0B1xxrz13Vl2/assets/images/mr%20bullet%20bg.png?t=1743944091149",
+    "enemy": "https://aicade-ui-assets.s3.amazonaws.com/0306251268/games/KgUw0B1xxrz13Vl2/assets/image_2_enemy.webp",
+    "player": "https://aicade-user-store.s3.amazonaws.com/0306251268/games/KgUw0B1xxrz13Vl2/assets/images/new_asset_11.png",
+    "projectile": "https://aicade-ui-assets.s3.amazonaws.com/0306251268/games/KgUw0B1xxrz13Vl2/assets/image_3_collectible.webp"
+  },
+  "soundsLoader": {
+    "background": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/music/bgm-2.mp3",
+    "success": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/success_1.wav",
+    "destroy": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/slice.flac",
+    "lose": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/sfx/lose_1.mp3"
+  },
+  "deviceOrientationSizes": {
+    "landscape": {
+      "height": 720,
+      "width": 1280
+    },
+    "portrait": {
+      "height": 1280,
+      "width": 720
+    }
+  },
+  "phaserUrl": "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js",
+  "phaserVersion": "3.80.1",
+  "orientationSizes": {
+    "landscape": {
+      "height": 720,
+      "width": 1280
+    },
+    "portrait": {
+      "height": 1280,
+      "width": 720
+    }
+  },
+  "mobile_portrait": false,
+  "libLoader": {
+    "cave_ground": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Bricks/s2+Brick+01+Grey.png",
+    "bridge_mid": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Wall/s2+greenish+tile+horizontal.png",
+    "bridge_mid_v": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/textures/Wall/s2+greenish+tile+vertical.png",
+    "next_level": "https://aicade-ui-assets.s3.amazonaws.com/GameAssets/icons/arrow.png",
+    "bomb": "https://aicade-user-store.s3.amazonaws.com/0306251268/games/ZVCvos4iEH44XG5X/assets/images/Bomb_FNPIB.png?t=1743096817209",
+    "hand": "https://aicade-user-store.s3.amazonaws.com/0306251268/games/KgUw0B1xxrz13Vl2/assets/images/newAsset_14.png?t=1743944513822",
+    "gun": "https://aicade-ui-assets.s3.amazonaws.com/0306251268/games/5GVig3hxQHZ44k3Z/assets/image_2_player.webp",
+    "rpg": "https://aicade-user-store.s3.amazonaws.com/0306251268/games/ZVCvos4iEH44XG5X/assets/images/Bomb_FNPIB.png?t=1743096817209",
+    "gunButton": "https://aicade-ui-assets.s3.amazonaws.com/0306251268/games/5GVig3hxQHZ44k3Z/assets/image_2_player.webp",
+    "rpgButton": "https://aicade-user-store.s3.amazonaws.com/0306251268/games/ZVCvos4iEH44XG5X/assets/images/Bomb_FNPIB.png?t=1743096817209"
+  }
+}
